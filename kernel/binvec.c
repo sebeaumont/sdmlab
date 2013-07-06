@@ -20,12 +20,14 @@ typedef unsigned int vector_element_t;
 typedef struct _bvector {
   /* storage */
   /* alignas(128) */ vector_element_t elements[N];
-} *bvector_t;
-   
+} bvector_t;
+  
+/* ensure our pointers are const */
+typedef bvector_t * const bvector; 
 
 /* vector popcount */
     
-const unsigned int count(const bvector_t v) {
+const unsigned int count(const bvector v) {
   unsigned int count = 0;
   for (unsigned int i=0; i < N; ++i)
     count += __builtin_popcount(v->elements[i]);
@@ -35,19 +37,22 @@ const unsigned int count(const bvector_t v) {
     
 /* vector density is weight/capacity or hamming_weight by dimensions in this case */
     
-const double density(const bvector_t v) {
+const double density(const bvector v) {
   return count(v) / (double) (N * sizeof(vector_element_t) * 8);
 }
 
 
-///////////////
-// vector ops 
-///////////////
-
+//////////////////////////////////////////////////////////////////////
+//
+// vector ops N.B. it is required that u =! v in all of these
+// operations i.e. at least if u == v then they are undefined due to
+// the restriction of the respective pointers.
+//
+//////////////////////////////////////////////////////////////////////
 
 /* unitize vector */
     
-void unit(bvector_t v) {
+void unit(bvector v) {
   for (unsigned int i=0; i < N; ++i) {
     v->elements[i] = -1;
   }
@@ -56,7 +61,7 @@ void unit(bvector_t v) {
 
 /* zero vector */
     
-void zero(bvector_t v) {
+void zero(bvector v) {
   for (unsigned int i=0; i < N; ++i) {
     v->elements[i] = 0;
   }
@@ -65,7 +70,7 @@ void zero(bvector_t v) {
     
 /* add accumulate (u |= v) in bvectorspace is or */
     
-void adda(bvector_t v, const bvector_t u) {
+void adda(bvector restrict v, const bvector restrict u) {
   for (unsigned int i=0; i < N; ++i) {
     v->elements[i] |= u->elements[i];
   }
@@ -73,7 +78,7 @@ void adda(bvector_t v, const bvector_t u) {
     
 /* subtraction  u = u & ~v */
     
-void suba(bvector_t v, const bvector_t u) {
+void suba(bvector restrict v, const bvector restrict u) {
   for (unsigned int i=0; i < N; ++i) {
     v->elements[i] &= ~u->elements[i];
   }
@@ -81,17 +86,22 @@ void suba(bvector_t v, const bvector_t u) {
    
 /* multiplication u = u ^ v */
     
-void mula(bvector_t v, const bvector_t u) {
+void mula(bvector restrict v, const bvector restrict u) {
   
   for (unsigned int i=0; i < N; ++i) {
     v->elements[i] ^= u->elements[i];
   }
 }
     
+
+//////////////////
+// vector metrics
+//////////////////
+
     
 /* distance for binary vectorspace: count(u^v) */
 
-const unsigned int distance(const bvector_t v, const bvector_t u) {
+const unsigned int distance(const bvector restrict v, const bvector restrict u) {
   
   vector_element_t tmp[N];
   unsigned int count = 0;
@@ -106,7 +116,7 @@ const unsigned int distance(const bvector_t v, const bvector_t u) {
 
 /* inner for binary vectorspace: count(u&v) */
     
-const unsigned int inner(const bvector_t v, const bvector_t u) {
+const unsigned int inner(const bvector restrict v, const bvector restrict u) {
       
   vector_element_t tmp[N];
   unsigned int count = 0;
@@ -121,7 +131,7 @@ const unsigned int inner(const bvector_t v, const bvector_t u) {
 
 /* countsum for binary vectorspace: count(u|v) */
     
-const unsigned int countsum(const bvector_t v, const bvector_t u) {
+const unsigned int countsum(const bvector restrict v, const bvector restrict u) {
   
   vector_element_t tmp[N];
   unsigned int count = 0;
@@ -136,7 +146,7 @@ const unsigned int countsum(const bvector_t v, const bvector_t u) {
     
 /* similarity */
     
-const double similarity(const bvector_t v, const bvector_t u) {
+const double similarity(const bvector restrict v, const bvector restrict u) {
   unsigned int dims = N * sizeof(vector_element_t) * 8;
   return 1.0 - (distance(v,u) / (double) dims);
 }

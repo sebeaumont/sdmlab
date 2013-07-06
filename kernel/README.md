@@ -10,11 +10,12 @@ Some kind of workflow to investigate/measure:
          clang -emit-llvm -c bitvec.c -o bitvec.bc
          opt -O3 "-make-it-faster" bitvec.bc -o bitvec-opt1.bc
          llvm-dis bitvec-opt1.bc
-         llc -O3 -mcpu=i7-avx -filetype=asm bitvec-opt1.bc -o bitvec-opt1.s
+         llc -O3 -mcpu=corei7-avx -filetype=asm bitvec-opt1.bc -o bitvec-opt1.s
          .
          <normal compile and link>
          .
          .
+         (see Makefile in this directory for how all passes are run)
 
 ________________________
 Internal Research Use Only

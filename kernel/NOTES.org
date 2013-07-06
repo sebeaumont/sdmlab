@@ -1,0 +1,4 @@
+
+* Optimization Notes
+
+opt -O3 -loop-vectorize -force-vector-width=8 -force-vector-unroll=4 binvec.bc -o binvec-opt.bc
