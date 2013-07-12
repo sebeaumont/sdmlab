@@ -19,5 +19,6 @@ executable reptile
   -- other-modules:       
   build-depends:       base ==4.6.*,
                        llvm,
-                       criterion
+                       criterion,
+                       cmdargs
 
