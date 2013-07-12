@@ -3,6 +3,7 @@
 
         kernel - the alligator kernel codes
         compiler - language processor
+        test - timing and instrumentation
         hllvm - submodule -- link to my fork of the Haskell LLVM project
 
 
