@@ -12,3 +12,6 @@ cabal-dev
 Setup.hs
 dist
 config.hpp
+*.ll
+*.o
+a.out

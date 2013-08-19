@@ -4,6 +4,9 @@
 //  Internal Research Use Only
 //
 
+
+#include <stdlib.h> // malloc and free!
+
 /* 
 The idea here is to provide naive and simple implemetations to see
 how our compilers and other otpmizations perform and to make this
@@ -23,6 +26,7 @@ typedef struct _bvector {
 } bvector_t;
   
 /* ensure our pointers are const */
+
 typedef bvector_t * const bvector; 
 
 /* vector popcount */
@@ -34,11 +38,15 @@ const unsigned int count(const bvector v) {
   return count;
 }
 
+/* allocator -- using malloc */
+
+bvector alloc_bvector() {
+  return malloc(sizeof(bvector_t));
+}
     
-/* vector density is weight/capacity or hamming_weight by dimensions in this case */
-    
-const double density(const bvector v) {
-  return count(v) / (double) (N * sizeof(vector_element_t) * 8);
+
+void free_bvector(bvector v) {
+  free(v);
 }
 
 
@@ -66,6 +74,32 @@ void zero(bvector v) {
     v->elements[i] = 0;
   }
 }
+
+/* TODO: randomize */
+
+
+//////////////////////////////
+// convenience constructors //
+//////////////////////////////
+
+bvector zvector() {
+  bvector v = alloc_bvector();
+  zero(v);
+  return v;
+}
+
+bvector uvector() {
+  bvector v = alloc_bvector();
+  unit(v);
+  return v;
+}
+
+/* TODO: random vector */
+
+
+///////////////////////
+// binary operations //
+///////////////////////
 
     
 /* add accumulate (u |= v) in bvectorspace is or */
@@ -97,6 +131,12 @@ void mula(bvector restrict v, const bvector restrict u) {
 //////////////////
 // vector metrics
 //////////////////
+
+/* vector density is weight/capacity or hamming_weight by dimensions in this case */
+    
+const double density(const bvector v) {
+  return count(v) / (double) (N * sizeof(vector_element_t) * 8);
+}
 
     
 /* distance for binary vectorspace: count(u^v) */

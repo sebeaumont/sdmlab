@@ -1,0 +1,4 @@
+// load up a module of bitcode
+
+namespace bvector;
+using "bc:binvec-opt";
