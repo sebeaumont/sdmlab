@@ -2,3 +2,18 @@
 
 namespace bvector;
 using "bc:binvec-opt";
+
+let v1 = zvector;
+density v1;
+
+let v2 = uvector;
+density v2;
+
+similarity v1 v2;
+
+adda v1 v2;
+
+similarity v1 v2;
+
+density v1;
+density v2;
