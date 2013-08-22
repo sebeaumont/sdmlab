@@ -1,0 +1,18 @@
+#+TITLE: Notes for LLVM commands and other such useful stuff
+#+AUTHOR: Simon
+#+DATE: 2013-07-04
+
+* Useful LLVM Commands
+
+#+NAME: Example LLVM Commands
+#+BEGIN_SRC bash
+clang -emit-llvm foo.c -o foo.ll
+llvm-as foo.ll
+opt -O3 foo.bc -o foo-opt.bc
+llc -O3 -mcpu=i7-avx foo-opt.bc -filetype=asm -o foo-opt.s
+#+END_SRC
+
+
+* Optimization Notes
+
+opt -O3 -loop-vectorize -force-vector-width=8 -force-vector-unroll=4 binvec.bc -o binvec-opt.bc
