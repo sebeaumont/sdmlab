@@ -39,6 +39,7 @@ main = do
   funcs <- getModuleValues m
 
   print funcs
+  print (function opts)
   
   let fnn :: Function (Int32 -> IO Int32)
       Just fnn = lookup (function opts) funcs >>= castModuleValue
