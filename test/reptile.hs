@@ -6,7 +6,7 @@ import System.Environment(getArgs)
 import System.Console.CmdArgs
 import System.CPUTime
 import Control.Monad (replicateM)
-
+¯¯
 import Text.Printf
 --import Criterion.Main
 --import Criterion.Config

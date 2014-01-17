@@ -1,19 +1,27 @@
-// load up a module of bitcode
-
 namespace bvector;
+
+using system;
 using "bc:binvec-opt";
 
+// macro to time (short) evaluations
+def timex x = y,(t2-t1)/CLOCKS_PER_SEC when
+                t1 = clock; 
+                y = x; 
+                t2 = clock;
+              end;
+
+
 let v1 = zvector;
-density v1;
+timex (density v1);
 
 let v2 = uvector;
-density v2;
+timex (density v2);
 
-similarity v1 v2;
+timex (similarity v1 v2);
 
-adda v1 v2;
+timex (adda v1 v2);
 
-similarity v1 v2;
+timex (similarity v1 v2);
 
-density v1;
-density v2;
+timex (density v1);
+timex (density v2);
