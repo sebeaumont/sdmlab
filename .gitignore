@@ -7,8 +7,8 @@ xcuserdata
 *.xcworkspace
 *.pyc
 .DS_Store
-.console.log
-cabal-dev
+cabal.sandbox.config
+.cabal-sandbox
 Setup.hs
 dist
 config.hpp
