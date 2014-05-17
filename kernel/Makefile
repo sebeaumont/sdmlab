@@ -5,7 +5,7 @@
 # default target is the optimized object module and the optimized llvm
 # assembly
 
-llvm=3.3
+llvm=3.4
 disasm=llvm-dis-$(llvm)
 optimizer=opt-$(llvm)
 llc=llc-$(llvm)
@@ -15,7 +15,7 @@ cc=clang
 # targets
 #
 
-all:	binvec-opt.o binvec-opt.ll
+all:	binvec-opt.o binvec-opt.ll binvec.ll
 
 binvec.ll:	binvec.bc
 	$(disasm) binvec.bc

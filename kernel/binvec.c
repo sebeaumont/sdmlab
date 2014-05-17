@@ -1,6 +1,6 @@
 //
 //  Created by Datalligator on 12/03/2013.
-//  Copyright (c) 2013 Simon Beaumont. All rights reserved.
+//  Copyright (c) 2011-2014 Simon Beaumont. All Rights Reserved.
 //  Internal Research Use Only
 //
 
@@ -13,6 +13,7 @@ how our compilers and other otpmizations perform and to make this
 basic set of operations portable and JIT compilable
 */
 
+// we can go 64bit or bigger?  
 #define N 1024
 typedef unsigned int vector_element_t;
 
@@ -25,9 +26,9 @@ typedef struct _bvector {
   /* alignas(128) */ vector_element_t elements[N];
 } bvector_t;
   
-/* ensure our pointers are const */
+/* ensure our pointers are not aliased and const */
 
-typedef bvector_t * const bvector; 
+typedef bvector_t * restrict const bvector; 
 
 /* vector popcount */
     
@@ -38,7 +39,7 @@ const unsigned int count(const bvector v) {
   return count;
 }
 
-/* allocator -- using malloc */
+/* allocator -- using malloc -- we need to write out own mmap heap management  */
 
 bvector alloc_bvector() {
   return malloc(sizeof(bvector_t));
