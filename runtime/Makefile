@@ -7,6 +7,7 @@ OPT=llvm-opt-$(LLVM)
 DEBUG=-DDEBUG
 
 # TODO CMAKE build this is juast a hack
+
 SOURCES = Makefile runtime.cpp vectorarray.hpp binary_vectorarray.hpp runtime_exceptions.hpp utils.h unistd_fix.h
 
 runtime.bc:			$(SOURCES)

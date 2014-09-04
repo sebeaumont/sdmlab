@@ -2,8 +2,7 @@
 //  vectorspace.hpp
 //
 //  Created by Simon Beaumont on 27/06/2012.
-//  Copyright (c) 2012, 2013 Simon Beaumont All rights reserved.
-//  Copyright (c) 2013 Datalligator Ltd. All Rights Reserved.
+//  Copyright (c) 2012, 2013, 2014 Simon Beaumont All rights reserved.
 
 #ifndef __VECTORARRAY_HPP__
 #define __VECTORARRAY_HPP__
@@ -237,7 +236,8 @@ namespace dsm {
     void* new_segment = mmap(m_end, extend_size, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_SHARED, m_fd, 0);
     if (new_segment == MAP_FAILED) {throw dsm::error("vectorarray:extend:mmap:strategy1");} // we can try and remap if this fails!
 
-    // TODO madvise...
+    // TODO madvise... be good to see if it affects benchmarks -- maybe conditionalise it?
+
     // update array extents
     m_end += extend_size;
     n_vectors += m; 

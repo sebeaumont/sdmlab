@@ -1,11 +1,10 @@
 'Gator Reasearch Project
 -------------------------
 
-        kernel - the alligator kernel codes
-        compiler - language processor
-        test - timing and instrumentation
-        hllvm - submodule -- link to my fork of the Haskell LLVM project
-
+    kernel - the alligator kernel codes
+    compiler - front-end/language processor repl
+    runtime - runtime library: memory management etc.
+    test - timing and instrumentation
 
 _______________________
 Copyright (c) 2012 Simon Beaumont

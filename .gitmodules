@@ -1,3 +1,0 @@
-[submodule "hllvm"]
-	path = hllvm
-	url = git@github.com:sebeaumont/llvm.git

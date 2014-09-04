@@ -22,7 +22,7 @@ binvec.ll:	binvec.bc
 
 #
 # this is the only bit we need for working code 
-# 
+#  -fslp-vectorize-aggressive might work with clang -- opt doesn't hack it
 binvec.bc:	binvec.c
 	$(cc) -emit-llvm -c binvec.c -o binvec.bc
 
@@ -30,7 +30,7 @@ binvec.bc:	binvec.c
 # optimizer pass - some great loop unrolling stuff here
 #
 binvec-opt.bc: binvec.bc
-	$(optimizer) -O3 -loop-vectorize -force-vector-width=8 -force-vector-unroll=4 binvec.bc -o binvec-opt.bc
+	$(optimizer) -O3 -loop-vectorize -force-vector-width=32 -force-vector-unroll=128 binvec.bc -o binvec-opt.bc
 
 binvec-opt.ll:	binvec-opt.bc
 	$(disasm) binvec-opt.bc

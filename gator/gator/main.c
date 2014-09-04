@@ -12,7 +12,7 @@ int main(int argc, const char * argv[])
 {
 
     // insert code here...
-    printf("Hello, World!\n");
+    printf("Copyright (c) 2014 datalligator. All Rights reserved.\ngator> ");
     return 0;
 }
 

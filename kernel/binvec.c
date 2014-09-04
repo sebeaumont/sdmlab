@@ -10,16 +10,16 @@
 /* 
 The idea here is to provide naive and simple implemetations to see
 how our compilers and other otpmizations perform and to make this
-basic set of operations portable and JIT compilable
+basic set of operations portable and LLVM JIT compatible
 */
 
 // we can go 64bit or bigger?  
 #define N 1024
-typedef unsigned int vector_element_t;
+typedef unsigned vector_element_t;
 
 /*
  * bvector_t
- */ 
+ */
  
 typedef struct _bvector {
   /* storage */
@@ -32,9 +32,9 @@ typedef bvector_t * restrict const bvector;
 
 /* vector popcount */
     
-const unsigned int count(const bvector v) {
-  unsigned int count = 0;
-  for (unsigned int i=0; i < N; ++i)
+const unsigned count(const bvector v) {
+  unsigned count = 0;
+  for (unsigned i=0; i < N; ++i)
     count += __builtin_popcount(v->elements[i]);
   return count;
 }
@@ -62,7 +62,7 @@ void free_bvector(bvector v) {
 /* unitize vector */
     
 void unit(bvector v) {
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     v->elements[i] = -1;
   }
 }
@@ -71,7 +71,7 @@ void unit(bvector v) {
 /* zero vector */
     
 void zero(bvector v) {
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     v->elements[i] = 0;
   }
 }
@@ -106,7 +106,7 @@ bvector uvector() {
 /* add accumulate (u |= v) in bvectorspace is or */
     
 void adda(bvector restrict v, const bvector restrict u) {
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     v->elements[i] |= u->elements[i];
   }
 }
@@ -114,7 +114,7 @@ void adda(bvector restrict v, const bvector restrict u) {
 /* subtraction  u = u & ~v */
     
 void suba(bvector restrict v, const bvector restrict u) {
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     v->elements[i] &= ~u->elements[i];
   }
 }
@@ -123,7 +123,7 @@ void suba(bvector restrict v, const bvector restrict u) {
     
 void mula(bvector restrict v, const bvector restrict u) {
   
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     v->elements[i] ^= u->elements[i];
   }
 }
@@ -142,12 +142,12 @@ const double density(const bvector v) {
     
 /* distance for binary vectorspace: count(u^v) */
 
-const unsigned int distance(const bvector restrict v, const bvector restrict u) {
+const unsigned  distance(const bvector restrict v, const bvector restrict u) {
   
   vector_element_t tmp[N];
-  unsigned int count = 0;
+  unsigned  count = 0;
   
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned  i=0; i < N; ++i) {
     tmp[i] = v->elements[i] ^ u->elements[i];
     count += __builtin_popcount(tmp[i]);
   }  
@@ -157,12 +157,12 @@ const unsigned int distance(const bvector restrict v, const bvector restrict u) 
 
 /* inner for binary vectorspace: count(u&v) */
     
-const unsigned int inner(const bvector restrict v, const bvector restrict u) {
+const unsigned inner(const bvector restrict v, const bvector restrict u) {
       
   vector_element_t tmp[N];
-  unsigned int count = 0;
+  unsigned  count = 0;
   
-  for (register unsigned int i=0; i < N; ++i) {
+  for (unsigned i=0; i < N; ++i) {
     tmp[i] = v->elements[i] & u->elements[i];
     count += __builtin_popcount(tmp[i]);
   }
@@ -172,12 +172,12 @@ const unsigned int inner(const bvector restrict v, const bvector restrict u) {
 
 /* countsum for binary vectorspace: count(u|v) */
     
-const unsigned int countsum(const bvector restrict v, const bvector restrict u) {
+const unsigned  countsum(const bvector restrict v, const bvector restrict u) {
   
   vector_element_t tmp[N];
-  unsigned int count = 0;
+  unsigned count = 0;
   
-  for (unsigned int i=0; i < N; ++i) {
+  for (unsigned i=0; i < N; ++i) {
     tmp[i] = v->elements[i] | u->elements[i];
     count += __builtin_popcount(tmp[i]);
   }
@@ -188,7 +188,7 @@ const unsigned int countsum(const bvector restrict v, const bvector restrict u) 
 /* similarity */
     
 const double similarity(const bvector restrict v, const bvector restrict u) {
-  unsigned int dims = N * sizeof(vector_element_t) * 8;
+  unsigned dims = N * sizeof(vector_element_t) * 8;
   return 1.0 - (distance(v,u) / (double) dims);
 }
     

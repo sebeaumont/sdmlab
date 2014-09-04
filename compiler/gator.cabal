@@ -2,14 +2,14 @@
 --  see http://haskell.org/cabal/users-guide/
 
 name:                gator
-version:             0.1.0.0
+version:             0.0.0.1
 synopsis:            Compiler for Alligator Language
 -- description:         
 license:             AllRightsReserved
 license-file:        LICENSE
 author:              Simon Beaumont
 maintainer:          simon@datalligator.com
--- copyright:           
+copyright:           simon@datalligator.com   
 category:            Language
 build-type:          Simple
 cabal-version:       >=1.8
@@ -17,5 +17,10 @@ cabal-version:       >=1.8
 executable gator
   main-is:             gator.hs
   -- other-modules:       
-  build-depends:       base ==4.6.*
-                       ,llvm
+  build-depends:       base
+                       , llvm-general
+                       , llvm-general-pure
+                       , mtl
+                       , haskeline
+                       , transformers
+
