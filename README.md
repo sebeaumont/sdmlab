@@ -1,12 +1,12 @@
-'Gator Reasearch Project
--------------------------
+Gecko qDSM Project
+-------------------
 
-    kernel - the alligator kernel codes
-    compiler - front-end/language processor repl
+    kernel  - the dsm kernel codes 
+    dsl     - front-end/language processor repl
     runtime - runtime library: memory management etc.
-    test - timing and instrumentation
+    test    - timing and instrumentation
 
 _______________________
-Copyright (c) 2012 Simon Beaumont
+Copyright (c) 2012-2014 Simon Beaumont. All Rights Reserved
 
-Datalligator Internal Reseach Use Only
+Internal Research Use Only

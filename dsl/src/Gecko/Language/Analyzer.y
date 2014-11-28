@@ -8,9 +8,9 @@ import Gecko.Language.AST
 
 %name parse
 %monad { Parse } { thenE } { injectE }
+-- %lexer 
 %tokentype { Token }
 %error { parseError }
-
 
 %token 
 let             { TokenLet }
@@ -45,8 +45,10 @@ Factor
 
 {
 
-parseError :: [Token] -> Parse a
-parseError tokens = failE $ "geckos can't eat that! :" ++ (show tokens)
+parseError :: Token -> Parse a
+parseError token = failE $ "geckos can't eat that! :" ++ (show token)
+
+-- simon`s main wrapper
 
 parser :: IO ()
 parser = getContents >>= print . parse . lexer

@@ -1,3 +1,10 @@
+{-
+   Copyright (c) 2014 Simon Beaumont. Cambridge, England.
+   All Rights Reserved.
+
+   Part of Gecko language analyzer.
+   See: LICENCE for terms and conditions.
+-}
 
 module Gecko.Language.MonadicParser
        ( Parse
@@ -6,11 +13,12 @@ module Gecko.Language.MonadicParser
        , failE
        , catchE
        , injectP
+       , thenP
        , failP
        , catchP
        ) where
 
--- parse error monad 
+-- parse error monad
 data Parse a = OK a | Failed String deriving (Show)
 
 -- bind
@@ -36,7 +44,8 @@ catchE m k =
    Failed e -> k e
 
 
--- threaded lexer 
+-- threaded lexer
+-- what is this type?
 type P a = String -> Parse a
 
 -- bind
@@ -46,16 +55,15 @@ m `thenP` k = \s ->
    OK a -> k a s
    Failed e -> Failed e
 
--- return
+-- return by another name
 injectP :: a -> P a
-injectP a = \s -> OK a
+injectP a _ = OK a
 
 failP :: String -> P a
-failP err = \s -> Failed err
+failP err _ = Failed err
 
 catchP :: P a -> (String -> P a) -> P a
-catchP m k = \s ->
+catchP m k s =
   case m s of
    OK a -> OK a
    Failed e -> k e s
-
