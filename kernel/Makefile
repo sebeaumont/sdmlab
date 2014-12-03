@@ -5,17 +5,18 @@
 # default target is the optimized object module and the optimized llvm
 # assembly
 
-llvm=3.4
-disasm=llvm-dis-$(llvm)
-optimizer=opt-$(llvm)
-llc=llc-$(llvm)
+#llvm=3.5
+disasm=llvm-dis
+as=llvm-as
+optimizer=opt
+llc=llc
 cc=clang
 
 #
 # targets
 #
 
-all:	binvec-opt.o binvec-opt.ll binvec.ll
+all:	binvec-opt.ll binvec.ll
 
 binvec.ll:	binvec.bc
 	$(disasm) binvec.bc
@@ -39,13 +40,13 @@ binvec-opt.ll:	binvec-opt.bc
 # have a peek at the generated code -- we really use JIT for portability
 # make sure it's AT&T assembler syntax (this is default for x86)
 
-binvec-opt.s:	binvec-opt.bc
-	$(llc) -O3 -filetype=asm -mcpu=corei7-avx binvec-opt.bc
+#binvec-opt.s:	binvec-opt.bc
+#	$(llc) -O3 -filetype=asm -mcpu=corei7-avx binvec-opt.bc
 
 # object code for benchmarking vs. jit vs. reference
 
-binvec-opt.o:	binvec-opt.s
-	$(cc) -c -o binvec-opt.o binvec-opt.s
+#binvec-opt.o:	binvec-opt.s
+#	$(cc) -c -o binvec-opt.o binvec-opt.s
 
 
 # clean up generated files
