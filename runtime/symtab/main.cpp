@@ -6,41 +6,74 @@
 //  Copyright (c) 2014 Simon Beaumont. All rights reserved.
 //
 
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/allocators/allocator.hpp>
-#include <boost/interprocess/managed_mapped_file.hpp>
-#include <boost/interprocess/containers/string.hpp>
-#include <boost/interprocess/containers/map.hpp>
-
 #include <iostream>
+#include <boost/algorithm/string.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <boost/date_time/microsec_time_clock.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
+
+#include "table.hpp"
 
 
-int symbol_table(size_t size) {
+// timing code
+class timer {
 
-  //using namespace boost;
-  using namespace boost::interprocess;
-  typedef managed_shared_memory::allocator<char>::type char_allocator;
-  typedef basic_string<char, std::char_traits<char>, char_allocator> shm_string;
+public:
+
+  timer(const std::string & name) : name(name), start(boost::date_time::microsec_clock<boost::posix_time::ptime>::local_time()) {}
+
+  const std::size_t get_elapsed_micros() {
+    using namespace std;
+    using namespace boost;
+    
+    posix_time::ptime now(date_time::microsec_clock<posix_time::ptime>::local_time());
+    posix_time::time_duration d = now - start;
+    
+    return d.total_microseconds();
+  }
+  
+private:
+  std::string name;
+  boost::posix_time::ptime start;
+};
+
+
+
+int main(int argc, const char** argv) {
 
   /*
-  struct symbol {
-    size_t id;
-    shm_string name;
-
-    symbol(size_t id_, const char* name_, const char_allocator& a) : id(id_), name(name_, a) {}
-  };
+  using namespace boost::interprocess;
+  struct shm_remove {
+    shm_remove() { shared_memory_object::remove("test-words"); }
+    ~shm_remove() { shared_memory_object::remove("test-words"); }
+  } remover;
   */
-
   
-  wmanaged_mapped_file mfile(open_or_create, "test0", size); // eh?
-  return(1);
+  using gecko::symtab::table;
+  std::cout << "table loader test!\n";
+  table mytable("test-words", 1024*1024*100);
+
+  std::string line;
+  std::size_t n = 0;
+
+  timer mytimer("load");
+  
+  // read terms from stdin and insert into table
+  while (std::getline(std::cin, line)) {
+    boost::trim(line);
+    //std::cout << line << "\t" << n << std::endl;
+    mytable.insert(line.c_str(), n);
+    n++;
+  }
+  
+  std::cout << "inserted: " << n << " records in: " << mytimer.get_elapsed_micros() << std::endl;
+  
+  table::map_t* map = mytable.get_map();
+
+  for( table::map_t::const_iterator iter = map->begin(); iter != map->end(); ++iter ) {
+    std::cout << iter->first << " <--> " << iter->second << std::endl;
+  }
+
+   return 0;
 }
 
-
-int main(int argc, const char * argv[]) {
-  std::cout << "Table loader test!\n";
-
-  int x = symbol_table(1024*1024*10);
-  
-  return 0;
-}

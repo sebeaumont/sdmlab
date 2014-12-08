@@ -11,7 +11,7 @@ add_definitions("-O3")
 #add_definitions("-mavx")
 
 add_executable (loadtest main.cpp)
-add_executable (bimaptest bimap.cpp)
-add_executable (miitest multiindex.cpp)
+#add_executable (miitest multiindex.cpp)
+#add_executable (books bookdb.cpp)
 
 #target_link_libraries(test)
