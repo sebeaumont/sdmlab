@@ -40,17 +40,10 @@ private:
 
 
 int main(int argc, const char** argv) {
-
-  /*
-  using namespace boost::interprocess;
-  struct shm_remove {
-    shm_remove() { shared_memory_object::remove("test-words"); }
-    ~shm_remove() { shared_memory_object::remove("test-words"); }
-  } remover;
-  */
   
   using gecko::symtab::table;
-  std::cout << "table loader test!\n";
+
+  std::cout << "table loader test:" << std::endl;
   table mytable("test-words", 1024*1024*100);
 
   std::string line;
@@ -62,16 +55,15 @@ int main(int argc, const char** argv) {
   while (std::getline(std::cin, line)) {
     boost::trim(line);
     //std::cout << line << "\t" << n << std::endl;
-    mytable.insert(line.c_str(), n);
+    mytable.insert(line, n);
     n++;
   }
   
   std::cout << "inserted: " << n << " records in: " << mytimer.get_elapsed_micros() << std::endl;
   
-  table::map_t* map = mytable.get_map();
 
-  for( table::map_t::const_iterator iter = map->begin(); iter != map->end(); ++iter ) {
-    std::cout << iter->first << " <--> " << iter->second << std::endl;
+  for(table::const_iterator iter = mytable.begin(); iter != mytable.end(); ++iter ) {
+    std::cout << *iter;
   }
 
    return 0;
