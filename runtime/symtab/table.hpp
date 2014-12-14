@@ -72,24 +72,41 @@ namespace gecko {
       }
 
 
-      inline void insert(const std::string& k, const id_t& i) {
-        shared_string_t sym(k.c_str(), shared_string_t::allocator_type(segment.get_segment_manager()));
-        db->insert(symbol(sym, i));
-      }
-
 
       ~table() {
         // should we remove the shared_memory_object (by name) here as well?
         segment.flush();
       }
+
+      // insertion
+      inline void insert(const std::string& k, const id_t& i) {
+        shared_string_t sym(k.c_str(), shared_string_t::allocator_type(segment.get_segment_manager()));
+        db->insert(symbol(sym, i));
+      }
+
+      // lookups
+      typedef symbol_table_t::nth_index<0>::type symbol_by_name;
       
-      // rather do this
+      symbol_by_name::iterator get_symbol(const std::string& k) {
+        shared_string_t sym(k.c_str(), shared_string_t::allocator_type(segment.get_segment_manager()));
+        return db->get<0>().find(sym);  
+      }
+      
+      // delegated iterators
 
       typedef symbol_table_t::iterator iterator;
       typedef symbol_table_t::const_iterator const_iterator;
       inline iterator begin() { return db->begin(); }
       inline iterator end() { return db->end(); }
+
+      // delegated properties
       
+      size_t size() { return segment.get_size(); }
+      size_t get_free() { return segment.get_free_memory(); }
+      bool check_sanity() { return segment.check_sanity(); }
+      size_t entries() { return db->size(); }
+      
+      // TODO: shrink_to_fit, grow
       
     private:    
       const char *name; 
