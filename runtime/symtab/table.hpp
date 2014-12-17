@@ -46,7 +46,7 @@ namespace gecko {
         symbol(const shared_string_t& s, const id_t& i) : name(s), id(i), flags(NEW) {}
 
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << "(" << s.name << ", " << s.id << ", " << s.flags << ")" << std::endl;
+          os << "(" << s.name << ", " << s.id << ", " << s.flags << ")";
           return os;
         }
       };
