@@ -12,8 +12,8 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
+//#include <boost/filesystem.hpp>
+//#include <boost/optional.hpp>
 #include "table.hpp"
 
 
@@ -64,6 +64,17 @@ void tokenize_command(const std::string& s, std::vector<std::string>& o) {
   }
 }
 
+// quck and dirty file existence check avoiding boost::system/filesystem libraries
+
+inline bool file_exists(const char *path) {
+  return std::ifstream(path).good();
+}
+
+inline bool file_exists(std::string& path) {
+  return std::ifstream(path).good();
+}
+
+
 ////////////////////////////////
 // entry point and command line
 
@@ -80,9 +91,9 @@ int main(int argc, const char** argv) {
   desc.add_options()
     ("help", "Gecko qdsm symbol table test utility")
     ("size", po::value<std::size_t>(&requested_size)->default_value(0),
-     "requested size for table in bytes")
+     "requested size for table in Mbytes")
     ("name", po::value<std::string>(),
-     "name (can be a path)");
+     "name (should be a valid path)");
 
   po::variables_map opts;
   po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), opts);
@@ -98,13 +109,16 @@ int main(int argc, const char** argv) {
 
   std::string tablename(opts["name"].as<std::string>());
 
-  if (!boost::filesystem::exists(tablename) && requested_size == 0) {
+  if (!file_exists(tablename) && requested_size == 0) {
     std::cout << "cannot create new table: " << tablename
               << " with: " << requested_size << " bytes" << std::endl;
     return 5;
   }
   
-  // todo sizing and stuff...
+  // convert to bytes
+  requested_size = requested_size * (1024 * 1024); 
+  
+  // xxx todo sizing and stuff...
   
   table mytable(tablename, requested_size);
   
@@ -126,13 +140,14 @@ int main(int argc, const char** argv) {
 
     if (cv.size() > 1) {  
       // assume we have a command
-      timer mytimer("command timer");
       
       // dispatch command
       if (boost::iequals(cv[0], "=")) {
-        // this is bogus we would get the index from the varray allocator
-        // N.B. insertion suceeds even if the symbol already exists in the table 
+
+        // N.B. insertion suceeds even if the symbol already exists in the table
+        // wee need to guard this but not in the fast insert!
         mytable.insert(cv[1], lastindex++);
+
         // lookup the inserted symbol
         if (auto sym = mytable.get_symbol(cv[1]))
           std::cout << *sym << std::endl;
@@ -141,8 +156,23 @@ int main(int argc, const char** argv) {
         
       } else if (boost::iequals(cv[0], "<")) {
         
-        ; // load file
-        std::cout << mytimer << cv[0] << std::endl;
+        ; // load symbols from file
+        std::ifstream ins(cv[1]);
+        
+        if (ins.good()) {
+          std::string fline;
+          int n = 0;
+          timer mytimer("load timer");
+          
+          while(std::getline(ins, fline)) {
+            boost::trim(fline);
+            mytable.insert(fline, lastindex++);
+            n++;
+          }
+          std::cout << mytimer << " loaded: " << n << std::endl; 
+        } else {
+          std::cout << "can't open: " << cv[0] << std::endl;
+        }
         
       } else if (boost::iequals(cv[0], ">")) {
         ; // export file
@@ -154,7 +184,7 @@ int main(int argc, const char** argv) {
         std::cout << "syntax error:" << input << std::endl;
 
       
-    } else {
+    } else if (cv.size() > 0) {
       // default to lookup if no args
       if (auto sym = mytable.get_symbol(cv[0]))
         std::cout << *sym << std::endl;

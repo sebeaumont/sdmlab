@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 
-find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
+#find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
+find_package(Boost REQUIRED COMPONENTS program_options)
 include_directories (${Boost_INCLUDE_DIR})
 
 # modern c++ please
