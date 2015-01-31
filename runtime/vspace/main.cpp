@@ -79,9 +79,10 @@ inline bool file_exists(std::string& path) {
 // entry point and command line
 
 int main(int argc, const char** argv) {
-  
+
+  namespace bip = boost::interprocess;
   namespace po = boost::program_options;
-  using gecko::symtab::table;
+  namespace gs = gecko::symtab;
 
   std::size_t requested_size;
   po::options_description desc("Allowed options");
@@ -119,8 +120,8 @@ int main(int argc, const char** argv) {
   requested_size = requested_size * (1024 * 1024); 
   
   // xxx todo sizing and stuff...
-  
-  table mytable(tablename, requested_size);
+  gs::segment_t segment(bip::open_or_create, "gecko.dat", requested_size);  
+  gs::table mytable(tablename, segment);
   
   std::cout << mytable << std::endl;
   

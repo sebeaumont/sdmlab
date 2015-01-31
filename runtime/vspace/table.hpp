@@ -25,13 +25,14 @@ namespace gecko {
 
   namespace symtab {
 
+    typedef bip::managed_mapped_file                         segment_t;
     // memory mapped file based symbol table
     
     class table final {
       
       // managed segments and allocator types
       
-      typedef bip::managed_mapped_file                         segment_t;
+
       typedef segment_t::segment_manager                       segment_manager_t;
 
       typedef bip::allocator<void, segment_manager_t>          void_allocator_t;
@@ -96,11 +97,10 @@ namespace gecko {
       
     public:
       
-      // TODO: the segment is a global memory mapped file we need to share this across multiple namespaces
-      // so we need a global singleton to save it in (shared pointer?) and initialize once
-      
-      table(const std::string& s, const size_t& size)
-        : name(s.c_str()), segment(boost::interprocess::open_or_create, "gecko.dat", size), allocator(segment.get_segment_manager()) {
+      // the segment is a global memory mapped file we need to share this across multiple namespaces
+            
+      table(const std::string& s, segment_t& m)
+        : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol table
         db = segment.find_or_construct<symbol_table_t>(name)(allocator);
       }
@@ -191,7 +191,7 @@ namespace gecko {
     private:    
       const char*          name; 
       symbol_table_t*      db;
-      segment_t            segment;
+      segment_t&           segment;
       void_allocator_t     allocator;
     };
     
