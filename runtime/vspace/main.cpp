@@ -121,7 +121,7 @@ int main(int argc, const char** argv) {
   
   // xxx todo sizing and stuff...
   gs::segment_t segment(bip::open_or_create, "gecko.dat", requested_size);  
-  gs::table mytable(tablename, segment);
+  gs::table<unsigned int, 512, 16> mytable(tablename, segment);
   
   std::cout << mytable << std::endl;
   

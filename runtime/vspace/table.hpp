@@ -25,13 +25,13 @@ namespace gecko {
 
   namespace symtab {
 
-    typedef bip::managed_mapped_file                         segment_t;
+    typedef bip::managed_mapped_file segment_t;
+
     // memory mapped file based symbol table
-    
+    template <typename T, std::size_t N, std::size_t S> 
     class table final {
       
       // managed segments and allocator types
-      
 
       typedef segment_t::segment_manager                       segment_manager_t;
 
@@ -41,30 +41,35 @@ namespace gecko {
       typedef bip::basic_string<char, std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       
       // vectors of int allocated in the segment
-      typedef bip::allocator<unsigned int, segment_manager_t>  uint_allocator_t;
-      typedef bip::vector<unsigned int, uint_allocator_t>      uint_vector_t;
-      typedef bip::allocator<uint_vector_t, segment_manager_t> uint_vector_allocator_t;
+      typedef bip::allocator<T, segment_manager_t>             bitv_allocator_t;
+      typedef bip::vector<T, bitv_allocator_t>                 bitv_vector_t;
+      typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
 
       // id and status 
       typedef std::size_t id_t;
-      enum status_t {NEW, USED, OLD, FREE};
+      enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
 
       // symbols stored in the shared multi_index container
+
+      // TODO feasibility of several types of symbol: semantic vectors, elemental vectors and joint
+      // to ease storage
       
       struct symbol final {
         
         shared_string_t name;
-        id_t id;
+        id_t id; // maybe redundant -- also index
         status_t flags;
-        uint_vector_t bits;
+        bitv_vector_t semv;
+        bitv_vector_t elev;
 
-        symbol(const char* s, const id_t& i, const void_allocator_t& void_alloc) : name(s, void_alloc), id(i), flags(NEW), bits(512, 0, void_alloc) {}
+        // construct a symbol in the table XXX TODO elev needs random entries
         
-        // constructor requires a shared string
-        //symbol(const shared_string_t& s, const id_t& i) : name(s), id(i), flags(NEW), bits(void_allocator_t) {}
+        symbol(const char* s, const id_t& i, const void_allocator_t& void_alloc)
+          : name(s, void_alloc), id(i), flags(NEW), semv(N, 0, void_alloc), elev(S, 0, void_alloc) {}
+        
 
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << "(" << s.name << ", " << s.id << ", " << s.flags << ", " << s.bits.size() << ")";
+          os << "(" << s.name << ", " << s.id << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
           return os;
         }
       };
@@ -74,6 +79,7 @@ namespace gecko {
       typedef bip::allocator<symbol, segment_manager_t> symbol_allocator_t;
       
       // shared memory mapped multi index container type with it's indexes
+      // TODO add non_unique name prefix btree/rb index
       
       typedef multi_index_container<
         symbol,
@@ -98,6 +104,8 @@ namespace gecko {
     public:
       
       // the segment is a global memory mapped file we need to share this across multiple namespaces
+      // that is not enforced here but relies on caller doing so
+      // TODO factory to do this...
             
       table(const std::string& s, segment_t& m)
         : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
@@ -133,16 +141,16 @@ namespace gecko {
         db->insert(symbol(k.c_str(), i, allocator));
       }
 
-      
+      // todo put these implementations in cpp file?
       // xxx not sure how expensive these optional values are at runtime
-
+      
       // lookup by name
       
       inline boost::optional<const symbol&> get_symbol(const char* k) {
-        typedef symbol_table_t::nth_index<0>::type symbol_by_name;
+        typedef typename symbol_table_t::template nth_index<0>::type symbol_by_name;
         
-        symbol_by_name& name_idx = db->get<0>();
-        symbol_by_name::iterator i = name_idx.find(shared_string(k));
+        symbol_by_name &name_idx = db->template get<0>();
+        typename symbol_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
       }
@@ -150,10 +158,10 @@ namespace gecko {
       // lookup by name
 
       inline boost::optional<const symbol&> get_symbol(const std::string& k) {
-        typedef symbol_table_t::nth_index<0>::type symbol_by_name;
+        typedef typename symbol_table_t::template nth_index<0>::type symbol_by_name;
         
-        symbol_by_name& name_idx = db->get<0>();
-        symbol_by_name::iterator i = name_idx.find(shared_string(k));
+        symbol_by_name& name_idx = db->template get<0>();
+        typename symbol_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
       }
@@ -161,10 +169,10 @@ namespace gecko {
       // lookup by index
 
       inline boost::optional<const symbol&> get_symbol(const id_t& k) {
-        typedef symbol_table_t::nth_index<1>::type symbol_by_id;
+        typedef typename symbol_table_t::template nth_index<1>::type symbol_by_id;
         
-        symbol_by_id& id_idx = db->get<1>(); 
-        symbol_by_id::iterator i = id_idx.find(k);
+        symbol_by_id& id_idx = db->template get<1>(); 
+        typename symbol_by_id::iterator i = id_idx.find(k);
         if (i == id_idx.end()) return boost::none;
         else return *i;
       }
@@ -173,8 +181,8 @@ namespace gecko {
       
       // delegated iterators
 
-      typedef symbol_table_t::iterator iterator;
-      typedef symbol_table_t::const_iterator const_iterator;
+      typedef typename symbol_table_t::iterator iterator;
+      typedef typename symbol_table_t::const_iterator const_iterator;
       
       inline iterator begin() { return db->begin(); }
       inline iterator end() { return db->end(); }
