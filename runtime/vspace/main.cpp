@@ -125,7 +125,7 @@ int main(int argc, const char** argv) {
   
   std::cout << mytable << std::endl;
   
-  int lastindex = mytable.entries();
+  //int lastindex = mytable.entries();
   
   std::string prompt("Ψ> ");
   std::string input;
@@ -145,15 +145,14 @@ int main(int argc, const char** argv) {
       // dispatch command
       if (boost::iequals(cv[0], "=")) {
 
-        // N.B. insertion suceeds even if the symbol already exists in the table
-        // wee need to guard this but not in the fast insert!
-        mytable.insert(cv[1], lastindex++);
+        // N.B. AFAIK insertion suceeds even if the symbol already exists in the table
+        mytable.insert(cv[1]);
 
         // lookup the inserted symbol
         if (auto sym = mytable.get_symbol(cv[1]))
           std::cout << *sym << std::endl;
         else
-          std::cout << cv[1] << ": not found!" << std::endl;
+          std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
         
       } else if (boost::iequals(cv[0], "<")) {
         
@@ -167,7 +166,7 @@ int main(int argc, const char** argv) {
           
           while(std::getline(ins, fline)) {
             boost::trim(fline);
-            mytable.insert(fline, lastindex++);
+            mytable.insert(fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
@@ -187,10 +186,18 @@ int main(int argc, const char** argv) {
       
     } else if (cv.size() > 0) {
       // default to lookup if no args
+      /*
       if (auto sym = mytable.get_symbol(cv[0]))
-        std::cout << *sym << std::endl;
+       
       else
-        std::cout << cv[0] << ": not found!" << std::endl;
+        std::cout << cv[0] << ": not found" << std::endl;
+      */
+      
+      for (auto ip = mytable.search_symbol(cv[0]); ip.first != ip.second; ++ip.first) {
+        //std::copy(ip.first, ip.second, std::ostream_iterator<gs::table::symbol>(std::cout));
+        std::cout << *(ip.first) << std::endl;
+      }
+      
     }
     
     std::cout << prompt;  

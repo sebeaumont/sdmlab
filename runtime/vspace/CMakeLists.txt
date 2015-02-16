@@ -8,8 +8,11 @@ include_directories (${Boost_INCLUDE_DIR})
 add_definitions("-std=c++11")
 # YMMV so this where we tune for our target/platform
 add_definitions("-O3")
-
-#add_definitions("-mavx")
+add_definitions("-mavx")
+add_definitions("-funroll-loops")
+add_definitions("-fvectorize")
+add_definitions("-fslp-vectorize")
+add_definitions("-fslp-vectorize-aggressive")
 
 add_executable (stable main.cpp)
 target_link_libraries(stable ${Boost_LIBRARIES})

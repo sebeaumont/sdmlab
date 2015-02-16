@@ -45,8 +45,7 @@ namespace gecko {
       typedef bip::vector<T, bitv_allocator_t>                 bitv_vector_t;
       typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
 
-      // id and status 
-      typedef std::size_t id_t;
+      // status 
       enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
 
       // symbols stored in the shared multi_index container
@@ -57,35 +56,68 @@ namespace gecko {
       struct symbol final {
         
         shared_string_t name;
-        id_t id; // maybe redundant -- also index
         status_t flags;
         bitv_vector_t semv;
         bitv_vector_t elev;
 
         // construct a symbol in the table XXX TODO elev needs random entries
         
-        symbol(const char* s, const id_t& i, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), id(i), flags(NEW), semv(N, 0, void_alloc), elev(S, 0, void_alloc) {}
+        symbol(const char* s, const void_allocator_t& void_alloc)
+          : name(s, void_alloc), flags(NEW), semv(N, 0, void_alloc), elev(S, 0, void_alloc) {}
         
 
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << "(" << s.name << ", " << s.id << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
+          os << "(" << s.name << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
           return os;
+        }
+
+        // TODO symbol operations -- working at vector level
+
+        void superpose(const symbol& other) {
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i = 0; i < N; ++i) {
+            semv[i] |= other.elev[i];
+          }
         }
       };
 
+            
       // symbol allocator
    
       typedef bip::allocator<symbol, segment_manager_t> symbol_allocator_t;
+
+
+      // partial strings XXX I wonder if this could be more efficient than having to create
+      // shared strings and partial strings by comparing shared strings with regular strings
+      
+      struct partial_string {
+        partial_string(const shared_string_t& str) : str(str){}
+        shared_string_t str;
+      };
+
+      struct partial_string_less {
+        bool operator() (const shared_string_t& x, const shared_string_t& y) const {
+          return x<y;
+        }
+
+        bool operator()(const shared_string_t& x,const partial_string& y) const {
+          return x.substr(0,y.str.size())<y.str;
+        }
+
+        bool operator()(const partial_string& x,const shared_string_t& y) const {
+          return x.str<y.substr(0,x.str.size());
+        }
+      };
+
       
       // shared memory mapped multi index container type with it's indexes
-      // TODO add non_unique name prefix btree/rb index
+      // TODO add non_unique name prefix btree/rb index XXX under construction
       
       typedef multi_index_container<
         symbol,
         indexed_by<
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name)>,
-          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, id_t, id)>
+          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name), partial_string_less>
           >, symbol_allocator_t
         > symbol_table_t;
 
@@ -131,14 +163,17 @@ namespace gecko {
 
       friend std::ostream& operator<<(std::ostream& os, table& t) {
         os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.tablename()
-           << "[" << t.entries() << "] " <<  t.size() - t.get_free() << "/" << t.get_free() << "=" << t.size() << ")";
+           << "[" << t.entries()
+           << "] U: " <<  (float) (t.size() - t.get_free()) / (1024 * 1024)
+           << " F: " << (float) t.get_free() / (1024*1024)
+           << " T: " << (float) t.size() / (1024*1024) << ")";
         return os;
       }  
 
       // insertion
       
-      inline void insert(const std::string& k, const id_t& i) {
-        db->insert(symbol(k.c_str(), i, allocator));
+      inline void insert(const std::string& k) {
+        db->insert(symbol(k.c_str(), allocator));
       }
 
       // todo put these implementations in cpp file?
@@ -166,26 +201,34 @@ namespace gecko {
         else return *i;
       }
 
-      // lookup by index
+      
+      // search by name -- prefix lookup XXX under construction this doesn't do any string comparisons as yet.
 
-      inline boost::optional<const symbol&> get_symbol(const id_t& k) {
-        typedef typename symbol_table_t::template nth_index<1>::type symbol_by_id;
-        
-        symbol_by_id& id_idx = db->template get<1>(); 
-        typename symbol_by_id::iterator i = id_idx.find(k);
-        if (i == id_idx.end()) return boost::none;
-        else return *i;
+      typedef typename symbol_table_t::template nth_index<1>::type symbol_by_prefix;  
+      typedef typename symbol_by_prefix::iterator symbol_iterator;
+
+      /*
+      inline std::pair<iterator, iterator> search_symbol(const char* k) {
+        symbol_by_prefix& name_idx = db->template get<1>();
+        return name_idx.equal_range(shared_string(k), prefix_equal());
+      }
+      */
+      
+      inline std::pair<symbol_iterator, symbol_iterator> search_symbol(const std::string& k) {
+        symbol_by_prefix& name_idx = db->template get<1>();
+        return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
-      // XXX todo prefix btree/rb index lookup
-      
       // delegated iterators
 
       typedef typename symbol_table_t::iterator iterator;
       typedef typename symbol_table_t::const_iterator const_iterator;
-      
+
       inline iterator begin() { return db->begin(); }
       inline iterator end() { return db->end(); }
+
+      // symbol name index
+      //inline symbol_by_prefix& index() { return db->template get<1>(); } 
 
       // delegated properties
       
@@ -194,6 +237,7 @@ namespace gecko {
       inline const bool check_sanity() { return segment.check_sanity(); }
       inline const size_t entries() { return db->size(); }
       inline const char* tablename() const { return name; }
+
       // TODO: shrink_to_fit, grow
       
     private:    
