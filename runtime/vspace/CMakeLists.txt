@@ -15,6 +15,7 @@ add_definitions("-fslp-vectorize")
 add_definitions("-fslp-vectorize-aggressive")
 
 add_executable (gecko main.cpp)
+add_executable (refact test.cpp)
 target_link_libraries(gecko ${Boost_LIBRARIES})
 
 

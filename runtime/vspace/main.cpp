@@ -80,7 +80,7 @@ inline bool file_exists(std::string& path) {
 
 int main(int argc, const char** argv) {
 
-  namespace bip = boost::interprocess;
+  //namespace bip = boost::interprocess;
   namespace po = boost::program_options;
   namespace gs = gecko::vspace;
 
