@@ -14,8 +14,8 @@ add_definitions("-fvectorize")
 add_definitions("-fslp-vectorize")
 add_definitions("-fslp-vectorize-aggressive")
 
-add_executable (stable main.cpp)
-target_link_libraries(stable ${Boost_LIBRARIES})
+add_executable (gecko main.cpp)
+target_link_libraries(gecko ${Boost_LIBRARIES})
 
 
 

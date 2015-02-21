@@ -14,7 +14,7 @@
 #include <boost/program_options.hpp>
 //#include <boost/filesystem.hpp>
 //#include <boost/optional.hpp>
-#include "table.hpp"
+#include "space.hpp"
 
 
 // wall clock timer
@@ -82,7 +82,7 @@ int main(int argc, const char** argv) {
 
   namespace bip = boost::interprocess;
   namespace po = boost::program_options;
-  namespace gs = gecko::symtab;
+  namespace gs = gecko::vspace;
 
   std::size_t requested_size;
   po::options_description desc("Allowed options");
@@ -119,9 +119,14 @@ int main(int argc, const char** argv) {
   // convert to bytes
   requested_size = requested_size * (1024 * 1024); 
   
+  // space/table type
+  typedef gs::space<unsigned int, 512, 16> table_t; 
+
   // xxx todo sizing and stuff...
-  gs::segment_t segment(bip::open_or_create, "gecko.dat", requested_size);  
-  gs::table<unsigned int, 512, 16> mytable(tablename, segment);
+  gs::segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
+
+  // create a space table
+  table_t mytable(tablename, segment);
   
   std::cout << mytable << std::endl;
   
@@ -149,7 +154,7 @@ int main(int argc, const char** argv) {
         mytable.insert(cv[1]);
 
         // lookup the inserted symbol
-        if (auto sym = mytable.get_symbol(cv[1]))
+        if (auto sym = mytable.get(cv[1]))
           std::cout << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
@@ -185,19 +190,9 @@ int main(int argc, const char** argv) {
 
       
     } else if (cv.size() > 0) {
-      // default to lookup if no args
-      /*
-      if (auto sym = mytable.get_symbol(cv[0]))
-       
-      else
-        std::cout << cv[0] << ": not found" << std::endl;
-      */
-      
-      for (auto ip = mytable.search_symbol(cv[0]); ip.first != ip.second; ++ip.first) {
-        //std::copy(ip.first, ip.second, std::ostream_iterator<gs::table::symbol>(std::cout));
-        std::cout << *(ip.first) << std::endl;
-      }
-      
+      // default to search if no args
+      auto ip = mytable.search(cv[0]);
+      std::copy(ip.first, ip.second, std::ostream_iterator<table_t::vector>(std::cout, "\n"));
     }
     
     std::cout << prompt;  

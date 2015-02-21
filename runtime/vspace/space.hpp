@@ -1,5 +1,5 @@
 /***************************************************************************
- * table.hpp - symbol table (part of the Gecko qdsm environment)
+ * space.hpp - symbol table container  (part of the Gecko qdsm environment)
  *
  * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.
@@ -23,13 +23,13 @@ namespace bip = boost::interprocess;
 
 namespace gecko {
 
-  namespace symtab {
+  namespace vspace {
 
     typedef bip::managed_mapped_file segment_t;
 
     // memory mapped file based symbol table
     template <typename T, std::size_t N, std::size_t S> 
-    class table final {
+    class space final {
       
       // managed segments and allocator types
 
@@ -60,18 +60,20 @@ namespace gecko {
         bitv_vector_t semv;
         bitv_vector_t elev;
 
-        // construct a symbol in the table XXX TODO elev needs random entries
+        // construct a symbol in the space
         
         symbol(const char* s, const void_allocator_t& void_alloc)
           : name(s, void_alloc), flags(NEW), semv(N, 0, void_alloc), elev(S, 0, void_alloc) {}
         
-
+        // symbol printer
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << "(" << s.name << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
+          os << "(" << s.name << ", " << s.flags << ", "
+             << s.semv.size() << ", " << s.elev.size() << ")";
           return os;
         }
 
-        // TODO symbol operations -- working at vector level
+        
+      public:
 
         void superpose(const symbol& other) {
           #pragma clang loop vectorize(enable) interleave(enable)
@@ -79,6 +81,8 @@ namespace gecko {
             semv[i] |= other.elev[i];
           }
         }
+
+        // ... under construction
       };
 
             
@@ -86,17 +90,16 @@ namespace gecko {
    
       typedef bip::allocator<symbol, segment_manager_t> symbol_allocator_t;
 
-
       // partial strings XXX I wonder if this could be more efficient than having to create
       // shared strings and partial strings by comparing shared strings with regular strings
       
       struct partial_string {
-        partial_string(const shared_string_t& str) : str(str){}
+        partial_string(const shared_string_t& str) : str(str) {}
         shared_string_t str;
       };
 
       struct partial_string_less {
-        bool operator() (const shared_string_t& x, const shared_string_t& y) const {
+        bool operator()(const shared_string_t& x, const shared_string_t& y) const {
           return x<y;
         }
 
@@ -111,7 +114,6 @@ namespace gecko {
 
       
       // shared memory mapped multi index container type with it's indexes
-      // TODO add non_unique name prefix btree/rb index XXX under construction
       
       typedef multi_index_container<
         symbol,
@@ -119,7 +121,7 @@ namespace gecko {
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name)>,
           ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name), partial_string_less>
           >, symbol_allocator_t
-        > symbol_table_t;
+        > symbol_space_t;
 
       
       // shared string helpers
@@ -135,34 +137,34 @@ namespace gecko {
       
     public:
       
-      // the segment is a global memory mapped file we need to share this across multiple namespaces
-      // that is not enforced here but relies on caller doing so
-      // TODO factory to do this...
+      // the segment is a global memory mapped file we need to share
+      // this across multiple namespaces that is not enforced here but
+      // relies on caller doing so TODO factory to do this...
             
-      table(const std::string& s, segment_t& m)
+      space(const std::string& s, segment_t& m)
         : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
-        // ensure multi_index container is constructed: this is the symbol table
-        db = segment.find_or_construct<symbol_table_t>(name)(allocator);
+        // ensure multi_index container is constructed: this is the symbol space
+        db = segment.find_or_construct<symbol_space_t>(name)(allocator);
       }
 
 
-      ~table() {
+      ~space() {
         // should we remove the shared_memory_object (by name) here as well?
         // segment is global so flushing should be manged by owner... 
         segment.flush();
       }
 
-      // delete the rest of the gang don't ever want to copy a table -- but move?
+      // delete the rest of the gang don't ever want to copy a space -- but move?
 
-      table(const table&) = delete;
-      table(table&&) = delete;
-      const table& operator=(const table&) = delete;
-      const table& operator=(table&&) = delete;
+      space(const space&) = delete;
+      space(space&&) = delete;
+      const space& operator=(const space&) = delete;
+      const space& operator=(space&&) = delete;
 
-      // printer
+      // printer give global segment statistics as well as space specifics
 
-      friend std::ostream& operator<<(std::ostream& os, table& t) {
-        os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.tablename()
+      friend std::ostream& operator<<(std::ostream& os, space& t) {
+        os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.spacename()
            << "[" << t.entries()
            << "] U: " <<  (float) (t.size() - t.get_free()) / (1024 * 1024)
            << " F: " << (float) t.get_free() / (1024*1024)
@@ -176,53 +178,34 @@ namespace gecko {
         db->insert(symbol(k.c_str(), allocator));
       }
 
-      // todo put these implementations in cpp file?
-      // xxx not sure how expensive these optional values are at runtime
       
-      // lookup by name
+      // xxx not sure how expensive optional values are at runtime
       
-      inline boost::optional<const symbol&> get_symbol(const char* k) {
-        typedef typename symbol_table_t::template nth_index<0>::type symbol_by_name;
-        
-        symbol_by_name &name_idx = db->template get<0>();
-        typename symbol_by_name::iterator i = name_idx.find(shared_string(k));
-        if (i == name_idx.end()) return boost::none;
-        else return *i;
-      }
 
       // lookup by name
+      typedef typename symbol_space_t::template nth_index<0>::type symbol_by_name;
 
-      inline boost::optional<const symbol&> get_symbol(const std::string& k) {
-        typedef typename symbol_table_t::template nth_index<0>::type symbol_by_name;
-        
+      inline boost::optional<const symbol&> get(const std::string& k) {
         symbol_by_name& name_idx = db->template get<0>();
         typename symbol_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
       }
 
-      
-      // search by name -- prefix lookup XXX under construction this doesn't do any string comparisons as yet.
 
-      typedef typename symbol_table_t::template nth_index<1>::type symbol_by_prefix;  
+      // search by prefix
+      typedef typename symbol_space_t::template nth_index<1>::type symbol_by_prefix;  
       typedef typename symbol_by_prefix::iterator symbol_iterator;
 
-      /*
-      inline std::pair<iterator, iterator> search_symbol(const char* k) {
-        symbol_by_prefix& name_idx = db->template get<1>();
-        return name_idx.equal_range(shared_string(k), prefix_equal());
-      }
-      */
-      
-      inline std::pair<symbol_iterator, symbol_iterator> search_symbol(const std::string& k) {
+      inline std::pair<symbol_iterator, symbol_iterator> search(const std::string& k) {
         symbol_by_prefix& name_idx = db->template get<1>();
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
       // delegated iterators
 
-      typedef typename symbol_table_t::iterator iterator;
-      typedef typename symbol_table_t::const_iterator const_iterator;
+      typedef typename symbol_space_t::iterator iterator;
+      typedef typename symbol_space_t::const_iterator const_iterator;
 
       inline iterator begin() { return db->begin(); }
       inline iterator end() { return db->end(); }
@@ -230,19 +213,22 @@ namespace gecko {
       // symbol name index
       //inline symbol_by_prefix& index() { return db->template get<1>(); } 
 
+      // symbol implements a vector in the api
+      typedef symbol vector;
+      
       // delegated properties
       
       inline const size_t size() { return segment.get_size(); }
       inline const size_t get_free() { return segment.get_free_memory(); }
       inline const bool check_sanity() { return segment.check_sanity(); }
       inline const size_t entries() { return db->size(); }
-      inline const char* tablename() const { return name; }
+      inline const char* spacename() const { return name; }
 
       // TODO: shrink_to_fit, grow
       
     private:    
       const char*          name; 
-      symbol_table_t*      db;
+      symbol_space_t*      db;
       segment_t&           segment;
       void_allocator_t     allocator;
     };
