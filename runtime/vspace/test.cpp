@@ -2,7 +2,7 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
 
-#include "symbol.hpp"
+#include "symbolic_vector.hpp"
 
 namespace bip = boost::interprocess;
 namespace gs = gecko::vspace;
@@ -30,6 +30,10 @@ int main(int argc, char** argv) {
   // XXX multiple inheritance might be problematic... check this in context of table 
   vector_t v("floop", segment.get_segment_manager());
 
+  // polymorphism
+  std::string name("bloop");
+  // todo: vector_t v1(name, segment.get_segment_manager());
+  
   // test some operations
   s.superpose(e);
   s.superpose(v);

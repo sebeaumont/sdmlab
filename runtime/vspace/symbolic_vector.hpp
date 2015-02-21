@@ -14,7 +14,7 @@ namespace gecko {
 
       enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
       
-      // vectors of type T allocated in the segment
+      // generic allocator
       typedef bip::allocator<void, A>          void_allocator_t;
 
       // shared strings
@@ -125,7 +125,7 @@ namespace gecko {
 
       // printer
       friend std::ostream& operator<<(std::ostream& os, const vector& s) {
-        os << "(C: " << s.name << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
+        os << "(V: " << s.name << ", " << s.flags << ", " << s.semv.size() << ", " << s.elev.size() << ")";
         return os;
       }
       
