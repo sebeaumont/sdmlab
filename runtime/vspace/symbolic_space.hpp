@@ -26,19 +26,19 @@ namespace gecko {
 
   namespace vspace {
 
-    typedef bip::managed_mapped_file segment_t;
+    typedef bip::managed_mapped_file segment_t; 
 
     // memory mapped file based symbol table
     template <typename T, std::size_t N, std::size_t S, typename A> 
     class vectorspace {
          
-      // symbol type and allocator -- can we make the vector type fully parametric V<T,N,S,A> ?
-      typedef gs::vector<T,N,S,A> vector_t;
-      typedef bip::allocator<vector_t, segment_manager_t> vector_allocator_t;
+      // vector type and allocator -- can we make the vector type fully parametric V<T,N,S,A> ?
+      typedef vector<T,N,S,A> vector_t;
+      typedef bip::allocator<vector_t, A> vector_allocator_t;
 
 
       
-      // shared string helpers -- need to go in symbol.hpp
+      // shared string helpers -- need to go in symbolic_vector.hpp
       
       inline shared_string_t shared_string(const std::string& s) {
         return shared_string_t(s.c_str(), shared_string_t::allocator_type(allocator));  
