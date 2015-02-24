@@ -185,7 +185,7 @@ int main(int argc, const char** argv) {
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
         } else {
-          std::cout << "can't open: " << cv[0] << std::endl;
+          std::cout << "can't open: " << cv[1] << std::endl;
         }
         
       } else if (boost::iequals(cv[0], ">")) {
