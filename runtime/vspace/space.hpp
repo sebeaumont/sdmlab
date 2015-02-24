@@ -127,11 +127,11 @@ namespace gecko {
       // shared string helpers
       
       inline shared_string_t shared_string(const std::string& s) {
-        return shared_string_t(s.c_str(), shared_string_t::allocator_type(allocator));  
+        return shared_string_t(s.c_str(), allocator);//shared_string_t::allocator_type(allocator));  
       }
 
       inline shared_string_t shared_string(const char* s) {
-        return shared_string_t(s, shared_string_t::allocator_type(allocator));  
+        return shared_string_t(s, allocator);//shared_string_t::allocator_type(allocator));  
       }
 
       

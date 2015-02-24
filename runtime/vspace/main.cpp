@@ -14,8 +14,9 @@
 #include <boost/program_options.hpp>
 //#include <boost/filesystem.hpp>
 //#include <boost/optional.hpp>
-#include "space.hpp"
-
+#include <boost/interprocess/managed_mapped_file.hpp>
+#include "symbolic_space.hpp"
+#include "elemental_space.hpp"
 
 // wall clock timer
 
@@ -80,10 +81,10 @@ inline bool file_exists(std::string& path) {
 
 int main(int argc, const char** argv) {
 
-  //namespace bip = boost::interprocess;
   namespace po = boost::program_options;
   namespace gs = gecko::vspace;
-
+  namespace bip = boost::interprocess;
+    
   std::size_t requested_size;
   po::options_description desc("Allowed options");
   po::positional_options_description p;
@@ -120,13 +121,21 @@ int main(int argc, const char** argv) {
   requested_size = requested_size * (1024 * 1024); 
   
   // space/table type
-  typedef gs::space<unsigned int, 512, 16> table_t; 
+  //typedef gs::space<unsigned int, 512, 16> table_t; 
+
+  typedef bip::managed_mapped_file segment_t;
+  //typedef segment_t::segment_manager segment_manager_t;
 
   // xxx todo sizing and stuff...
-  gs::segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
+  segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
 
+  typedef gs::elemental_space<unsigned long, 32, segment_t> space_t;
+  space_t mytable(tablename, segment);
+
+  //gs::elemental_space<unsigned long, 32, segment_t> table2("foobar", segment);
+  
   // create a space table
-  table_t mytable(tablename, segment);
+  //space_t mytable(tablename, segment);
   
   std::cout << mytable << std::endl;
   
@@ -192,7 +201,7 @@ int main(int argc, const char** argv) {
     } else if (cv.size() > 0) {
       // default to search if no args
       auto ip = mytable.search(cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<table_t::vector>(std::cout, "\n"));
+      std::copy(ip.first, ip.second, std::ostream_iterator<space_t::vector_t>(std::cout, "\n"));
     }
     
     std::cout << prompt;  
