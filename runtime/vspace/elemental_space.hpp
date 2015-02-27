@@ -1,3 +1,5 @@
+#pragma once
+
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/multi_index_container.hpp>
@@ -6,6 +8,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
+#include "binary_vector.hpp"
 
 namespace gecko {
 
@@ -27,10 +30,8 @@ namespace gecko {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // bit vector types
-      
-      typedef bip::allocator<T, segment_manager_t> bitv_allocator_t;
-      typedef bip::vector<T, bitv_allocator_t> bitv_vector_t;
-      typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
+
+      typedef binary_vector<T, S, segment_manager_t> bitv_vector_t;
 
       // symbol and vector types
       

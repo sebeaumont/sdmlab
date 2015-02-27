@@ -2,7 +2,8 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
 
-#include "symbolic_vector.hpp"
+#include "symbolic_space.hpp"
+#include "elemental_space.hpp"
 
 namespace bip = boost::interprocess;
 namespace gs = gecko::vspace;
@@ -12,13 +13,18 @@ int main(int argc, char** argv) {
 
   typedef bip::managed_mapped_file segment_t;
   typedef segment_t::segment_manager segment_manager_t;
-  typedef bip::allocator<void, segment_manager_t> void_allocator_t;
+  //typedef bip::allocator<void, segment_manager_t> void_allocator_t;
 
   // segment
   segment_t segment(bip::open_or_create, "test.dat", 1024*1024*10);
 
+  // vectorspace
+  typedef gs::elemental_space<unsigned long, 32, segment_t> vectorspace_t;
+  vectorspace_t myspace("test", segment);
+  
   // symbol types
-  typedef gs::symbol<segment_manager_t> symbol_t;
+  //typedef gs::symbol<segment_manager_t> symbol_t;
+  /*
   typedef gs::elemental_vector<unsigned long, 32, segment_manager_t> e_vector_t;
   typedef gs::semantic_vector<unsigned long, 512, 32, segment_manager_t> s_vector_t;
   typedef gs::vector<unsigned long, 512, 32, segment_manager_t> vector_t;
@@ -45,6 +51,6 @@ int main(int argc, char** argv) {
             << e << "=" << sizeof(e_vector_t) << std::endl
             << s << "=" << sizeof(s_vector_t) << std::endl
             << v << "=" << sizeof(vector_t) << std::endl;
-  
+  */
   return 1;
 }
