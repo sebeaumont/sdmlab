@@ -15,6 +15,7 @@
 //#include <boost/filesystem.hpp>
 //#include <boost/optional.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
+
 #include "symbolic_space.hpp"
 #include "elemental_space.hpp"
 

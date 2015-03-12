@@ -1,4 +1,5 @@
 #pragma once
+
 #include <boost/interprocess/containers/vector.hpp>
 
 namespace gecko {
@@ -11,11 +12,6 @@ namespace gecko {
     struct binary_vector : public bip::vector<T, bip::allocator<T, M>> {
 
       // bit vector types
-      /*
-      typedef bip::allocator<T, M> bitv_allocator_t;
-      typedef bip::vector<T, bitv_allocator_t> bitv_vector_t;
-     
-      */
       typedef bip::vector<T, bip::allocator<T, M>> vector_t;
       typedef bip::allocator<bip::vector<T, bip::allocator<T, M>>, M> bitv_vector_allocator_t;
       typedef typename bip::allocator<void, M> void_allocator_t;

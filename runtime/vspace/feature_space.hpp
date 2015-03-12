@@ -1,5 +1,4 @@
 #pragma once
-
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/multi_index_container.hpp>
@@ -7,7 +6,6 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
-
 
 namespace gecko {
 
@@ -29,10 +27,8 @@ namespace gecko {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // bit vector types
-      
-      typedef bip::allocator<T, segment_manager_t> bitv_allocator_t;
-      typedef bip::vector<T, bitv_allocator_t> bitv_vector_t;
-      typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
+
+      typedef binary_vector<T, S, segment_manager_t> bitv_vector_t;
 
       // symbol and vector types
       
@@ -44,16 +40,17 @@ namespace gecko {
         shared_string_t name;
         status_t flags;
         bitv_vector_t semv;
-        bitv_vector_t elev;
+        bitv_vector_t suber;
+        bitv_vector_t super;
 
         // constructor
         feature_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), elev(0, S, void_alloc), semv(0, N, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc), semv(0, N, void_alloc) {}
       
 
         // printer
         friend std::ostream& operator<<(std::ostream& os, const feature_vector& s) {
-          os << "<" << s.name << ", " << s.flags << "," << s.elev.size() << "," << s.semv.size() << ">";
+          os << "<" << s.name << ", " << s.flags << "," << S << "," << s.semv.size() << ">";
           return os;
         }      
       };

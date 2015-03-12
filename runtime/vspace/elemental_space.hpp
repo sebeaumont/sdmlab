@@ -42,16 +42,19 @@ namespace gecko {
         // data
         shared_string_t name;
         status_t flags;
-        bitv_vector_t elev;
-
+        bitv_vector_t suber;
+        bitv_vector_t super;
+        
         // constructor
         elemental_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), elev(0, S, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc) {
+          // TODO initialise random white basis
+        }
       
 
         // printer
         friend std::ostream& operator<<(std::ostream& os, const elemental_vector& s) {
-          os << "[" << s.name << ", " << s.flags << "," << s.elev.size() << "]";
+          os << "[" << s.name << ", " << s.flags << "," << S << "]";
           return os;
         }      
       };
