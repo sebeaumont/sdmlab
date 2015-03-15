@@ -46,12 +46,12 @@ namespace gecko {
         bitv_vector_t semv;
 
         // constructor
-        elemental_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), elev(0, S, void_alloc) {}
+        semantic_vector(const char* s, const void_allocator_t& void_alloc)
+          : name(s, void_alloc), flags(NEW), semv(0, S, void_alloc) {}
       
 
         // printer
-        friend std::ostream& operator<<(std::ostream& os, const elemental_vector& s) {
+        friend std::ostream& operator<<(std::ostream& os, const semantic_vector& s) {
           os << "{" << s.name << ", " << s.flags << "," << s.semv.size() << "}";
           return os;
         }      

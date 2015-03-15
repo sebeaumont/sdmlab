@@ -45,7 +45,7 @@ namespace gecko {
 
         // constructor
         feature_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc), semv(0, N, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc), semv(0, S, void_alloc) {}
       
 
         // printer
