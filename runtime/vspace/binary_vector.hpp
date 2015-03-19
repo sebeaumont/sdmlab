@@ -8,7 +8,7 @@ namespace gecko {
 
     namespace bip = boost::interprocess;
 
-    template <typename T, std::size_t N, typename M>
+    template <typename T, typename M>
     struct binary_vector : public bip::vector<T, bip::allocator<T, M>> {
 
       // bit vector types

@@ -31,7 +31,7 @@ namespace gecko {
 
       // bit vector types
 
-      typedef binary_vector<T, S, segment_manager_t> bitv_vector_t;
+      typedef binary_vector<T, segment_manager_t> bitv_vector_t;
 
       // symbol and vector types
       

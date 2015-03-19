@@ -4,6 +4,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/random_access_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
@@ -17,7 +18,7 @@ namespace gecko {
 
     // elemental_space
     
-    template <typename T, std::size_t S, class A> 
+    template <typename T, std::size_t N, std::size_t S, class A> 
     class feature_space {
       
       typedef A segment_t;
@@ -28,7 +29,7 @@ namespace gecko {
 
       // bit vector types
 
-      typedef binary_vector<T, S, segment_manager_t> bitv_vector_t;
+      typedef binary_vector<T, segment_manager_t> bitv_vector_t;
 
       // symbol and vector types
       
@@ -45,12 +46,11 @@ namespace gecko {
 
         // constructor
         feature_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc), semv(0, S, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc), semv(N, 0, void_alloc) {}
       
-
         // printer
         friend std::ostream& operator<<(std::ostream& os, const feature_vector& s) {
-          os << "<" << s.name << ", " << s.flags << "," << S << "," << s.semv.size() << ">";
+          os << "<" << s.name << ", " << s.flags << "," << S << "," << s.semv.size() * sizeof(T) * 8 << ">";
           return os;
         }      
       };
@@ -71,6 +71,8 @@ namespace gecko {
         return shared_string_t(s, allocator); 
       }
 
+
+      // partial (prefix) string comparison
       
       struct partial_string {
         partial_string(const shared_string_t& str) : str(str) {}
@@ -99,7 +101,8 @@ namespace gecko {
         symbol_t,
         indexed_by<
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_t, shared_string_t, name)>,
-          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_t, shared_string_t, name), partial_string_comparator>
+          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_t, shared_string_t, name), partial_string_comparator>,
+          random_access<>
           >, symbol_allocator_t
         > symbol_space_t;
 
@@ -142,12 +145,26 @@ namespace gecko {
         return os;
       }  
 
+      // vector_t is the public type of space elements TODO rename symbol_t
+      
+      typedef symbol_t vector;
+
       // insertion
       
       inline void insert(const std::string& k) {
         db->insert(symbol_t(k.c_str(), allocator));
       }
 
+      // random access by size_t
+      typedef typename symbol_space_t::size_type space_size_t;
+      typedef typename symbol_space_t::template nth_index<2>::type vector_by_index;
+      
+      // overload [] and delegate
+      
+      inline const vector& operator[](std::size_t i) {
+        vector_by_index& vectors = db->template get<2>(); 
+        return vectors[i]; 
+      }
       
       // lookup by name
       
@@ -171,14 +188,17 @@ namespace gecko {
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
-      typedef symbol_t vector_t;
+
       // delegated space iterators
 
       typedef typename symbol_space_t::iterator iterator;
       typedef typename symbol_space_t::const_iterator const_iterator;
 
-      inline iterator begin() { return db->begin(); }
-      inline iterator end() { return db->end(); }
+      //inline iterator begin() { return db->begin(); }
+      //inline iterator end() { return db->end(); }
+
+      inline const_iterator begin() { return db->begin(); }
+      inline const_iterator end() { return db->end(); }
 
       // delegated properties
       

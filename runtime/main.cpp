@@ -14,7 +14,6 @@
 #include <boost/program_options.hpp>
 //#include <boost/filesystem.hpp>
 //#include <boost/optional.hpp>
-#include <boost/interprocess/managed_mapped_file.hpp>
 
 #include "symbolic_space.hpp"
 #include "elemental_space.hpp"
@@ -119,7 +118,9 @@ int main(int argc, const char** argv) {
               << " with: " << requested_size << " bytes" << std::endl;
     return 5;
   }
-  
+
+  ///// this is where we develop test runtime operations
+
   // convert to bytes
   requested_size = requested_size * (1024 * 1024); 
   
@@ -132,7 +133,7 @@ int main(int argc, const char** argv) {
   // xxx todo sizing and stuff...
   segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
 
-  typedef gs::feature_space<unsigned long, 32, segment_t> space_t;
+  typedef gs::feature_space<unsigned long, 256, 16, segment_t> space_t;
   space_t mytable(tablename, segment);
 
   //gs::elemental_space<unsigned long, 32, segment_t> table2("foobar", segment);
@@ -173,7 +174,7 @@ int main(int argc, const char** argv) {
         
       } else if (boost::iequals(cv[0], "<")) {
         
-        ; // load symbols from file
+        // load symbols from file
         std::ifstream ins(cv[1]);
         
         if (ins.good()) {
@@ -195,7 +196,10 @@ int main(int argc, const char** argv) {
         ; // export file
 
       } else if (boost::iequals(cv[0], ".")) {
-        std::cout << "juju" << std::endl;
+        // array access to space
+        for (size_t i=0; i < mytable.entries();  ++i) {
+          std::cout << mytable[i] << std::endl;
+        }
 
       } else
         std::cout << "syntax error:" << input << std::endl;
@@ -204,7 +208,7 @@ int main(int argc, const char** argv) {
     } else if (cv.size() > 0) {
       // default to search if no args
       auto ip = mytable.search(cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<space_t::vector_t>(std::cout, "\n"));
+      std::copy(ip.first, ip.second, std::ostream_iterator<space_t::vector>(std::cout, "\n"));
     }
     
     std::cout << prompt;  
