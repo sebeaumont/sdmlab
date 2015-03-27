@@ -196,7 +196,11 @@ int main(int argc, const char** argv) {
   }
   
   // goodbye from me and goodbye from him...
-  std::cout << std::endl << std::endl << "goodbye" << std::endl;
+  std::cout << std::endl
+            << "heap size: " << (float) rts.heap_size() / (1024*1024)
+            << " free heap: " << (float) rts.free_heap() / (1024*1024)
+            << " heap sane:" << (float) rts.check_heap_sanity() 
+            << std::endl << "...bye" << std::endl;
   
   return 0;
   

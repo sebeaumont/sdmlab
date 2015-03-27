@@ -70,6 +70,11 @@ namespace gecko {
 
     bool compactify_heap();
 
+    // heap metrics
+    inline std::size_t heap_size() { return heap.get_size(); }
+    inline std::size_t free_heap() { return heap.get_free_memory(); }
+    inline bool check_heap_sanity() { return heap.check_sanity(); }
+
     
   private:
     // runtime memoizes pointers to named spaces to optimize vector resolution 

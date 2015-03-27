@@ -147,14 +147,10 @@ namespace gecko {
       const feature_space& operator=(const feature_space&) = delete;
       const feature_space& operator=(feature_space&&) = delete;
 
-      // printer give global segment statistics as well as feature_space specifics
+      // printer feature_space stats
       
       friend std::ostream& operator<<(std::ostream& os, feature_space& t) {
-        os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.spacename()
-           << "[" << t.entries()
-           << "] U: " <<  (float) (t.size() - t.get_free()) / (1024 * 1024)
-           << " F: " << (float) t.get_free() / (1024*1024)
-           << " T: " << (float) t.size() / (1024*1024) << ")";
+        os << t.spacename() << " #" << t.entries(); 
         return os;
       }  
 
@@ -214,10 +210,6 @@ namespace gecko {
       inline const_iterator end() { return db->end(); }
 
       // delegated properties
-      
-      inline const size_t size() { return segment.get_size(); }
-      inline const size_t get_free() { return segment.get_free_memory(); }
-      inline const bool check_sanity() { return segment.check_sanity(); }
       inline const size_t entries() { return db->size(); }
       inline const char* spacename() const { return name; }
 
