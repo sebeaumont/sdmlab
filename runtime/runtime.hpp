@@ -1,8 +1,9 @@
 #pragma once
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/optional.hpp>
-#include <feature_space.hpp>
 #include <map>
+
+#include <feature_space.hpp>
 
 namespace gecko {
 
@@ -50,17 +51,39 @@ namespace gecko {
     
 
     // deletion
+    
+    //////////////////////
+    // space operations //
+    //////////////////////
 
-    ////////////////////////
-    // gc, heap management
-    ///////////////////////
+    std::pair<space*, std::size_t> get_space_by_name(const std::string&);
+
+    bool destroy_space(const std::string&);
+
+    std::vector<std::string> get_named_spaces();
+    
+    ///////////////////////////
+    // gc, heap utilities etc.
+    ///////////////////////////
+
+    bool grow_heap_by(const std::size_t&);
+
+    bool compactify_heap();
+
     
   private:
     // runtime memoizes pointers to named spaces to optimize vector resolution 
     space* ensure_space_by_name(const std::string&); 
+
+    ////////////////////
+    // lifetime state //
+    ////////////////////
     
-    // lifetime data 
+    // constructed
     segment_t heap;
-    std::map<const std::string, space*> spaces; // space pointer
+    const char* heapimage;
+    // read through cache
+    std::map<const std::string, space*> spaces; // used space cache
+
   };
 }

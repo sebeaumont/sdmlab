@@ -12,16 +12,20 @@ inline std::vector<std::string> parse_qualified_name(std::string& s) {
 */
 
 namespace gecko {
+  
+  ////////////////////////////////////////////
+  // runtime constructor to initialize heap //
+  ////////////////////////////////////////////
 
-  // constructor to initialize heap
   runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const char* mmf) :
-    heap(bip::open_or_create, mmf, initial_size) {}
+    heap(bip::open_or_create, mmf, initial_size), heapimage(mmf) {}
 
   ///////////////////
   // named vectors //
   ///////////////////
   
   // get named vector
+
   boost::optional<const runtime::space::vector&> runtime::get_vector(const std::string& sn, const std::string& vn) {
     return ensure_space_by_name(sn)->get(vn);
   }
@@ -60,9 +64,10 @@ namespace gecko {
 
   // deletion
 
+  //////////////////////
+  /// space management
+  //////////////////////
   
-  // gc, heap management
-
   // create and manage named vectors by name -- space constructor does find_or_construct on segment
   // runtime memoizes pointers to spaces to optimize vector resolution 
   
@@ -82,4 +87,50 @@ namespace gecko {
     }
   }
 
+  // lookup a space by name
+
+  std::pair<runtime::space*, std::size_t> runtime::get_space_by_name(const std::string& name) {
+    return heap.find<space>(name.c_str());
+  }
+
+  // destroy it permanently
+  
+  bool runtime::destroy_space(const std::string& name) {
+    return heap.destroy<space>(name.c_str());
+  }
+
+  // lookup all spaces in the segment manager
+  std::vector<std::string> runtime::get_named_spaces() {
+    std::vector<std::string> names;
+    
+    typedef segment_t::const_named_iterator const_named_it;
+    const_named_it named_beg = heap.named_begin();
+    const_named_it named_end = heap.named_end();
+
+    for(; named_beg != named_end; ++named_beg){
+      const segment_t::char_type *name = named_beg->name();
+      std::size_t name_len = named_beg->name_length();
+      names.push_back(std::string(name, name_len));
+      // constant void pointer to the named object
+      //const void *value = named_beg->value();
+    }
+    return names;
+  }
+
+  
+  ////////////////////////
+  // gc, heap management
+  ////////////////////////
+
+  bool runtime::grow_heap_by(const std::size_t& extra_bytes) {
+    // mapped_file grow
+    return heap.grow(heapimage, extra_bytes);
+  }
+
+  bool runtime::compactify_heap() {
+    // mapped_file shrink_to_fit -- compact
+    return heap.shrink_to_fit(heapimage);
+  }
+
+  
 }
