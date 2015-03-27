@@ -34,7 +34,7 @@ namespace gecko {
       typedef binary_vector<T, segment_manager_t> bitv_vector_t;
 
       // symbol and vector types
-      
+
       struct elemental_vector {
 
         enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
@@ -175,7 +175,7 @@ namespace gecko {
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
-      typedef symbol_t vector_t;
+      typedef symbol_t vector;
       // delegated space iterators
 
       typedef typename symbol_space_t::iterator iterator;

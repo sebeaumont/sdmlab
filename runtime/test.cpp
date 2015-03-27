@@ -1,56 +1,32 @@
-#include <iostream>
-#include <boost/interprocess/allocators/allocator.hpp>
-#include <boost/interprocess/managed_mapped_file.hpp>
+// unit tests for runtime class
+#include "runtime.hpp"
 
-#include "symbolic_space.hpp"
-#include "elemental_space.hpp"
-
-namespace bip = boost::interprocess;
-namespace gs = gecko::vspace;
-
-// test refactoring of templates
+// test
 int main(int argc, char** argv) {
 
-  typedef bip::managed_mapped_file segment_t;
-  typedef segment_t::segment_manager segment_manager_t;
-  //typedef bip::allocator<void, segment_manager_t> void_allocator_t;
+  using namespace gecko;
 
-  // segment
-  segment_t segment(bip::open_or_create, "test.dat", 1024*1024*10);
-
-  // vectorspace
-  typedef gs::elemental_space<unsigned long, 32, segment_t> vectorspace_t;
-  vectorspace_t myspace("test", segment);
+  // sizing
+  const std::size_t heap_size = 700 * 1024 * 1024;
   
-  // symbol types
-  //typedef gs::symbol<segment_manager_t> symbol_t;
-  /*
-  typedef gs::elemental_vector<unsigned long, 32, segment_manager_t> e_vector_t;
-  typedef gs::semantic_vector<unsigned long, 512, 32, segment_manager_t> s_vector_t;
-  typedef gs::vector<unsigned long, 512, 32, segment_manager_t> vector_t;
+  // 1. create runtime system
+  runtime rts(heap_size, heap_size, "testheap.dat");
 
-  // try constructing symbolic vector flavours
-  symbol_t   t("gloop", segment.get_segment_manager());
-  e_vector_t e("foo", segment.get_segment_manager());
-  s_vector_t s("bar", segment.get_segment_manager());
-  // XXX multiple inheritance might be problematic... check this in context of table 
-  vector_t v("floop", segment.get_segment_manager());
+  // 2. load some named vectors
+  std::ifstream ins("testvectors.txt");
+        
+  if (ins.good()) {
+    std::string fline;
+    int n = 0;
 
-  // polymorphism
-  std::string name("bloop");
-  // todo: vector_t v1(name, segment.get_segment_manager());
+    while(std::getline(ins, fline)) {
+      boost::trim(fline);
+      //mytable.insert(fline);
+      n++;
+    }
+  }
+
+  // 3. lookup said vectors
   
-  // test some operations
-  s.superpose(e);
-  s.superpose(v);
-  v.superpose(e);
-  v.superpose(v);
-  
-  //
-  std::cout << t << "=" << sizeof(symbol_t) << std::endl
-            << e << "=" << sizeof(e_vector_t) << std::endl
-            << s << "=" << sizeof(s_vector_t) << std::endl
-            << v << "=" << sizeof(vector_t) << std::endl;
-  */
   return 1;
 }

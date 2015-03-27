@@ -15,10 +15,7 @@
 //#include <boost/filesystem.hpp>
 //#include <boost/optional.hpp>
 
-#include "symbolic_space.hpp"
-#include "elemental_space.hpp"
-#include "semantic_space.hpp"
-#include "feature_space.hpp"
+#include "runtime.hpp"
 
 // wall clock timer
 
@@ -84,21 +81,26 @@ inline bool file_exists(std::string& path) {
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  namespace gs = gecko::vspace;
-  namespace bip = boost::interprocess;
+  using namespace gecko;
+
+  // command line options
     
-  std::size_t requested_size;
+  std::size_t initial_size;
+  std::size_t maximum_size;
+  
   po::options_description desc("Allowed options");
   po::positional_options_description p;
-  p.add("name", -1);
+  p.add("heap", -1);
 
   desc.add_options()
-    ("help", "Gecko qdsm symbol table test utility")
-    ("size", po::value<std::size_t>(&requested_size)->default_value(0),
-     "requested size for table in Mbytes")
-    ("name", po::value<std::string>(),
-     "name (should be a valid path)");
-
+    ("help", "Gecko runtime test utility")
+    ("heapsize", po::value<std::size_t>(&initial_size)->default_value(700),
+     "initial size of heap in Mbytes")
+    ("maxheap", po::value<std::size_t>(&maximum_size)->default_value(700),
+     "maximum size of heap in Mbytes")
+    ("heap", po::value<std::string>(),
+     "heap image name (should be a valid path)");
+  
   po::variables_map opts;
   po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), opts);
   po::notify(opts);
@@ -106,45 +108,27 @@ int main(int argc, const char** argv) {
   if (opts.count("help")) {
     std::cout << desc <<  std::endl;
     return 1;
-  } else if (!opts.count("name")) {
-    std::cout << "table name is required!" << std::endl;
+  } else if (!opts.count("heap")) {
+    std::cout << "heap image is required!" << std::endl;
     return 3;
   }
 
-  std::string tablename(opts["name"].as<std::string>());
+  std::string heapfile(opts["heap"].as<std::string>());
 
-  if (!file_exists(tablename) && requested_size == 0) {
-    std::cout << "cannot create new table: " << tablename
-              << " with: " << requested_size << " bytes" << std::endl;
-    return 5;
-  }
 
-  ///// this is where we develop test runtime operations
+  // create runtime with required heap
+  runtime rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile.c_str()); 
 
-  // convert to bytes
-  requested_size = requested_size * (1024 * 1024); 
+  // pro tem default space
+  const std::string default_space("main");
   
-  typedef bip::managed_mapped_file segment_t;
-
-  // xxx todo sizing and stuff...
-  segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
-
-  typedef gs::feature_space<unsigned long, 256, 16, segment_t> space_t;
-  space_t mytable(tablename, segment);
-
-  //gs::elemental_space<unsigned long, 32, segment_t> table2("foobar", segment);
-  
-  // create a space table
-  //space_t mytable(tablename, segment);
-  
-  std::cout << mytable << std::endl;
-  
-  //int lastindex = mytable.entries();
+  // main command loop
   
   std::string prompt("Ψ> ");
   std::string input;
   
   std::cout << prompt;  
+
   // simple command processor
   while (std::getline(std::cin, input)) {
 
@@ -160,10 +144,10 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // N.B. AFAIK insertion suceeds even if the symbol already exists in the table
-        mytable.insert(cv[1]);
+        rts.add_vector(default_space, cv[1]);
 
         // lookup the inserted symbol
-        if (auto sym = mytable.get(cv[1]))
+        if (auto sym = rts.get_vector(default_space, cv[1]))
           std::cout << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
@@ -180,7 +164,7 @@ int main(int argc, const char** argv) {
           
           while(std::getline(ins, fline)) {
             boost::trim(fline);
-            mytable.insert(fline);
+            rts.add_vector(default_space, fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
@@ -193,25 +177,26 @@ int main(int argc, const char** argv) {
 
       } else if (boost::iequals(cv[0], ".")) {
         // array access to space
+        /*
         for (size_t i=0; i < mytable.entries();  ++i) {
           std::cout << mytable[i] << std::endl;
         }
-
+        */
       } else
         std::cout << "syntax error:" << input << std::endl;
 
       
     } else if (cv.size() > 0) {
       // default to search if no args
-      auto ip = mytable.search(cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<space_t::vector>(std::cout, "\n"));
+      auto ip = rts.search_vectors(default_space, cv[0]);
+      std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::vector>(std::cout, "\n"));
     }
     
     std::cout << prompt;  
   }
   
   // goodbye from me and goodbye from him...
-  std::cout << std::endl << mytable << std::endl << "goodbye" << std::endl;
+  std::cout << std::endl << std::endl << "goodbye" << std::endl;
   
   return 0;
   

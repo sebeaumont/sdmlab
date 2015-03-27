@@ -18,10 +18,15 @@ add_definitions("-fslp-vectorize")
 add_definitions("-fslp-vectorize-aggressive")
 
 # todo runtime library so/dylib and llvm bitcode output
+add_library(geckort runtime.cpp)
 
 # command line test tool
 add_executable (gecko main.cpp)
 target_link_libraries(gecko ${Boost_LIBRARIES})
+
+# new command line test tool
+add_executable (gecko2 main2.cpp)
+target_link_libraries(gecko2 ${Boost_LIBRARIES} geckort)
 
 
 
