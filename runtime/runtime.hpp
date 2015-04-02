@@ -4,6 +4,7 @@
 #include <map>
 
 #include <feature_space.hpp>
+#include <runtime_exceptions.hpp>
 
 namespace gecko {
 
@@ -18,9 +19,10 @@ namespace gecko {
     typedef feature_space<unsigned long, 256, 16, segment_t> space;
 
     // constructor to initialize heap
-    runtime(const std::size_t initial_size, const std::size_t max_size, const char* mmf);
+    runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
 
     // no copy or move semantics
+    runtime() = delete;
     runtime(const runtime&) = delete;
     runtime(runtime&&) = delete;
     const runtime& operator=(const runtime&) = delete;
@@ -40,6 +42,8 @@ namespace gecko {
     void add_vector(const std::string&, const std::string&);
     
     // properties
+    float density(const std::string&, const std::string&);
+
 
     // binary operations
     void superpose(const std::string&, const std::string&, const std::string&, const std::string&);
@@ -71,12 +75,13 @@ namespace gecko {
     bool compactify_heap();
 
     // heap metrics
-    inline std::size_t heap_size() { return heap.get_size(); }
-    inline std::size_t free_heap() { return heap.get_free_memory(); }
+    inline std::size_t heap_size() const { return heap.get_size(); }
+    inline std::size_t free_heap()  const { return heap.get_free_memory(); }
     inline bool check_heap_sanity() { return heap.check_sanity(); }
 
     
   private:
+    
     // runtime memoizes pointers to named spaces to optimize vector resolution 
     space* ensure_space_by_name(const std::string&); 
 
@@ -86,7 +91,7 @@ namespace gecko {
     
     // constructed
     segment_t heap;
-    const char* heapimage;
+    const std::string heapimage;
     // read through cache
     std::map<const std::string, space*> spaces; // used space cache
 

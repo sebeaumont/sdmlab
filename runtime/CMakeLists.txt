@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 
 include_directories(vspace)
+include_directories(.)
 
 #find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 find_package(Boost REQUIRED COMPONENTS program_options)

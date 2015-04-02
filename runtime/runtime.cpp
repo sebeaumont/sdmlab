@@ -1,5 +1,5 @@
 // implement runtime methods
-#include "runtime.hpp"
+#include <runtime.hpp>
 /*
 #include <boost/algorithm/string.hpp>
 
@@ -17,44 +17,64 @@ namespace gecko {
   // runtime constructor to initialize heap //
   ////////////////////////////////////////////
 
-  runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const char* mmf) :
-    heap(bip::open_or_create, mmf, initial_size), heapimage(mmf) {}
+  runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) :
+    heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {}
 
   ///////////////////
   // named vectors //
   ///////////////////
-  
+
+  // properties
+
+  float
+  runtime::density(const std::string& sn, const std::string& vn) {
+    boost::optional<const space::vector&> v = ensure_space_by_name(sn)->get(vn);
+    return 0.0; //v.density();
+  }
+
   // get named vector
 
-  boost::optional<const runtime::space::vector&> runtime::get_vector(const std::string& sn, const std::string& vn) {
-    return ensure_space_by_name(sn)->get(vn);
+  boost::optional<const runtime::space::vector&>
+  runtime::get_vector(const std::string& sn, const std::string& vn) {
+    auto sp = get_space_by_name(sn).first;
+    if (sp == 0)
+      throw space_not_found(sn);
+    else
+      return sp->get(vn);
   }
   
   // find by prefix
   
-  std::pair<runtime::space::vector_iterator, runtime::space::vector_iterator> runtime::search_vectors(const std::string& sn, const std::string& vp) {
-    return ensure_space_by_name(sn)->search(vp);
+  std::pair<runtime::space::vector_iterator, runtime::space::vector_iterator>
+  runtime::search_vectors(const std::string& sn, const std::string& vp) {
+    auto sp = get_space_by_name(sn).first;
+    if (sp == 0)
+      throw space_not_found(sn);
+    else
+      return sp->search(vp);
   }
   
   // create new vector
-  void runtime::add_vector(const std::string& sn, const std::string& vn) {
+
+  void
+  runtime::add_vector(const std::string& sn, const std::string& vn) {
     ensure_space_by_name(sn)->insert(vn);
   }
   
-  // properties
-
   // operations
   
-  void runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
+  void
+  runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
     boost::optional<const space::vector&> v = ensure_space_by_name(snv)->get(vn);
-    boost::optional<const space::vector&> u = ensure_space_by_name(snu)->get(un);
+    boost::optional<const space::vector&> u = get_vector(snu, un);
     // TODO if v and u superpose else throw a notfound exception
   }
 
   // measurement
-  float runtime::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
-    boost::optional<const space::vector&> v = ensure_space_by_name(snv)->get(vn);
-    boost::optional<const space::vector&> u = ensure_space_by_name(snu)->get(un);
+  float
+  runtime::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
+    boost::optional<const space::vector&> v = get_vector(snv, vn);
+    boost::optional<const space::vector&> u = get_vector(snu, un);
     // TODO 
     return 0.0;
   }
@@ -71,7 +91,8 @@ namespace gecko {
   // create and manage named vectors by name -- space constructor does find_or_construct on segment
   // runtime memoizes pointers to spaces to optimize vector resolution 
   
-  inline runtime::space* runtime::ensure_space_by_name(const std::string& name) {
+  inline runtime::space*
+  runtime::ensure_space_by_name(const std::string& name) {
     // lookup in cache
     auto it = spaces.find(name);
     
@@ -89,17 +110,19 @@ namespace gecko {
 
   // lookup a space by name
 
-  std::pair<runtime::space*, std::size_t> runtime::get_space_by_name(const std::string& name) {
+  std::pair<runtime::space*, std::size_t>
+  runtime::get_space_by_name(const std::string& name) {
     return heap.find<space>(name.c_str());
   }
 
-  // destroy it permanently
+  // destroy space permanently
   
   bool runtime::destroy_space(const std::string& name) {
     return heap.destroy<space>(name.c_str());
   }
 
-  // lookup all spaces in the segment manager
+  // lookup all spaces in the heap/segment manager
+  
   std::vector<std::string> runtime::get_named_spaces() {
     std::vector<std::string> names;
     
@@ -124,12 +147,12 @@ namespace gecko {
 
   bool runtime::grow_heap_by(const std::size_t& extra_bytes) {
     // mapped_file grow
-    return heap.grow(heapimage, extra_bytes);
+    return heap.grow(heapimage.c_str(), extra_bytes);
   }
 
   bool runtime::compactify_heap() {
     // mapped_file shrink_to_fit -- compact
-    return heap.shrink_to_fit(heapimage);
+    return heap.shrink_to_fit(heapimage.c_str());
   }
 
   
