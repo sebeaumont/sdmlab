@@ -18,8 +18,13 @@ namespace gecko {
   ////////////////////////////////////////////
 
   runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) :
-    heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {}
+    heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {
+      // new idea to pre-cache spaces (and workaroud some weirdness)
+      for (std::string spacename: get_named_spaces())
+        ensure_space_by_name(spacename);
+    }
 
+  
   ///////////////////
   // named vectors //
   ///////////////////
@@ -36,24 +41,24 @@ namespace gecko {
 
   boost::optional<const runtime::space::vector&>
   runtime::get_vector(const std::string& sn, const std::string& vn) {
-    auto sp = get_space_by_name(sn).first;
-    if (sp == 0)
-      throw space_not_found(sn);
-    else
-      return sp->get(vn);
+    return get_space_by_name(sn)->get(vn);
   }
   
   // find by prefix
   
   std::pair<runtime::space::vector_iterator, runtime::space::vector_iterator>
   runtime::search_vectors(const std::string& sn, const std::string& vp) {
-    auto sp = get_space_by_name(sn).first;
-    if (sp == 0)
-      throw space_not_found(sn);
-    else
-      return sp->search(vp);
+    return get_space_by_name(sn)->search(vp);
   }
   
+  // all vectors
+  /*
+  runtime::get_vectors(const std::string& sn) {
+    std::vector<space::vector> vectors;
+    for (spacev :get_space_by_name(sn)
+  
+  }
+   */
   // create new vector
 
   void
@@ -66,6 +71,7 @@ namespace gecko {
   void
   runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
     boost::optional<const space::vector&> v = ensure_space_by_name(snv)->get(vn);
+    // rhs must exist
     boost::optional<const space::vector&> u = get_vector(snu, un);
     // TODO if v and u superpose else throw a notfound exception
   }
@@ -109,12 +115,25 @@ namespace gecko {
   }
 
   // lookup a space by name
-
+  /* 
+  this has weird behaviour -- hangs or throws assersion errors
+  so I'm doing a workaround and cache all spaces at rts start up via ensure space_by_name
+  probably be quicker...
+   
   std::pair<runtime::space*, std::size_t>
   runtime::get_space_by_name(const std::string& name) {
     return heap.find<space>(name.c_str());
   }
-
+  */
+  runtime::space*
+  runtime::get_space_by_name(const std::string& name) {
+    auto it = spaces.find(name);
+    if (it == spaces.end())
+      throw space_not_found(name);
+    else
+      return it->second;
+  }
+  
   // destroy space permanently
   
   bool runtime::destroy_space(const std::string& name) {

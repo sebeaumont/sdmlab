@@ -1,7 +1,8 @@
+Attic
 *.pyc
 *~
 build
-build*
+*build*
 xcuserdata
 *.xcuserstate
 *.xcworkspace

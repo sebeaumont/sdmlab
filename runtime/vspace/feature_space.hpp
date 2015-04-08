@@ -42,9 +42,9 @@ namespace gecko {
         // data
         shared_string_t name;
         status_t flags;
-        bitv_vector_t semv;
-        bitv_vector_t suber;
         bitv_vector_t super;
+        bitv_vector_t suber;
+        bitv_vector_t semv;
 
         // constructor
         feature_vector(const char* s, const void_allocator_t& void_alloc)

@@ -60,7 +60,7 @@ namespace gecko {
     // space operations //
     //////////////////////
 
-    std::pair<space*, std::size_t> get_space_by_name(const std::string&);
+    space* get_space_by_name(const std::string&);
 
     bool destroy_space(const std::string&);
 
