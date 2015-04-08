@@ -33,7 +33,7 @@ add_subdirectory(repl)
 # unit tests
 add_subdirectory(test)
 enable_testing()
-add_test(NAME unitest COMMAND unitest)
+add_test(NAME unitest COMMAND unitest --log_level=all)
 
 
 
