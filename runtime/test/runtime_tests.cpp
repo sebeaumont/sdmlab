@@ -3,12 +3,11 @@
 
 #include <cstdio>
 #include <boost/algorithm/string.hpp>
-#include <runtime.hpp>
-
 
 #define BOOST_TEST_MODULE runtime_library
 #include <boost/test/included/unit_test.hpp>
 
+#include "runtime.hpp"
 using namespace gecko;
 
 // sizing

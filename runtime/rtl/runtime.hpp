@@ -3,8 +3,8 @@
 #include <boost/optional.hpp>
 #include <map>
 
-#include <feature_space.hpp>
-#include <runtime_exceptions.hpp>
+#include "../vspace/feature_space.hpp"
+#include "runtime_exceptions.hpp"
 
 namespace gecko {
 

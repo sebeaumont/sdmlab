@@ -8,7 +8,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-#include <elemental_space.hpp>
+#include "binary_vector.hpp"
 
 namespace gecko {
 
