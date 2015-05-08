@@ -1,15 +1,9 @@
-// implement runtime methods
-#include "runtime.hpp"
-/*
-#include <boost/algorithm/string.hpp>
+// Copyright (c) 2015 Simon Beaumont - All Rights Reserved
 
-// helper functions
-inline std::vector<std::string> parse_qualified_name(std::string& s) {
-  std::vector<std::string> strs;
-  boost::split(strs, s, boost::is_any_of("\t "));
-  return strs;
-}
-*/
+// implement runtime methods - API under construction as we really haven't got failure semantics nailed yet!
+// be nice if we could not use exceptions and use maybe/boost::optional but really we need Either/...
+
+#include "runtime.hpp"
 
 namespace gecko {
   

@@ -1,3 +1,6 @@
+// Copyright (c) 2015 Simon Beaumont - All Rights Reserved
+// runtime.hpp - runtime api interface
+
 #pragma once
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/optional.hpp>
@@ -8,6 +11,7 @@
 
 namespace gecko {
 
+  // space and heap memory implementation types
   using namespace gecko::vspace;
   typedef bip::managed_mapped_file segment_t;
   
@@ -15,10 +19,10 @@ namespace gecko {
 
   public:
 
-    // this is vspace implementation (fully featured)
+    // this is vspace implementation (fully featured! :)
     typedef feature_space<unsigned long, 256, 16, segment_t> space;
 
-    // constructor to initialize heap
+    // constructor to initialize file mapped heap 
     runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
 
     // no copy or move semantics
@@ -60,8 +64,8 @@ namespace gecko {
     // space operations //
     //////////////////////
 
-    space* get_space_by_name(const std::string&);
-
+    space* get_space_by_name(const std::string&); // XXX make private and expose space properties?
+    
     bool destroy_space(const std::string&);
 
     std::vector<std::string> get_named_spaces();
