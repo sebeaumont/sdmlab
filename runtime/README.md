@@ -2,17 +2,19 @@
 
 ## TODO
 
-    1. Provide implementation of vspace for a given vector space size
-    and sparsity. DONE
+    - implement binary vector operations inclding randomization
 
-    2. c++ and c library wrappers of above fascade. IN PROGRESS
+    - Provide implementation of vspace for a given vector space size
+      and sparsity. DONE
 
-    3. Optimized llvm bitcode of above
+    - c++ and c library wrappers of above fascade. IN PROGRESS
 
-    4. Re-implement vspave command line test tool with above. IN PROGRESS
+    - Optimized llvm bitcode of above
 
-    5. Library testing logging and FFIs. IN PROGRESS
+    - Re-implement vspave command line test tool with above. IN PROGRESS
 
-    6. Dynamic (grow/shrink) heap
+    - Library testing logging and FFIs. IN PROGRESS
 
-    7. Garbage collection
+    - Dynamic (grow/shrink) heap
+
+    - Garbage collection
