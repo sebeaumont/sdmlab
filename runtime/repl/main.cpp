@@ -6,6 +6,7 @@
  ***************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
@@ -124,7 +125,7 @@ int main(int argc, const char** argv) {
   
   // see if we can find space names
   std::vector<std::string> spaces = rts.get_named_spaces();
-  for (int i = 0; i < spaces.size(); ++i) {
+  for (unsigned i = 0; i < spaces.size(); ++i) {
     std::cout << i << ":" << spaces[i];
     // now actually get the pointers
     auto spp = rts.get_space_by_name(spaces[i]);

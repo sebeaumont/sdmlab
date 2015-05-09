@@ -5,10 +5,11 @@ enable_testing()
 
 # modern c++ please
 add_definitions("-std=c++11")
+add_definitions("-Wall")
 
 # YMMV so this where we tune for our target/platform
 add_definitions("-O3")
-# add_definitions("-mavx")
+add_definitions("-mavx")
 # add_definitions("-funroll-loops")
 # add_definitions("-fvectorize")
 # add_definitions("-fslp-vectorize")
