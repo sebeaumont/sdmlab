@@ -127,9 +127,9 @@ namespace gecko {
       // relies on caller doing so TODO factory to do this...
             
       feature_space(const std::string& s, segment_t& m)
-        : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
+        : name(s), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol space
-        db = segment.template find_or_construct<vector_space_t>(name)(allocator);
+        db = segment.template find_or_construct<vector_space_t>(name.c_str())(allocator);
       }
 
       
@@ -211,12 +211,12 @@ namespace gecko {
 
       // delegated properties
       inline const size_t entries() { return db->size(); }
-      inline const char* spacename() const { return name; }
+      inline const std::string spacename() const { return name; }
 
       // TODO: shrink_to_fit, grow
       
     private:    
-      const char*          name; 
+      std::string          name; 
       vector_space_t*      db;
       segment_t&           segment;
       void_allocator_t     allocator;

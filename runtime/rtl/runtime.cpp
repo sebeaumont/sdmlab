@@ -112,7 +112,7 @@ namespace gecko {
   /* 
   this has weird behaviour -- hangs or throws assersion errors
   so I'm doing a workaround and cache all spaces at rts start up via ensure space_by_name
-  probably be quicker...
+  probably be quicker...
    
   std::pair<runtime::space*, std::size_t>
   runtime::get_space_by_name(const std::string& name) {
