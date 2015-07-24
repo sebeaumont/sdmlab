@@ -4,24 +4,29 @@ cmake_minimum_required (VERSION 3.0)
 enable_testing()
 
 # modern c++ please
-add_definitions("-std=c++11")
+add_definitions("-std=c++14")
 add_definitions("-Wall")
 
 ###
 # YMMV so this where we tune for our target/platform
 #
-# see below for current compiler nightmares...  The only platform we a
-# good on as of 9 May 2015 is linux with gcc4.9 and boost 1.58 I might
-# rewrite it all in fucking Haskell or get a life.. three years of
-# effort in the balance I hate this fucking industry - I should stick
-# to maths...
+# SNAFU
+# see below for current compiler nightmares...  The only platform we are
+# good on as of 9 May 2015 is linux with gcc4.9 and boost 1.58
+# 
 ###
 
-# XXX this blows up clang3.6 or at least clang3.6's code blows up
+# XXX clang3.6's code blows up with any optimizations
 # but its too slow without it! Like an order of magnitude.
-# add_definitions("-O3") 
+
+#add_definitions("-O3")
+add_definitions("-O0")
+
+#add_definitions("-Rpass=.*") # have clang show optimizations
+#add_definitions("-fsanitize=address") doesn't work with apple 3.6 compiler!
 
 # XXX this blows up gcc4.9 on os x -- not sure what assembler is used!
+# but it cant grok the AVX instructions...
 # add_definitions("-mavx") 
 
 # these are clang specific

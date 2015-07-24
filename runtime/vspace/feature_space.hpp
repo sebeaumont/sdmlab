@@ -25,8 +25,7 @@ namespace gecko {
       
       typedef A segment_t;
       typedef typename segment_t::segment_manager segment_manager_t;
-      typedef bip::basic_string<char,std::char_traits<char>,
-                                bip::allocator<char, segment_manager_t>> shared_string_t;
+      typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // bit vector types
