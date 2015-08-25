@@ -75,6 +75,7 @@ static inline void vector_zeros(vector u) {
 
 static inline float vector_similarity(const vector restrict u, vector restrict v) {
   size_t count = 0;
+  #pragma unroll
   for (size_t i=0; i < V_ELEMENTS; ++i) {
     vector_element_t r = u->els[i] ^ v->els[i]; 
     #ifdef VELEMENT_64

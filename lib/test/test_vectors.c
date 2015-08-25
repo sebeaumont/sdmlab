@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
   
   // TOPOLOGY
   printf("--------------------------------------------\n");
-  printf("vspace neighbourhood test:%zu\n", vector_space_capacity(vs));
+  printf("vspace topology test:%zu\n", vector_space_capacity(vs));
   t1 = absolute_time();
   const scores_t scores = neighbourhood(vs, get_vector(vs, 0), 0.5, 1., 20);
   t2 = absolute_time();

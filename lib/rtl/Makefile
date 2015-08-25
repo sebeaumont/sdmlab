@@ -1,9 +1,8 @@
 #
-# makes a set of target files from the binvec.c kernel functions
+# handmake sdm with llvm toolchain
 #
 
-# default target is the optimized object module and the optimized llvm
-# assembly
+
 sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk
 osxinclude=$(sysroot)/usr/include
 
@@ -20,43 +19,53 @@ ld=ld
 # targets
 #
 
-all:	vectors-opt.ll vectors.ll
+all:	libsdm.dylib
 
-vectors.ll:	vectors.bc
-	$(disasm) vectors.bc
+sdm_vspace.ll:	sdm_vspace.bc
+	$(disasm) sdm_vspace.bc
 
 #
 # this is the only bit we need for working code 
-#  -fslp-vectorize-aggressive might work with clang -- opt doesn't hack it
-vectors.bc:	vectors.c
-	$(cc) -I$(osxinclude) -I. -I../vspace -emit-llvm -c vectors.c -o vectors.bc
+# 
+sdm_vspace.bc:	sdm_vspace.c
+	$(cc) -I$(osxinclude) -I. -I../vspace -emit-llvm -c sdm_vspace.c -o sdm_vspace.bc
 
 #
 # optimizer pass - some great loop unrolling stuff here
 #
-vectors-opt.bc: vectors.bc
-	$(optimizer) -O3 -loop-unroll -loop-vectorize -force-vector-width=128 vectors.bc -o vectors-opt.bc
+sdm_vspace-opt.bc: sdm_vspace.bc
+	$(optimizer) -O3 -slp-vectorizer -loop-unroll -loop-vectorize -force-vector-width=128 sdm_vspace.bc -o sdm_vspace-opt.bc
 
-vectors-opt.ll:	vectors-opt.bc
-	$(disasm) vectors-opt.bc
+#
+# get source for bitcode
+#
+sdm_vspace-opt.ll:	sdm_vspace-opt.bc
+	$(disasm) sdm_vspace-opt.bc
 
 
 # have a peek at the generated code -- we really use JIT for portability
 # make sure it's AT&T assembler syntax (this is default for x86)
 
-vectors-opt.s:	vectors-opt.bc
-	$(llc) -O3 -filetype=asm -mcpu=corei7-avx vectors-opt.bc
+sdm_vspace-opt.s:	sdm_vspace-opt.bc
+	$(llc) -O3 -filetype=asm -mcpu=corei7-avx sdm_vspace-opt.bc
 
 # object code for benchmarking vs. jit vs. reference
 
-vectors-opt.o:	vectors-opt.s
-	$(cc) -c -o vectors-opt.o  vectors-opt.s
+#sdm_vspace-opt.o:	sdm_vspace-opt.s
+#	$(cc) -c -o sdm_vspace-opt.o  sdm_vspace-opt.s
+
+# depend on source ll so we can transform it (TBS) before compilation
+
+sdm_vspace-opt.o:	sdm_vspace-opt.ll
+	$(llc) -O3 -filetype=obj -mcpu=corei7-avx sdm_vspace-opt.ll -o sdm_vspace-opt.o
 
 
-vectors.dylib:	vectors-opt.o
-	$(cc) -dynamiclib -isysroot $(sysroot) -o vectors.dylib vectors-opt.o
+# dynamic library
+
+libsdm.dylib:	sdm_vspace-opt.o
+	$(cc) -dynamiclib -isysroot $(sysroot) -o libsdm.dylib sdm_vspace-opt.o
 
 # clean up generated files
 
 clean:
-	@rm -f *.bc *.ll *~ *.s *.o
+	@rm -f *.bc *.ll *~ *.s *.o *.dylib

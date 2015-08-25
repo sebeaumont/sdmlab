@@ -30,11 +30,20 @@ typedef struct {
 typedef vector_space_t* vector_space;
 
 
+/////////////////////////
+/// memory management ///
+/////////////////////////
+
+
 /* segment allocator -- simple malloc version */
 static inline vector_space_segment_t* segment_allocate(const vector_space vs) {
   return malloc(sizeof(vector_space_segment_t)); 
 }
 
+/* segment deallocate */
+static inline void segment_deallocate(vector_space_segment_t* seg) {
+  free(seg);
+}
 
 /* allocate vector_space segment header */
 static inline vector_space vector_space_init() {
@@ -56,6 +65,18 @@ static inline size_t vector_space_allocate(vector_space vs, const size_t n_segme
   }
   return n_segments;
 }
+
+/* free a vectorspace i.e. deallocate all segments */
+static inline void vector_space_free(vector_space vs) {
+  for (size_t i = 0; i < vs->n_segments; ++i) {
+    segment_deallocate(vs->segments[i]);
+  }
+}
+
+
+///////////////////
+/// vectorspace ///
+///////////////////
 
 /* vector_space properties */
 static inline size_t vector_space_capacity(const vector_space vs) {
