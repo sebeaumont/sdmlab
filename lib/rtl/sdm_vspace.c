@@ -64,3 +64,11 @@ api_t sdm_vspace_capacity(const vector_space vs) {
   ret.value.size_v = n;
   return ret;
 }
+
+api_t sdm_vector_distance(const vector restrict u, const vector restrict v) {
+  api_t ret;
+  size_t n = vector_distance(u, v);
+  ret.type = Size;
+  ret.value.size_v = n;
+  return ret;
+}

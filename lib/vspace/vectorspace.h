@@ -85,7 +85,7 @@ static inline size_t vector_space_capacity(const vector_space vs) {
 
 /* unchecked vector access */
 static inline vector get_vector(const vector_space vs, const size_t i) {
-  // is this address arithmetic fast?
+  // is this address arithmetic fast? I have a fast mod for division by powers of 2 somewhere
   return &vs->segments[i/VS_SEGMENT_SIZE]->vectors[i%VS_SEGMENT_SIZE];
 }
 
@@ -109,6 +109,8 @@ typedef struct {
 } scores_t;
 
 
+/* compute neighbourhood of a vector */
+
 static inline const scores_t neighbourhood(const vector_space vs,
                                            const vector u,
                                            const float p,
@@ -120,41 +122,42 @@ static inline const scores_t neighbourhood(const vector_space vs,
   // could be very large -- do we keep track of used vectors? should we heap allocate?
   float *work = malloc(sizeof(float)*2*m);
   //float work[2*m];
-  assert(work != NULL);
+  assert(work != NULL); // ooh er missus
   
   // TODO keep track of global count of vectors meeting p, d thresholds if this is can be non-divergent
   //      this will ease memory allocation for scores
   
   //// parallel block ////
-
-  static size_t t = 0;
   
 #ifdef HAVE_DISPATCH
-  // __block size_t t = 0;
   
   dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
   dispatch_apply(m, queue, ^(size_t i) {
       const vector v = get_vector(vs, i);
       const float rho = vector_density(v);
       const float mu = vector_similarity(u, v);
-      // XXX increment global count if rho and mu meet criteria?
-      //if (rho <= d && mu >= p) t++;
-      //++t;
       work[i*2] = rho;
       work[i*2+1] = mu;
     });
   dispatch_release(queue);
 
 #else
+
 #pragma omp parallel for
   for (size_t i=0; i < m; ++i) {
     const vector v = get_vector(vs, i);
-    work[i*2] = density(v);
-    work[i*2+1] = similarity(v, u);
+    work[i*2] = vector_density(v);
+    work[i*2+1] = vector_similarity(v, u);
   }
 #endif
   //// end parallel block ////
 
+  // TODO parallel loop reduction?
+  size_t targets = 0;
+  #pragma unroll
+  for (unsigned i = 0; i < m; ++i)
+    targets += (work[i*2] < d  && work[i*2+1] > p) ? 1 : 0;
+  
   //XXX...
   //std::vector<score<T>> scores;
   //scores.reserve(m); // TODO BM
@@ -183,7 +186,7 @@ static inline const scores_t neighbourhood(const vector_space vs,
   return scores;
   */
   scores_t scores;
-  scores.n_scores = t;
+  scores.n_scores = targets;
   scores.scores = work;
   return scores;
 }
