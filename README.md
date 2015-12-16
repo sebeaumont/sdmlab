@@ -1,11 +1,13 @@
-# Hazel is My Person
-This project is the Sparse Distributed Memory Engine Research and Development Hub.
+# SDM 
+This project is the Sparse Distributed Memory Research and Development Hub.
 The main artefact is the sdm runtime library and database.
 The application is high performance associative memory to further research into the capabilities of a fully general model of sparse encoding and hyper-dimensional sparse space.
 
-Key technologies used here:
+We amin to develop a DSL for ML using this approach using the following technologies: 
+
 - clang, llvm and friends
 - ghc and friends
+- idris (dependant type language)
 
 Packages we may leverage:
 - accelerate, 
@@ -13,8 +15,5 @@ Packages we may leverage:
 - subhask, 
 - hlearn
 
-On the horizon make use of:
-- EDSL for hardware description
-- pure for signal processing
 ______________________
 Copyright (c) 2012-2015 Simon Beaumont - All Rights Reserved.
