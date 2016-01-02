@@ -58,6 +58,8 @@ static inline vector_space vector_space_init() {
 /* incremental allocator 1-segment is smallest unit of allocation */
 static inline size_t vector_space_allocate(vector_space vs, const size_t n_segments) {
   // allocate up to n_segments
+  #pragma nounroll
+  #pragma clang loop vectorize(disable) 
   for (size_t i = 0; i < n_segments && vs->n_segments < VS_MAX_SEGMENTS; ++vs->n_segments, ++i) {
     vector_space_segment_t* vseg = segment_allocate(vs);
     if (vseg == NULL) return i;
@@ -68,6 +70,8 @@ static inline size_t vector_space_allocate(vector_space vs, const size_t n_segme
 
 /* free a vectorspace i.e. deallocate all segments */
 static inline void vector_space_free(vector_space vs) {
+  #pragma nounroll
+  #pragma clang loop vectorize(disable) 
   for (size_t i = 0; i < vs->n_segments; ++i) {
     segment_deallocate(vs->segments[i]);
   }
@@ -90,11 +94,12 @@ static inline vector get_vector(const vector_space vs, const size_t i) {
 }
 
 
-
-// TODO: parallelised SIMD operations on entire vectorspace
-// 1. distribute by segments (n_cores) on cpu (treat as separate arrays on gpu?) 
-// 2. accumulate number of matching targets in parallel scan
-// 3. allocate smallest set of scores and sort in main thread
+/* 
+   WIP: parallelised SIMD operations on entire vectorspace
+   1. distribute by segments (n_cores) on cpu (treat as separate arrays on gpu?) 
+   2. accumulate number of matching targets in parallel scan
+   3. allocate smallest set of scores and sort in main thread 
+*/
 
 typedef struct {
   float similarity;
@@ -122,7 +127,7 @@ static inline const scores_t neighbourhood(const vector_space vs,
   // could be very large -- do we keep track of used vectors? should we heap allocate?
   float *work = malloc(sizeof(float)*2*m);
   //float work[2*m];
-  assert(work != NULL); // ooh er missus
+  assert(work != NULL); // XXX ooh er missus
   
   // TODO keep track of global count of vectors meeting p, d thresholds if this is can be non-divergent
   //      this will ease memory allocation for scores

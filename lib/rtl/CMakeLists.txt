@@ -1,2 +1,2 @@
-include_directories(../vspace)
+include_directories(../vspace ../util)
 add_library (sdm SHARED sdm_vspace.c)

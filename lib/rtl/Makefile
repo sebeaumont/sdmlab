@@ -3,7 +3,7 @@
 #
 
 
-sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk
+sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 osxinclude=$(sysroot)/usr/include
 
 llvmbin=/usr/local/Cellar/llvm/3.6.2/bin
