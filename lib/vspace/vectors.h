@@ -23,8 +23,10 @@
 
 #ifdef VELEMENT_64
 typedef unsigned long long vector_element_t;   // vector element type
+#define ONE 1ULL
 #else
 typedef unsigned vector_element_t;   // vector element type
+#define ONE 1U
 #endif
 
 #define V_ELEMENT_BITS (sizeof(vector_element_t) * 8)
@@ -164,22 +166,23 @@ static inline void vector_zeros(const vector u) {
 static inline size_t vector_random_n(const vector u, const size_t n) {
   // 1. keep setting random bits in vector until target density is reached
   size_t l = 0;
-  for (; vector_count(u) < n; ++l) {
-    // xxxxx FIX ME xxxxxx
+  size_t c = vector_count(u);
+  //printf("=c:%zu\n", c);
+  while (c < n) {
     size_t r = irand(V_SIZE_BITS - 1);
     size_t i = r / V_ELEMENT_BITS;
     size_t b = r % V_ELEMENT_BITS;
-    printf("[%zu %zu %zu]\n", r, i, b); 
-    u->els[i] |= (0x1 << b); 
+    u->els[i] |= (ONE << b);
+    c = vector_count(u);
+    ++l;
+    //printf("[r:%zu i:%zu b:%zu c:%zu n:%zu l:%zu]\n", r, i, b, c, l, n); 
   }
   return l; // instrumentation!
 }
 
 
 static inline void vector_random(const vector u, const float p) {
-  size_t n = P2N(p);
-  size_t its =  vector_random_n(u, n);
-  printf("<%zu %zu>\n", n, its); 
+  (void) vector_random_n(u, P2N(p));
 }
 
 

@@ -84,6 +84,16 @@ int main(int argc, char** argv) {
   printf("vector_distance:\t %zu\n", d);
   printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
 
+  
+  // ones vector
+  t1 = absolute_time();
+  sdm_vector_ones(u);
+  t2 = absolute_time();
+  printf("--------------------------------------------\n");
+  printf("vector_ones:\t %zu\n", sdm_vector_norm(u));
+  printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
+
+  
   // zero vector
   t1 = absolute_time();
   sdm_vector_zero(u);
@@ -93,7 +103,7 @@ int main(int argc, char** argv) {
   printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
 
   
-  // random vector
+  // random vector -- N.B. relies on previous zero
   t1 = absolute_time();
   sdm_vector_random(u, 0.001);
   t2 = absolute_time();
