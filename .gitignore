@@ -16,3 +16,6 @@ config.hpp
 *.ll
 *.o
 a.out
+*.ibc
+*.dylib
+*.bc

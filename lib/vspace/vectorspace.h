@@ -1,4 +1,4 @@
-/* vectorspace.h - Copyright (c) 2105 Simon Beaumont - All Rights Reserved. See LICENSE for details. */
+/* vectorspace.h - Copyright (c) 2015-2016 Simon Beaumont - All Rights Reserved. See LICENSE for details. */
 
 #ifndef __VECTORSPACE_H__
 #define __VECTORSPACE_H__
@@ -13,7 +13,7 @@
 
 
 /* vector space - a segmented array of vectors */
-// xxx address arithmetic might benefit from powers of 2 for these xxx
+// xxx address arithmetic might benefit from these being powers of 2
 #define VS_SEGMENT_SIZE 131072
 #define VS_MAX_SEGMENTS 8
 
@@ -24,7 +24,6 @@ typedef struct {
 typedef struct {
   vector_space_segment_t* segments[VS_MAX_SEGMENTS];
   size_t n_segments;
-  //size_t n_vectors;
 } vector_space_t;
 
 typedef vector_space_t* vector_space;
@@ -50,7 +49,6 @@ static inline vector_space vector_space_init() {
   vector_space vs =  malloc(sizeof(vector_space_t));
   if (vs != NULL) {
     vs->n_segments = 0;
-    //vs->n_vectors = 0;
   }
   return vs;
 }
@@ -101,36 +99,39 @@ static inline vector get_vector(const vector_space vs, const size_t i) {
    3. allocate smallest set of scores and sort in main thread 
 */
 
+
 typedef struct {
   float similarity;
   float density;
   size_t vid;
 } score_t;
 
+/* computed topology */
 typedef struct {
-  //score_t* scores;
-  float* scores; // XXX testing hack...
-  size_t n_scores;
-} scores_t;
+  score_t* points; 
+  size_t n_points;
+} topo_t;
 
 
 /* compute neighbourhood of a vector */
 
-static inline const scores_t neighbourhood(const vector_space vs,
-                                           const vector u,
-                                           const float p,
-                                           const float d,
-                                           const size_t n) {
+static inline const topo_t neighbourhood(const vector_space vs,
+                                         const vector u,
+                                         const float p,
+                                         const float d,
+                                         const size_t n) {
 
   // 1. allocate working memory
   const size_t m = vector_space_capacity(vs);
+
   // could be very large -- do we keep track of used vectors? should we heap allocate?
   float *work = malloc(sizeof(float)*2*m);
   //float work[2*m];
   assert(work != NULL); // XXX ooh er missus
   
-  // TODO keep track of global count of vectors meeting p, d thresholds if this is can be non-divergent
-  //      this will ease memory allocation for scores
+
+  // TODO keep track of global count of vectors meeting p, d thresholds if this can be non-divergent
+  // will ease memory allocation for scores
   
   //// parallel block ////
   
@@ -157,43 +158,20 @@ static inline const scores_t neighbourhood(const vector_space vs,
 #endif
   //// end parallel block ////
 
-  // TODO parallel loop reduction?
+  // hacksville... TODO sort and filter
+  
   size_t targets = 0;
-  #pragma unroll
+
+#pragma unroll
   for (unsigned i = 0; i < m; ++i)
     targets += (work[i*2] < d  && work[i*2+1] > p) ? 1 : 0;
+
+  free(work);
   
-  //XXX...
-  //std::vector<score<T>> scores;
-  //scores.reserve(m); // TODO BM
-  
-  // filter amd sort
-  /*
-  for (std::size_t i=0; i < m; ++i) {
-    double rho = work[i*2];
-    double sim = work[i*2+1]
-    if (rho <= d && mu >= p) {
-      score<T> score;
-      score.ptr = vectors.get_link(i);
-      score.density = rho; //work[i*2];
-      score.similarity = sim; //work[i*2+1];
-      scores.push_back(score);
-    }
-  }
-  
-  delete[] work;
-  // sort the scores in similarity order
-  sort(scores.begin(), scores.end());
-  const std::size_t ns = scores.size();
-  
-  // chop off (long) tail before serialising -- is it worth it?
-  scores.erase(scores.begin() + ((n < ns) ? n : ns), scores.end()); // TODO benchmark this
-  return scores;
-  */
-  scores_t scores;
-  scores.n_scores = targets;
-  scores.scores = work;
-  return scores;
+  topo_t topo;
+  topo.n_points = targets;
+  topo.points = NULL;
+  return topo;
 }
 
 #endif // __VECTORSPACE_H__

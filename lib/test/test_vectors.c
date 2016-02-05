@@ -77,9 +77,9 @@ int main(int argc, char** argv) {
   printf("--------------------------------------------\n");
   printf("vspace topology test:%zu\n", vector_space_capacity(vs));
   t1 = absolute_time();
-  const scores_t scores = neighbourhood(vs, get_vector(vs, 0), 0.5, 1., 20);
+  const topo_t topo = neighbourhood(vs, get_vector(vs, 0), 0.5, 1., 20);
   t2 = absolute_time();
-  printf("hits: %zu\n", scores.n_scores);
+  printf("hits: %zu\n", topo.n_points);
   printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
 
   
@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
   printf("vpsace scores test:%zu\n", vector_space_capacity(vs));
   t1 = absolute_time();
   float density = 0.0;
-  for (size_t i=0; i < vector_space_capacity(vs); ++i) {
-    density += scores.scores[i*2];
+  for (size_t i=0; i < topo.n_points; ++i) {
+    density += topo.points[i].density;
   }
   t2 = absolute_time();
   printf("density: %E\n", density);

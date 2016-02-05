@@ -22,7 +22,7 @@ void sdm_vspace_free(const vector_space);
 
 // XXX need a proper neighbourhood type for this and where is it
 // (de-)allocated can use an opaque pointer if we have some kind of gc hooks in ffi
-const size_t sdm_vspace_neighbourhood(const vector_space, const vector, const float, const float, const size_t);
+const topo_t sdm_vspace_neighbourhood(const vector_space, const vector, const float, const float, const size_t);
 
 const size_t sdm_vspace_capacity(const vector_space);
 

@@ -24,11 +24,9 @@ const vector sdm_vspace_vector(const vector_space vs, const size_t id) {
   return (id > vector_space_capacity(vs)) ? NULL : get_vector(vs, id);
 }
 
-// fix this now
-const size_t sdm_vspace_neighbourhood(const vector_space vs, const vector u, const float p, const float d, const size_t n) {
-  scores_t scores = neighbourhood(vs, u, p, d, n);
-  // XXX not fully implemented...
-  return scores.n_scores;
+
+const topo_t sdm_vspace_neighbourhood(const vector_space vs, const vector u, const float p, const float d, const size_t n) {
+  return neighbourhood(vs, u, p, d, n);
 }
 
 const size_t sdm_vspace_capacity(const vector_space vs) {

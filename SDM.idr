@@ -14,6 +14,7 @@ module SDM
 -- low level SDM functions and types
 
 -- some type aliases for foreign pointers
+-- TODO make these types more constrained
 
 Space : Type
 Space = Ptr
@@ -41,12 +42,37 @@ vspaceVector x vs = foreign FFI_C "sdm_vspace_vector" (Space -> Int -> IO Vector
 
 
 -- vectors --
+-- destructive vector ops 
+
+vectorOnes : Vector -> IO ()
+vectorOnes = foreign FFI_C "sdm_vector_ones" (Vector -> IO ())
+
+vectorZero : Vector -> IO ()
+vectorZero = foreign FFI_C "sdm_vector_zero" (Vector -> IO ())
+
+vectorRandom : Vector -> IO ()
+vectorRandom = foreign FFI_C "sdm_vector_random" (Vector -> IO ())
 
 vectorSuperpose : Vector -> Vector -> IO ()
-vectorSuperpose u v = foreign FFI_C "sdm_vector_superpose" (Vector -> Vector -> IO ()) u v
+vectorSuperpose = foreign FFI_C "sdm_vector_superpose" (Vector -> Vector -> IO ())
+
+vectorSubtract : Vector -> Vector -> IO ()
+vectorSubtract = foreign FFI_C "sdm_vector_subtract" (Vector -> Vector -> IO ())
+
+vectorMultiply : Vector -> Vector -> IO ()
+vectorMultiply = foreign FFI_C "sdm_vector_subtract" (Vector -> Vector -> IO ())
 
 
--- watch this space...
+-- vector functions 
 
 vectorNorm : Vector -> IO Int
-vectorNorm u = foreign FFI_C "sdm_vector_norm" (Vector -> IO Int) u
+vectorNorm = foreign FFI_C "sdm_vector_norm" (Vector -> IO Int)
+
+{-
+
+const size_t sdm_vector_distance(const vector restrict u, const vector restrict v);
+const size_t sdm_vector_inner(const vector restrict u, const vector restrict v);
+const size_t sdm_vector_countsum(const vector restrict u, const vector restrict v);
+const float sdm_vector_similarity(const vector restrict u, const vector restrict v);
+const float sdm_vector_density(const vector u);
+-}

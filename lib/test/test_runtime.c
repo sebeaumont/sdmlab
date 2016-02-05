@@ -46,17 +46,17 @@ int main(int argc, char** argv) {
 
   // XXX  
   t1 = absolute_time();
-  const size_t m = sdm_vspace_neighbourhood(vs, v, 0.5, 1., 20);
+  const topo_t m = sdm_vspace_neighbourhood(vs, v, 0.5, 1., 20);
   t2 = absolute_time();
   printf("--------------------------------------------\n");
-  printf("vspace_topology: %zu\n", m);
+  printf("vspace_topology: %zu\n", m.n_points);
   printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
 
   t1 = absolute_time();
-  const size_t l = sdm_vspace_neighbourhood(vs, v, 0.5, 1., 20);
+  const topo_t l = sdm_vspace_neighbourhood(vs, v, 0.5, 1., 20);
   t2 = absolute_time();
   printf("--------------------------------------------\n");
-  printf("vspace_topology: %zu\n", l);
+  printf("vspace_topology: %zu\n", l.n_points);
   printf("elapsed time (ns): %E\n", (double)(t2 - t1) * conversion_factor);
 
 
