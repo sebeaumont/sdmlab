@@ -6,7 +6,6 @@
  ***************************************************************************/
 
 #include <iostream>
-#include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
 #include <boost/date_time/microsec_time_clock.hpp>
@@ -120,21 +119,12 @@ int main(int argc, const char** argv) {
   // create runtime with required heap
   runtime rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile.c_str()); 
 
-  // XXX pro tem default space XXX FIX ME!!!
-  const std::string bullshit_spacename("words");
-  
-  // see if we can find space names
-  std::vector<std::string> spaces = rts.get_named_spaces();
-  for (unsigned i = 0; i < spaces.size(); ++i) {
-    std::cout << i+1 << ":" << spaces[i];
-    // now actually get the pointers
-    auto spp = rts.get_space_by_name(spaces[i]);
-    std::cout << "@" << spp << "#" << spp->entries() << std::endl;
-  }
+  // pro tem default space
+  const std::string default_space("main");
   
   // main command loop
   
-  std::string prompt("Ψ> ");
+  std::string prompt("Î¨> ");
   std::string input;
   
   std::cout << prompt;  
@@ -154,10 +144,10 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // N.B. AFAIK insertion suceeds even if the symbol already exists in the table
-        rts.add_vector(bullshit_spacename, cv[1]);
+        rts.add_vector(default_space, cv[1]);
 
         // lookup the inserted symbol
-        if (auto sym = rts.get_vector(bullshit_spacename, cv[1]))
+        if (auto sym = rts.get_vector(default_space, cv[1]))
           std::cout << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
@@ -174,7 +164,7 @@ int main(int argc, const char** argv) {
           
           while(std::getline(ins, fline)) {
             boost::trim(fline);
-            rts.add_vector(bullshit_spacename, fline);
+            rts.add_vector(default_space, fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
@@ -198,7 +188,7 @@ int main(int argc, const char** argv) {
       
     } else if (cv.size() > 0) {
       // default to search if no args
-      auto ip = rts.search_vectors(bullshit_spacename, cv[0]);
+      auto ip = rts.search_vectors(default_space, cv[0]);
       std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::vector>(std::cout, "\n"));
     }
     
@@ -215,4 +205,3 @@ int main(int argc, const char** argv) {
   return 0;
   
 }
-
