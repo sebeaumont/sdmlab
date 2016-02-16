@@ -1,5 +1,5 @@
 # test programs 
-include_directories(../vspace ../rtl ../util)
+include_directories(../bss ../lib ../util)
 
 add_executable (test_vectors test_vectors.c)
 #target_link_libraries(vspace)
