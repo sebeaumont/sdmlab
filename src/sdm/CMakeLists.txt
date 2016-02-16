@@ -1,5 +1,5 @@
 # runtime master build
-project(hazel)
+project(sdmlib)
 cmake_minimum_required (VERSION 3.0)
 enable_testing()
 
@@ -32,7 +32,7 @@ IF (${CMAKE_C_COMPILER_ID} MATCHES "Clang")
 ENDIF()
 
 # vectorspace library
-add_subdirectory(rtl)
+add_subdirectory(lib)
 
 # command line tool
 #add_subdirectory(repl)
