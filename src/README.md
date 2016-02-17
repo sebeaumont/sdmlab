@@ -1,20 +1,20 @@
-# Gecko/QDSM Runtime
+# SDMLIB
 
 ## TODO
 
-    - implement binary vector operations inclding randomization
-
+    - Merge new sparce random vector implementation. IN PROGRESS
+    
     - Provide implementation of vspace for a given vector space size
       and sparsity. DONE
 
     - c++ and c library wrappers of above fascade. IN PROGRESS
 
-    - Optimized llvm bitcode of above
+    - Optimized llvm bitcode of above. See bss library build.
 
     - Re-implement vspave command line test tool with above. IN PROGRESS
 
     - Library testing logging and FFIs. IN PROGRESS
 
-    - Dynamic (grow/shrink) heap
+    - Dynamic (grow/shrink) heap. IN PROGRESS
 
-    - Garbage collection
+    - Garbage collection. MAY NOT BE NECESSARY.
