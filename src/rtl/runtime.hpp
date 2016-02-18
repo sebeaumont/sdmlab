@@ -6,7 +6,7 @@
 #include <boost/optional.hpp>
 #include <map>
 
-#include "../mms/feature_space.hpp"
+#include "../mms/symbol_space.hpp"
 #include "runtime_exceptions.hpp"
 
 namespace sdm {
@@ -19,8 +19,8 @@ namespace sdm {
 
   public:
 
-    // this is mms implementation (fully featured! :)
-    typedef feature_space<unsigned long, 256, 16, segment_t> space;
+    // this is mms symbol_space implementation
+    typedef symbol_space<unsigned long, 256, 16, segment_t> space;
 
     // constructor to initialize file mapped heap 
     runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);

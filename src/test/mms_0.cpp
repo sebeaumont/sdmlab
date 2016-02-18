@@ -12,9 +12,8 @@
 
 #define BOOST_TEST_MODULE mms-0
 #include <boost/test/included/unit_test.hpp>
-#include "feature_space.hpp"
+#include "symbol_space.hpp"
 
-namespace vs = sdm::mms;
 namespace bip = boost::interprocess;
     
 const std::size_t requested_size = 2 * 1024 * 1024; // bytes
@@ -23,7 +22,7 @@ const std::string heapfile = "vpsace-0.img";
 const std::string v0 = "vector-0";
 
 typedef bip::managed_mapped_file segment_t;
-typedef vs::feature_space<unsigned long, 256, 16, segment_t> space_t;
+typedef sdm::mms::symbol_space<unsigned long, 256, 16, segment_t> space_t;
 
 //int main(int argc, char** argv) {
 
