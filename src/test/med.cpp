@@ -1,5 +1,5 @@
 /***************************************************************************
- * main.cpp symbol table test utility - part of the Gecko qdsm environment.
+ * main.cpp symbol table test utility - part of the Sdm qdsm environment.
  *
  * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.
@@ -81,7 +81,7 @@ inline bool file_exists(std::string& path) {
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  using namespace gecko;
+  using namespace sdm;
 
   // command line options
     
@@ -93,7 +93,7 @@ int main(int argc, const char** argv) {
   p.add("heap", -1);
 
   desc.add_options()
-    ("help", "Gecko runtime test utility")
+    ("help", "Sdm runtime test utility")
     ("heapsize", po::value<std::size_t>(&initial_size)->default_value(700),
      "initial size of heap in Mbytes")
     ("maxheap", po::value<std::size_t>(&maximum_size)->default_value(700),

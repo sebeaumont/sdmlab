@@ -1,5 +1,5 @@
 /***************************************************************************
- * main.cpp symbol table test utility - part of the Gecko qdsm environment.
+ * main.cpp symbol table test utility - part of the Sdm qdsm environment.
  *
  * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.
@@ -84,7 +84,7 @@ inline bool file_exists(std::string& path) {
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  namespace gs = gecko::vspace;
+  namespace gs = sdm::mms;
   namespace bip = boost::interprocess;
     
   std::size_t requested_size;
@@ -93,7 +93,7 @@ int main(int argc, const char** argv) {
   p.add("name", -1);
 
   desc.add_options()
-    ("help", "Gecko qdsm symbol table test utility")
+    ("help", "Sdm qdsm symbol table test utility")
     ("size", po::value<std::size_t>(&requested_size)->default_value(0),
      "requested size for table in Mbytes")
     ("name", po::value<std::string>(),
@@ -127,7 +127,7 @@ int main(int argc, const char** argv) {
   typedef bip::managed_mapped_file segment_t;
 
   // xxx todo sizing and stuff...
-  segment_t segment(bip::open_or_create, "gecko.dat", requested_size);
+  segment_t segment(bip::open_or_create, "sdm.dat", requested_size);
 
   typedef gs::feature_space<unsigned long, 256, 16, segment_t> space_t;
   space_t mytable(tablename, segment);

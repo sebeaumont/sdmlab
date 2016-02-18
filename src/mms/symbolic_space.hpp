@@ -1,5 +1,14 @@
 #pragma once
+/***************************************************************************
+ * symbolic_space.hpp - symbol table container 
+ *
+ * Copyright (c) Simon Beaumont 2012-2016 - All Rights Reserved.
+ * See: LICENSE for conditions under which this software is published.
+ ***************************************************************************/
 
+#include <iostream>
+#include <boost/interprocess/allocators/allocator.hpp>
+#include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/multi_index_container.hpp>
@@ -9,58 +18,53 @@
 #include <boost/optional.hpp>
 
 
-namespace gecko {
+namespace sdm {
 
-  namespace vspace {
-
+  namespace mms {
+    
     using boost::multi_index_container;
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
 
-    // elemental_space
-    
-    template <typename T, std::size_t S, class A> 
-    class semantic_space {
-      
+    template <class A> 
+    class symbol_space {
+
       typedef A segment_t;
+
       typedef typename segment_t::segment_manager segment_manager_t;
+
       typedef bip::basic_string<char,std::char_traits<char>,
                                 bip::allocator<char, segment_manager_t>> shared_string_t;
+      
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
-      // bit vector types
+      // symbol space element
       
-      typedef bip::allocator<T, segment_manager_t> bitv_allocator_t;
-      typedef bip::vector<T, bitv_allocator_t> bitv_vector_t;
-      typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
-
-      // symbol and vector types
-      
-      struct semantic_vector {
+      struct symbol {
 
         enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
       
         // data
         shared_string_t name;
         status_t flags;
-        bitv_vector_t semv;
 
         // constructor
-        semantic_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), semv(0, S, void_alloc) {}
+        symbol(const char* s, const void_allocator_t& void_alloc)
+          : name(s, void_alloc), flags(NEW) {}
       
-
         // printer
-        friend std::ostream& operator<<(std::ostream& os, const semantic_vector& s) {
-          os << "{" << s.name << ", " << s.flags << "," << s.semv.size() << "}";
+        friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
+          os << "(" << s.name << ", " << s.flags << ")";
           return os;
         }      
       };
 
-      // whilst we play
-      typedef semantic_vector symbol_t;
+      // common code for index maintenance
+      
+      typedef symbol symbol_t;
       
       // allocator for symbol
+
       typedef bip::allocator<symbol_t, segment_manager_t> symbol_allocator_t;
       
       // shared string helpers
@@ -73,13 +77,13 @@ namespace gecko {
         return shared_string_t(s, allocator); 
       }
 
+      // symbol name prefix search
       
       struct partial_string {
         partial_string(const shared_string_t& str) : str(str) {}
         shared_string_t str;
       };
 
-      
       struct partial_string_comparator {
         bool operator()(const shared_string_t& x, const shared_string_t& y) const {
           return x<y;
@@ -94,8 +98,8 @@ namespace gecko {
         }
       };
 
-
       // shared memory mapped multi index container type with it's indexes
+      // TODO - be nice to generate ids for lexica only
       
       typedef multi_index_container<
         symbol_t,
@@ -108,34 +112,29 @@ namespace gecko {
       
     public:
       
-      // the segment is a global memory mapped file we need to share
-      // this across multiple namespaces that is not enforced here but
-      // relies on caller doing so TODO factory to do this...
-            
-      semantic_space(const std::string& s, segment_t& m)
+      symbol_space(const std::string& s, segment_t& m)
         : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol space
         db = segment.template find_or_construct<symbol_space_t>(name)(allocator);
       }
 
-      
-      ~semantic_space() {
+      ~symbol_space() {
         // should we remove the shared_memory_object (by name) here as well?
         // segment is global so flushing should be manged by owner... 
         segment.flush();
+        std::cerr << this << " was flushed" << std::endl; 
       }
-      
-      
+
       // delete the rest of the gang don't ever want to copy a space -- but move?
 
-      semantic_space(const semantic_space&) = delete;
-      semantic_space(semantic_space&&) = delete;
-      const semantic_space& operator=(const semantic_space&) = delete;
-      const semantic_space& operator=(semantic_space&&) = delete;
+      symbol_space(const symbol_space&) = delete;
+      symbol_space(symbol_space&&) = delete;
+      const symbol_space& operator=(const symbol_space&) = delete;
+      const symbol_space& operator=(symbol_space&&) = delete;
 
-      // printer give global segment statistics as well as semantic_space specifics
-      
-      friend std::ostream& operator<<(std::ostream& os, semantic_space& t) {
+      // printer give global segment statistics as well as symbol_space specifics
+
+      friend std::ostream& operator<<(std::ostream& os, symbol_space& t) {
         os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.spacename()
            << "[" << t.entries()
            << "] U: " <<  (float) (t.size() - t.get_free()) / (1024 * 1024)
@@ -144,13 +143,12 @@ namespace gecko {
         return os;
       }  
 
-      // insertion
+      // insert symbol into space
       
       inline void insert(const std::string& k) {
         db->insert(symbol_t(k.c_str(), allocator));
       }
 
-      
       // lookup by name
       
       typedef typename symbol_space_t::template nth_index<0>::type symbol_by_name;
@@ -173,7 +171,9 @@ namespace gecko {
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
+      // the public type of a record
       typedef symbol_t vector_t;
+
       // delegated space iterators
 
       typedef typename symbol_space_t::iterator iterator;
@@ -190,14 +190,13 @@ namespace gecko {
       inline const size_t entries() { return db->size(); }
       inline const char* spacename() const { return name; }
 
-      // TODO: shrink_to_fit, grow
-      
+      // data
     private:    
       const char*          name; 
       symbol_space_t*      db;
       segment_t&           segment;
       void_allocator_t     allocator;
-  
     };
   }
 }
+

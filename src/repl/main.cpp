@@ -82,7 +82,7 @@ inline bool file_exists(std::string& path) {
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  using namespace gecko;
+  using namespace sdm;
 
   // command line options
     

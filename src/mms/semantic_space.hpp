@@ -8,11 +8,10 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-#include "binary_vector.hpp"
 
-namespace gecko {
+namespace sdm {
 
-  namespace vspace {
+  namespace mms {
 
     using boost::multi_index_container;
     using namespace boost::multi_index;
@@ -21,7 +20,7 @@ namespace gecko {
     // elemental_space
     
     template <typename T, std::size_t S, class A> 
-    class elemental_space {
+    class semantic_space {
       
       typedef A segment_t;
       typedef typename segment_t::segment_manager segment_manager_t;
@@ -30,37 +29,36 @@ namespace gecko {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // bit vector types
-
-      typedef binary_vector<T, segment_manager_t> bitv_vector_t;
+      
+      typedef bip::allocator<T, segment_manager_t> bitv_allocator_t;
+      typedef bip::vector<T, bitv_allocator_t> bitv_vector_t;
+      typedef bip::allocator<bitv_vector_t, segment_manager_t> bitv_vector_allocator_t;
 
       // symbol and vector types
-
-      struct elemental_vector {
+      
+      struct semantic_vector {
 
         enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
       
         // data
         shared_string_t name;
         status_t flags;
-        bitv_vector_t suber;
-        bitv_vector_t super;
-        
+        bitv_vector_t semv;
+
         // constructor
-        elemental_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(0, S/2, void_alloc), suber(0, S/2, void_alloc) {
-          // TODO initialise random white basis
-        }
+        semantic_vector(const char* s, const void_allocator_t& void_alloc)
+          : name(s, void_alloc), flags(NEW), semv(0, S, void_alloc) {}
       
 
         // printer
-        friend std::ostream& operator<<(std::ostream& os, const elemental_vector& s) {
-          os << "[" << s.name << ", " << s.flags << "," << S << "]";
+        friend std::ostream& operator<<(std::ostream& os, const semantic_vector& s) {
+          os << "{" << s.name << ", " << s.flags << "," << s.semv.size() << "}";
           return os;
         }      
       };
 
       // whilst we play
-      typedef elemental_vector symbol_t;
+      typedef semantic_vector symbol_t;
       
       // allocator for symbol
       typedef bip::allocator<symbol_t, segment_manager_t> symbol_allocator_t;
@@ -114,14 +112,14 @@ namespace gecko {
       // this across multiple namespaces that is not enforced here but
       // relies on caller doing so TODO factory to do this...
             
-      elemental_space(const std::string& s, segment_t& m)
+      semantic_space(const std::string& s, segment_t& m)
         : name(s.c_str()), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol space
         db = segment.template find_or_construct<symbol_space_t>(name)(allocator);
       }
 
       
-      ~elemental_space() {
+      ~semantic_space() {
         // should we remove the shared_memory_object (by name) here as well?
         // segment is global so flushing should be manged by owner... 
         segment.flush();
@@ -130,14 +128,14 @@ namespace gecko {
       
       // delete the rest of the gang don't ever want to copy a space -- but move?
 
-      elemental_space(const elemental_space&) = delete;
-      elemental_space(elemental_space&&) = delete;
-      const elemental_space& operator=(const elemental_space&) = delete;
-      const elemental_space& operator=(elemental_space&&) = delete;
+      semantic_space(const semantic_space&) = delete;
+      semantic_space(semantic_space&&) = delete;
+      const semantic_space& operator=(const semantic_space&) = delete;
+      const semantic_space& operator=(semantic_space&&) = delete;
 
-      // printer give global segment statistics as well as elemental_space specifics
+      // printer give global segment statistics as well as semantic_space specifics
       
-      friend std::ostream& operator<<(std::ostream& os, elemental_space& t) {
+      friend std::ostream& operator<<(std::ostream& os, semantic_space& t) {
         os << "(" << (t.check_sanity() ? ":-) " : ":-( ") << t.spacename()
            << "[" << t.entries()
            << "] U: " <<  (float) (t.size() - t.get_free()) / (1024 * 1024)
@@ -175,7 +173,8 @@ namespace gecko {
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
-      typedef symbol_t vector;
+      typedef symbol_t vector_t;
+
       // delegated space iterators
 
       typedef typename symbol_space_t::iterator iterator;

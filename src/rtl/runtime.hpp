@@ -6,20 +6,20 @@
 #include <boost/optional.hpp>
 #include <map>
 
-#include "../vspace/feature_space.hpp"
+#include "../mms/feature_space.hpp"
 #include "runtime_exceptions.hpp"
 
-namespace gecko {
+namespace sdm {
 
   // space and heap memory implementation types
-  using namespace gecko::vspace;
+  using namespace sdm::mms;
   typedef bip::managed_mapped_file segment_t;
   
   class runtime {
 
   public:
 
-    // this is vspace implementation (fully featured! :)
+    // this is mms implementation (fully featured! :)
     typedef feature_space<unsigned long, 256, 16, segment_t> space;
 
     // constructor to initialize file mapped heap 

@@ -2,10 +2,10 @@
 #include <boost/optional.hpp>
 #include <map>
 
-#include "../vspace/feature_space.hpp"
+#include "../mms/feature_space.hpp"
 
-using namespace gecko::vspace;
+using namespace sdm::mms;
 typedef bip::managed_mapped_file segment_t;
   
-// this is vspace implementation (fully featured! :)
+// this is mms implementation (fully featured! :)
 typedef feature_space<unsigned long, 256, 16, segment_t> space;

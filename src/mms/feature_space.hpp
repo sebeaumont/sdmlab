@@ -10,9 +10,9 @@
 
 #include "binary_vector.hpp"
 
-namespace gecko {
+namespace sdm {
 
-  namespace vspace {
+  namespace mms {
 
     using boost::multi_index_container;
     using namespace boost::multi_index;

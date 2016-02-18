@@ -5,7 +5,7 @@
 
 #include "runtime.hpp"
 
-namespace gecko {
+namespace sdm {
   
   ////////////////////////////////////////////
   // runtime constructor to initialize heap //
