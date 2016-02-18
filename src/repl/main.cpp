@@ -94,7 +94,7 @@ int main(int argc, const char** argv) {
   p.add("heap", -1);
 
   desc.add_options()
-    ("help", "Gecko runtime test utility")
+    ("help", "SDM runtime test utility")
     ("heapsize", po::value<std::size_t>(&initial_size)->default_value(700),
      "initial size of heap in Mbytes")
     ("maxheap", po::value<std::size_t>(&maximum_size)->default_value(700),
