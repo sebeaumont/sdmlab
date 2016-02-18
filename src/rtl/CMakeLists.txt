@@ -8,9 +8,9 @@ include_directories (${Boost_INCLUDE_DIR})
 
 
 # runtime library
-add_library(geckort runtime.cpp)
+add_library(sdmrt runtime.cpp)
 
 # linux need threads
 find_package(Threads)
 
-target_link_libraries(geckort ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(sdmrt ${CMAKE_THREAD_LIBS_INIT})

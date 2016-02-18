@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace gecko {
+namespace sdm {
 
   /* exception class for library */
   class error : public std::runtime_error {

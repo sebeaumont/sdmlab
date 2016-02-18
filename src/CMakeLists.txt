@@ -7,16 +7,7 @@ enable_testing()
 add_definitions("-std=c++14")
 add_definitions("-Wall")
 
-###
 # YMMV so this where we tune for our target/platform
-#
-# SNAFU
-# see below for current compiler nightmares...  The only platform we are
-# good on as of
-# 9 May 2015 is linux with gcc4.5 and boost 1.58
-# aug 2015 gcc5.2 boost 1.58 os x + linux
-
-# XXX clang >= 3.6 code blows up with any optimizations
 
 add_definitions("-O3")
 add_definitions("-march=native")
@@ -46,7 +37,7 @@ add_subdirectory(repl)
 # tests
 add_subdirectory(test)
 
-# 
+
 
 
 

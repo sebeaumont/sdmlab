@@ -5,7 +5,7 @@
 // test
 int main(int argc, char** argv) {
 
-  using namespace gecko;
+  using namespace sdm;
 
   // sizing
   const std::size_t ini_size = 700 * 1024 * 1024;

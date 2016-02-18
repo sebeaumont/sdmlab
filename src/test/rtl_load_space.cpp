@@ -8,7 +8,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "runtime.hpp"
-using namespace gecko;
+using namespace sdm;
 
 // sizing
 const std::size_t ini_size = 700 * 1024 * 1024;

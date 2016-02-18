@@ -3,9 +3,9 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 
-namespace gecko {
+namespace sdm {
 
-  namespace vspace {
+  namespace mms {
 
     namespace bip = boost::interprocess;
 

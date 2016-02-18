@@ -5,7 +5,7 @@
 
 #include "runtime.hpp"
 
-namespace gecko {
+namespace sdm {
   
   ////////////////////////////////////////////
   // runtime constructor to initialize heap //
@@ -25,8 +25,7 @@ namespace gecko {
 
   // properties
 
-  float
-  runtime::density(const std::string& sn, const std::string& vn) {
+  float runtime::density(const std::string& sn, const std::string& vn) {
     boost::optional<const space::vector&> v = ensure_space_by_name(sn)->get(vn);
     return 0.0; //v.density();
   }
@@ -89,7 +88,7 @@ namespace gecko {
   //////////////////////
   
   // create and manage named vectors by name -- space constructor does find_or_construct on segment
-  // runtime memoizes pointers to spaces to optimize vector resolution 
+  // runtime memoizes pointers to spaces to speed up vector resolution 
   
   inline runtime::space*
   runtime::ensure_space_by_name(const std::string& name) {

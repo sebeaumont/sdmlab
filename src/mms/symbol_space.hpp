@@ -10,9 +10,9 @@
 
 #include "binary_vector.hpp"
 
-namespace gecko {
+namespace sdm {
 
-  namespace vspace {
+  namespace mms {
 
     using boost::multi_index_container;
     using namespace boost::multi_index;
@@ -21,7 +21,7 @@ namespace gecko {
     // feature_space
     
     template <typename T, std::size_t N, std::size_t S, class A> 
-    class feature_space {
+    class symbol_space {
       
       typedef A segment_t;
       typedef typename segment_t::segment_manager segment_manager_t;
@@ -34,7 +34,7 @@ namespace gecko {
 
       // symbol and vector types
       
-      struct feature_vector {
+      struct symbol_vector {
 
         enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
       
@@ -46,23 +46,23 @@ namespace gecko {
         bitv_vector_t semv;
 
         // constructor
-        feature_vector(const char* s, const void_allocator_t& void_alloc)
+        symbol_vector(const char* s, const void_allocator_t& void_alloc)
           : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc), semv(N, 0, void_alloc) {}
       
         // printer
-        friend std::ostream& operator<<(std::ostream& os, const feature_vector& s) {
+        friend std::ostream& operator<<(std::ostream& os, const symbol_vector& s) {
           os << "<" << s.name << ", " << s.flags << "," << S << "," << s.semv.size() * sizeof(T) * 8 << ">";
           return os;
         }
 
         // superposition
-        feature_vector& operator+=(const feature_vector& v) {
+        symbol_vector& operator+=(const symbol_vector& v) {
           // add/or the super bits from v, subtract/nand suber bits from v
           return *this;
         }
 
         // measurement
-        std::size_t difference(const feature_vector& v) const {
+        std::size_t difference(const symbol_vector& v) const {
           // popcount u xor v
           return 0;
         }
@@ -71,7 +71,7 @@ namespace gecko {
 
       
       // allocator for symbol
-      typedef bip::allocator<feature_vector, segment_manager_t> vector_allocator_t;
+      typedef bip::allocator<symbol_vector, segment_manager_t> vector_allocator_t;
       
       // shared string helpers
       
@@ -110,10 +110,10 @@ namespace gecko {
       // shared memory mapped multi index container type with it's indexes
       
       typedef multi_index_container<
-        feature_vector,
+        symbol_vector,
         indexed_by<
-          hashed_unique<BOOST_MULTI_INDEX_MEMBER(feature_vector, shared_string_t, name)>,
-          ordered_unique<BOOST_MULTI_INDEX_MEMBER(feature_vector, shared_string_t, name), partial_string_comparator>,
+          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name)>,
+          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name), partial_string_comparator>,
           random_access<>
           >, vector_allocator_t
         > vector_space_t;
@@ -125,14 +125,14 @@ namespace gecko {
       // this across multiple namespaces that is not enforced here but
       // relies on caller doing so TODO factory to do this...
             
-      feature_space(const std::string& s, segment_t& m)
+      symbol_space(const std::string& s, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol space
         db = segment.template find_or_construct<vector_space_t>(name.c_str())(allocator);
       }
 
       
-      ~feature_space() {
+      ~symbol_space() {
         // should we remove the shared_memory_object (by name) here as well?
         // segment is global so flushing should be manged by owner... 
         segment.flush();
@@ -141,26 +141,26 @@ namespace gecko {
       
       // delete the rest of the gang don't ever want to copy a space -- but move?
 
-      feature_space(const feature_space&) = delete;
-      feature_space(feature_space&&) = delete;
-      const feature_space& operator=(const feature_space&) = delete;
-      const feature_space& operator=(feature_space&&) = delete;
+      symbol_space(const symbol_space&) = delete;
+      symbol_space(symbol_space&&) = delete;
+      const symbol_space& operator=(const symbol_space&) = delete;
+      const symbol_space& operator=(symbol_space&&) = delete;
 
-      // printer feature_space stats
+      // printer symbol_space stats
       
-      friend std::ostream& operator<<(std::ostream& os, feature_space& t) {
+      friend std::ostream& operator<<(std::ostream& os, symbol_space& t) {
         os << t.spacename() << " #" << t.entries(); 
         return os;
       }  
 
       // vector is the public type of space elements
       
-      typedef feature_vector vector;
+      typedef symbol_vector vector;
 
       // insertion
       
       inline void insert(const std::string& k) {
-        db->insert(feature_vector(k.c_str(), allocator));
+        db->insert(symbol_vector(k.c_str(), allocator));
       }
 
       // random access by size_t
@@ -178,7 +178,7 @@ namespace gecko {
       
       typedef typename vector_space_t::template nth_index<0>::type vector_by_name;
 
-      inline boost::optional<const feature_vector&> get(const std::string& k) {
+      inline boost::optional<const symbol_vector&> get(const std::string& k) {
         vector_by_name& name_idx = db->template get<0>();
         typename vector_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
