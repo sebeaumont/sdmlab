@@ -137,7 +137,7 @@ int main(int argc, const char** argv) {
   std::string prompt("Ψ> ");
   std::string input;
   
-  std::cout << prompt;  
+  std::cout << sizeof(unsigned long) << prompt;  
 
   // simple command processor
   while (std::getline(std::cin, input)) {

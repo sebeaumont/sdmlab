@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
 
   BOOST_TEST_MESSAGE("loaded: " << loaded);
   
-  // lookup said vectors
+  // lookup all vectors
   for (auto it = word_space->begin(); it != word_space->end(); ++it) {
     //std::cout << *it << std::endl;
     loaded--;
