@@ -123,6 +123,7 @@ namespace sdm {
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name)>,
           ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name), partial_string_comparator>,
           random_access<>
+          //hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, semantic_vector_t, semv)>
           >, vector_allocator_t
         > vector_space_t;
 
@@ -171,8 +172,10 @@ namespace sdm {
         db->insert(symbol_vector(k.c_str(), allocator));
       }
 
-      // random access by size_t
-      typedef typename vector_space_t::size_type space_size_t;
+      
+      // random access
+      
+      //typedef typename vector_space_t::size_type space_size_t;
       typedef typename vector_space_t::template nth_index<2>::type vector_by_index;
       
       // overload [] and delegate
@@ -181,6 +184,7 @@ namespace sdm {
         vector_by_index& vectors = db->template get<2>(); 
         return vectors[i]; 
       }
+
       
       // lookup by name
       
