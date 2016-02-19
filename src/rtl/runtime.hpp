@@ -43,7 +43,7 @@ namespace sdm {
     std::pair<space::vector_iterator, space::vector_iterator> search_vectors(const std::string&, const std::string&);
 
     // create new vector
-    void add_vector(const std::string&, const std::string&);
+    std::size_t add_vector(const std::string&, const std::string&);
     
     // properties
     float density(const std::string&, const std::string&);

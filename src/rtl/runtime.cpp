@@ -54,9 +54,8 @@ namespace sdm {
    */
   // create new vector
 
-  void
-  runtime::add_vector(const std::string& sn, const std::string& vn) {
-    ensure_space_by_name(sn)->insert(vn);
+  std::size_t runtime::add_vector(const std::string& sn, const std::string& vn) {
+    return ensure_space_by_name(sn)->insert(vn);
   }
   
   // operations

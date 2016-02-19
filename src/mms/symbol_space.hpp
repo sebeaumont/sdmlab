@@ -51,15 +51,14 @@ namespace sdm {
          */
         elemental_vector_t super;
         elemental_vector_t suber;
-        semantic_vector_t semv;
 
         // constructor
         symbol_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc), semv(-1) {}
+          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc) {}
       
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol_vector& s) {
-          os << s.name << " (" << s.flags << "," << S << "," << s.semv << ")";
+          os << s.name << " (" << s.flags << "," << S << ")";
           return os;
         }
 
@@ -123,7 +122,6 @@ namespace sdm {
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name)>,
           ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name), partial_string_comparator>,
           random_access<>
-          //XX make this work: hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, semantic_vector_t, semv)>
           >, vector_allocator_t
         > vector_space_t;
 
@@ -166,10 +164,20 @@ namespace sdm {
       
       typedef symbol_vector vector;
 
-      // insertion
       
-      inline void insert(const std::string& k) {
-        db->insert(symbol_vector(k.c_str(), allocator));
+      // insertion     
+
+      inline std::size_t insert(const std::string& k) {
+        auto p = db->insert(symbol_vector(k.c_str(), allocator));
+        // TODO inline get_vector_index(p.first)
+        if (p.second) {
+          auto it1 = db->template project<2>(p.first);
+          auto it2 = db->template get<2>().begin();
+          return it1 - it2; // index to inserted
+          // XXX TBC.. allocate real vector.
+        } else {
+          return -1; // XXXX throw exception TBD XXXX
+        }
       }
 
       
