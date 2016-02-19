@@ -8,7 +8,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-#include "binary_vector.hpp"
+#include "elemental_vector.hpp"
 
 namespace sdm {
 
@@ -28,30 +28,38 @@ namespace sdm {
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
-      // bit vector types
+      // vector types
 
-      typedef binary_vector<T, segment_manager_t> bitv_vector_t;
+      typedef elemental_vector<T, segment_manager_t> elemental_vector_t;
+      typedef std::size_t semantic_vector_t; //just an index
 
-      // symbol and vector types
+      // symbolic vector
       
       struct symbol_vector {
 
         enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
       
-        // data
+        // symbol_vector state
         shared_string_t name;
         status_t flags;
-        bitv_vector_t super;
-        bitv_vector_t suber;
-        bitv_vector_t semv;
+        /*
+         * UC: the semantic vector can be an index into the search
+         * space i.e. std::size_t, the elemental vectors could be a
+         * compact list of bits to set/clear given loop unrolling when
+         * superposing...  Search space of semantic vectors for this
+         * could be passed an alternate allocator/segment...
+         */
+        elemental_vector_t super;
+        elemental_vector_t suber;
+        semantic_vector_t semv;
 
         // constructor
         symbol_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc), semv(N, 0, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc), semv(-1) {}
       
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol_vector& s) {
-          os << "<" << s.name << ", " << s.flags << "," << S << "," << s.semv.size() * sizeof(T) * 8 << ">";
+          os << s.name << " (" << s.flags << "," << S << "," << s.semv << ")";
           return os;
         }
 
