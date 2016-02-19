@@ -123,7 +123,7 @@ namespace sdm {
           hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name)>,
           ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name), partial_string_comparator>,
           random_access<>
-          //hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, semantic_vector_t, semv)>
+          //XX make this work: hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, semantic_vector_t, semv)>
           >, vector_allocator_t
         > vector_space_t;
 
