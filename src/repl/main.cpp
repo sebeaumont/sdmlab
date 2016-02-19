@@ -153,12 +153,12 @@ int main(int argc, const char** argv) {
       // dispatch command
       if (boost::iequals(cv[0], "=")) {
 
-        // N.B. AFAIK insertion suceeds even if the symbol already exists in the table
-        rts.add_vector(default_spacename, cv[1]);
+        // 
+        std::size_t vid = rts.add_vector(default_spacename, cv[1]);
 
         // lookup the inserted symbol
         if (auto sym = rts.get_vector(default_spacename, cv[1]))
-          std::cout << *sym << std::endl;
+          std::cout << "[" << vid << "] " << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
         
