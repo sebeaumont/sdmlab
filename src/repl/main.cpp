@@ -118,10 +118,10 @@ int main(int argc, const char** argv) {
 
 
   // create runtime with required heap
-  runtime rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile.c_str()); 
+  runtime rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
 
   // XXX pro tem default space XXX FIX ME!!!
-  const std::string bullshit_spacename("words");
+  const std::string default_spacename("words");
   
   // see if we can find space names
   std::vector<std::string> spaces = rts.get_named_spaces();
@@ -154,10 +154,10 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // N.B. AFAIK insertion suceeds even if the symbol already exists in the table
-        rts.add_vector(bullshit_spacename, cv[1]);
+        rts.add_vector(default_spacename, cv[1]);
 
         // lookup the inserted symbol
-        if (auto sym = rts.get_vector(bullshit_spacename, cv[1]))
+        if (auto sym = rts.get_vector(default_spacename, cv[1]))
           std::cout << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
@@ -174,7 +174,8 @@ int main(int argc, const char** argv) {
           
           while(std::getline(ins, fline)) {
             boost::trim(fline);
-            rts.add_vector(bullshit_spacename, fline);
+            //std::cout << "addv(" << default_spacename << ":" << fline << ")" << std::endl;
+            rts.add_vector(default_spacename, fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
@@ -192,13 +193,14 @@ int main(int argc, const char** argv) {
           std::cout << mytable[i] << std::endl;
         }
         */
+        ;
       } else
         std::cout << "syntax error:" << input << std::endl;
 
       
     } else if (cv.size() > 0) {
       // default to search if no args
-      auto ip = rts.search_vectors(bullshit_spacename, cv[0]);
+      auto ip = rts.search_vectors(default_spacename, cv[0]);
       std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::vector>(std::cout, "\n"));
     }
     
