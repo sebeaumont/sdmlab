@@ -1,0 +1,405 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		96A99E681C7B5CB600F7DB68 /* sdmi.h in Headers */ = {isa = PBXBuildFile; fileRef = 96A99E671C7B5CB600F7DB68 /* sdmi.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		96A99E6F1C7B5CB600F7DB68 /* sdmi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A99E641C7B5CB600F7DB68 /* sdmi.framework */; };
+		96A99E741C7B5CB600F7DB68 /* sdmiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A99E731C7B5CB600F7DB68 /* sdmiTests.swift */; };
+		96A99E811C7B5D3100F7DB68 /* rtl in Resources */ = {isa = PBXBuildFile; fileRef = 96A99E801C7B5D3100F7DB68 /* rtl */; };
+		96A99E831C7B5D5300F7DB68 /* mms in Resources */ = {isa = PBXBuildFile; fileRef = 96A99E821C7B5D5300F7DB68 /* mms */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		96A99E701C7B5CB600F7DB68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96A99E5B1C7B5CB600F7DB68 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 96A99E631C7B5CB600F7DB68;
+			remoteInfo = sdmi;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		96A99E641C7B5CB600F7DB68 /* sdmi.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = sdmi.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		96A99E671C7B5CB600F7DB68 /* sdmi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sdmi.h; sourceTree = "<group>"; };
+		96A99E691C7B5CB600F7DB68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		96A99E6E1C7B5CB600F7DB68 /* sdmiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sdmiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		96A99E731C7B5CB600F7DB68 /* sdmiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sdmiTests.swift; sourceTree = "<group>"; };
+		96A99E751C7B5CB600F7DB68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		96A99E801C7B5D3100F7DB68 /* rtl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rtl; path = ../rtl; sourceTree = "<group>"; };
+		96A99E821C7B5D5300F7DB68 /* mms */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mms; path = ../mms; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		96A99E601C7B5CB600F7DB68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96A99E6B1C7B5CB600F7DB68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96A99E6F1C7B5CB600F7DB68 /* sdmi.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		96A99E5A1C7B5CB600F7DB68 = {
+			isa = PBXGroup;
+			children = (
+				96A99E821C7B5D5300F7DB68 /* mms */,
+				96A99E801C7B5D3100F7DB68 /* rtl */,
+				96A99E661C7B5CB600F7DB68 /* sdmi */,
+				96A99E721C7B5CB600F7DB68 /* sdmiTests */,
+				96A99E651C7B5CB600F7DB68 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		96A99E651C7B5CB600F7DB68 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				96A99E641C7B5CB600F7DB68 /* sdmi.framework */,
+				96A99E6E1C7B5CB600F7DB68 /* sdmiTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		96A99E661C7B5CB600F7DB68 /* sdmi */ = {
+			isa = PBXGroup;
+			children = (
+				96A99E671C7B5CB600F7DB68 /* sdmi.h */,
+				96A99E691C7B5CB600F7DB68 /* Info.plist */,
+			);
+			path = sdmi;
+			sourceTree = "<group>";
+		};
+		96A99E721C7B5CB600F7DB68 /* sdmiTests */ = {
+			isa = PBXGroup;
+			children = (
+				96A99E731C7B5CB600F7DB68 /* sdmiTests.swift */,
+				96A99E751C7B5CB600F7DB68 /* Info.plist */,
+			);
+			path = sdmiTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		96A99E611C7B5CB600F7DB68 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96A99E681C7B5CB600F7DB68 /* sdmi.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		96A99E631C7B5CB600F7DB68 /* sdmi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96A99E781C7B5CB600F7DB68 /* Build configuration list for PBXNativeTarget "sdmi" */;
+			buildPhases = (
+				96A99E5F1C7B5CB600F7DB68 /* Sources */,
+				96A99E601C7B5CB600F7DB68 /* Frameworks */,
+				96A99E611C7B5CB600F7DB68 /* Headers */,
+				96A99E621C7B5CB600F7DB68 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sdmi;
+			productName = sdmi;
+			productReference = 96A99E641C7B5CB600F7DB68 /* sdmi.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		96A99E6D1C7B5CB600F7DB68 /* sdmiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96A99E7B1C7B5CB600F7DB68 /* Build configuration list for PBXNativeTarget "sdmiTests" */;
+			buildPhases = (
+				96A99E6A1C7B5CB600F7DB68 /* Sources */,
+				96A99E6B1C7B5CB600F7DB68 /* Frameworks */,
+				96A99E6C1C7B5CB600F7DB68 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96A99E711C7B5CB600F7DB68 /* PBXTargetDependency */,
+			);
+			name = sdmiTests;
+			productName = sdmiTests;
+			productReference = 96A99E6E1C7B5CB600F7DB68 /* sdmiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		96A99E5B1C7B5CB600F7DB68 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Simon Beaumont";
+				TargetAttributes = {
+					96A99E631C7B5CB600F7DB68 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					96A99E6D1C7B5CB600F7DB68 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = 96A99E5E1C7B5CB600F7DB68 /* Build configuration list for PBXProject "sdmi" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 96A99E5A1C7B5CB600F7DB68;
+			productRefGroup = 96A99E651C7B5CB600F7DB68 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				96A99E631C7B5CB600F7DB68 /* sdmi */,
+				96A99E6D1C7B5CB600F7DB68 /* sdmiTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		96A99E621C7B5CB600F7DB68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96A99E831C7B5D5300F7DB68 /* mms in Resources */,
+				96A99E811C7B5D3100F7DB68 /* rtl in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96A99E6C1C7B5CB600F7DB68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		96A99E5F1C7B5CB600F7DB68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96A99E6A1C7B5CB600F7DB68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96A99E741C7B5CB600F7DB68 /* sdmiTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		96A99E711C7B5CB600F7DB68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 96A99E631C7B5CB600F7DB68 /* sdmi */;
+			targetProxy = 96A99E701C7B5CB600F7DB68 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		96A99E761C7B5CB600F7DB68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		96A99E771C7B5CB600F7DB68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		96A99E791C7B5CB600F7DB68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = ansi;
+				INFOPLIST_FILE = sdmi/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.molemind.sdmi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		96A99E7A1C7B5CB600F7DB68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = ansi;
+				INFOPLIST_FILE = sdmi/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.molemind.sdmi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		96A99E7C1C7B5CB600F7DB68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = sdmiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.molemind.sdmiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		96A99E7D1C7B5CB600F7DB68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = sdmiTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.molemind.sdmiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		96A99E5E1C7B5CB600F7DB68 /* Build configuration list for PBXProject "sdmi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96A99E761C7B5CB600F7DB68 /* Debug */,
+				96A99E771C7B5CB600F7DB68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96A99E781C7B5CB600F7DB68 /* Build configuration list for PBXNativeTarget "sdmi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96A99E791C7B5CB600F7DB68 /* Debug */,
+				96A99E7A1C7B5CB600F7DB68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		96A99E7B1C7B5CB600F7DB68 /* Build configuration list for PBXNativeTarget "sdmiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96A99E7C1C7B5CB600F7DB68 /* Debug */,
+				96A99E7D1C7B5CB600F7DB68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 96A99E5B1C7B5CB600F7DB68 /* Project object */;
+}
