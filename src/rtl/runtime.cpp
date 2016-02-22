@@ -15,7 +15,7 @@ namespace sdm {
     heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {
       // new idea to pre-cache spaces (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
-        ensure_space_by_name(spacename);
+          ensure_space_by_name(spacename);
     }
 
   
@@ -146,9 +146,10 @@ namespace sdm {
     for(; named_beg != named_end; ++named_beg){
       const segment_t::char_type *name = named_beg->name();
       std::size_t name_len = named_beg->name_length();
-      names.push_back(std::string(name, name_len));
-      // constant void pointer to the named object
-      //const void *value = named_beg->value();
+      if (name[0] != '_')
+        names.push_back(std::string(name, name_len));
+        // constant void pointer to the named object
+        //const void *value = named_beg->value();
     }
     return names;
   }

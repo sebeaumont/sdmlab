@@ -9,6 +9,7 @@
 #include <boost/optional.hpp>
 
 #include "elemental_vector.hpp"
+#include "vector_space.hpp"
 
 namespace sdm {
 
@@ -34,10 +35,10 @@ namespace sdm {
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
-      // vector types
-
+      // SDM vector types
+      
+      typedef vector_space<T, segment_manager_t> vector_space_t; 
       typedef elemental_vector<T, segment_manager_t> elemental_vector_t;
-      typedef std::size_t semantic_vector_t; //just an index
 
       // symbolic vector
       
@@ -129,8 +130,11 @@ namespace sdm {
           ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_vector, shared_string_t, name), partial_string_comparator>,
           random_access<>
           >, vector_allocator_t
-        > vector_space_t;
+        > symbol_table_t;
 
+    protected:
+      // 
+      inline std::size_t it2i() { }
       
     public:
       
@@ -141,7 +145,9 @@ namespace sdm {
       symbol_space(const std::string& s, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
         // ensure multi_index container is constructed: this is the symbol space
-        db = segment.template find_or_construct<vector_space_t>(name.c_str())(allocator);
+        index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
+        std::string vs_name = "__" + name;
+        vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(allocator);
       }
 
       
@@ -174,11 +180,11 @@ namespace sdm {
       // insertion     
 
       inline std::size_t insert(const std::string& k) {
-        auto p = db->insert(symbol_vector(k.c_str(), allocator));
+        auto p = index->insert(symbol_vector(k.c_str(), allocator));
         // TODO inline get_vector_index(p.first)
         if (p.second) {
-          auto it1 = db->template project<2>(p.first);
-          auto it2 = db->template get<2>().begin();
+          auto it1 = index->template project<2>(p.first);
+          auto it2 = index->template get<2>().begin();
           return it1 - it2; // index to inserted
           // XXX TBC.. allocate real vector.
         } else {
@@ -189,23 +195,23 @@ namespace sdm {
       
       // random access
       
-      //typedef typename vector_space_t::size_type space_size_t;
-      typedef typename vector_space_t::template nth_index<2>::type vector_by_index;
+      //typedef typename symbol_table_t::size_type space_size_t;
+      typedef typename symbol_table_t::template nth_index<2>::type vector_by_index;
       
       // overload [] and delegate
       
       inline const vector& operator[](std::size_t i) {
-        vector_by_index& vectors = db->template get<2>(); 
+        vector_by_index& vectors = index->template get<2>(); 
         return vectors[i]; 
       }
 
       
       // lookup by name
       
-      typedef typename vector_space_t::template nth_index<0>::type vector_by_name;
+      typedef typename symbol_table_t::template nth_index<0>::type vector_by_name;
 
       inline boost::optional<const symbol_vector&> get(const std::string& k) {
-        vector_by_name& name_idx = db->template get<0>();
+        vector_by_name& name_idx = index->template get<0>();
         typename vector_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
@@ -214,35 +220,36 @@ namespace sdm {
 
       // search by prefix
       
-      typedef typename vector_space_t::template nth_index<1>::type vector_by_prefix;  
+      typedef typename symbol_table_t::template nth_index<1>::type vector_by_prefix;  
       typedef typename vector_by_prefix::iterator vector_iterator;
 
       inline std::pair<vector_iterator, vector_iterator> search(const std::string& k) {
-        vector_by_prefix& name_idx = db->template get<1>();
+        vector_by_prefix& name_idx = index->template get<1>();
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
 
       // delegated space iterators
 
-      typedef typename vector_space_t::iterator iterator;
-      typedef typename vector_space_t::const_iterator const_iterator;
+      typedef typename symbol_table_t::iterator iterator;
+      typedef typename symbol_table_t::const_iterator const_iterator;
 
-      //inline iterator begin() { return db->begin(); }
-      //inline iterator end() { return db->end(); }
+      //inline iterator begin() { return index->begin(); }
+      //inline iterator end() { return index->end(); }
 
-      inline const_iterator begin() { return db->begin(); }
-      inline const_iterator end() { return db->end(); }
+      inline const_iterator begin() { return index->begin(); }
+      inline const_iterator end() { return index->end(); }
 
       // delegated properties
-      inline const size_t entries() { return db->size(); }
+      inline const size_t entries() { return index->size(); }
       inline const std::string spacename() const { return name; }
 
       // TODO: shrink_to_fit, grow
       
     private:    
       std::string          name; 
-      vector_space_t*      db;
+      symbol_table_t*      index;
+      vector_space_t*      vectors; 
       segment_t&           segment;
       void_allocator_t     allocator;
   

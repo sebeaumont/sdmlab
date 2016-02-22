@@ -20,8 +20,7 @@ namespace sdm {
       typedef typename bip::allocator<void, M> void_allocator_t;
       
       // c'tor
-      vector_space(std::size_t s, const T& i, const void_allocator_t& a) : vector_array_t(s, i, a) {}
-
-  };
+      vector_space(const void_allocator_t& a) : vector_array_t(a) {}
+    };
   }
 }
