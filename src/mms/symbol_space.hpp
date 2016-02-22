@@ -18,7 +18,13 @@ namespace sdm {
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
     
-    // feature_space
+    /*
+     * symbol_space
+     *
+     * this class template can be instantiated in runtime library source or inlined in application code
+     * the important implementation details are the types and sizes of the vectors of the underlying vector
+     * space.
+     */
     
     template <typename T, std::size_t N, std::size_t S, class A> 
     class symbol_space {
