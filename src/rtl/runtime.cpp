@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Simon Beaumont - All Rights Reserved
+// Copyright (c) 2015, 2016 Simon Beaumont - All Rights Reserved
 
 // implement runtime methods - API under construction as we really haven't got failure semantics nailed yet!
 // be nice if we could not use exceptions and use maybe/boost::optional but really we need Either/...
