@@ -1,4 +1,6 @@
+/* Copyright (C) Simon Beaumont 2015-2016 - All Rights Reserved */
 #pragma once
+
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/multi_index_container.hpp>
@@ -24,21 +26,24 @@ namespace sdm {
      *
      * this class template can be instantiated in runtime library source or inlined in application code
      * the important implementation details are the types and sizes of the vectors of the underlying vector
-     * space.
+     * space and the sparsity of the random (a.k.a. elemental) vectors
      */
     
-    template <typename T, std::size_t N, std::size_t S, class A> 
+    template <typename VectorElementType, std::size_t VArraySize, std::size_t ElementalBits, class SegmentClass> 
     class symbol_space {
       
-      typedef A segment_t;
+      typedef SegmentClass segment_t;
+
+      // Heap allocators derived from segment
+      
       typedef typename segment_t::segment_manager segment_manager_t;
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // SDM vector types
       
-      typedef vector_space<T, segment_manager_t> vector_space_t; 
-      typedef elemental_vector<T, segment_manager_t> elemental_vector_t;
+      typedef vector_space<VectorElementType, segment_manager_t> vector_space_t; 
+      typedef elemental_vector<VectorElementType, segment_manager_t> elemental_vector_t;
 
       // symbolic vector
       
@@ -61,11 +66,11 @@ namespace sdm {
 
         // constructor
         symbol_vector(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), flags(NEW), super(S/2, 0, void_alloc), suber(S/2, 0, void_alloc) {}
+          : name(s, void_alloc), flags(NEW), super(ElementalBits/2, 0, void_alloc), suber(ElementalBits/2, 0, void_alloc) {}
       
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol_vector& s) {
-          os << s.name << " (" << s.flags << "," << S << ")";
+          os << s.name << " (" << s.flags << "," << ElementalBits << ")";
           return os;
         }
 
