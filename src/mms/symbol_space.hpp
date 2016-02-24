@@ -21,19 +21,24 @@ namespace sdm {
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
     
+    /* 
+     * this class template can be instantiated in runtime library
+     * source or inlined in application code; the important
+     * implementation details are the types and sizes of the vectors
+     * of the underlying vector space and the sparsity of the random
+     * (a.k.a. elemental) vectors
+     */
+
+    template <typename VectorElementType, std::size_t VArraySize, std::size_t ElementalBits, class SegmentClass>
+
     /*
-     * symbol_space
-     *
-     * this class template can be instantiated in runtime library source or inlined in application code
-     * the important implementation details are the types and sizes of the vectors of the underlying vector
-     * space and the sparsity of the random (a.k.a. elemental) vectors
+     * for a symbol_space
      */
     
-    template <typename VectorElementType, std::size_t VArraySize, std::size_t ElementalBits, class SegmentClass> 
     class symbol_space {
       
       typedef SegmentClass segment_t;
-
+      
       // Heap allocators derived from segment
       
       typedef typename segment_t::segment_manager segment_manager_t;
@@ -45,22 +50,20 @@ namespace sdm {
       typedef vector_space<VectorElementType, segment_manager_t> vector_space_t; 
       typedef elemental_vector<VectorElementType, segment_manager_t> elemental_vector_t;
 
-      // symbolic vector
+
+      // symbolic vector -- indexed by hash and r&b tree for prefix of name  
       
       struct symbol_vector {
 
-        enum status_t {NEW, USED, OLD, FREE}; // TODO mainly for GC
+        // XXX might not need now 
+        enum status_t {NEW, USED, OLD, FREE}; 
       
         // symbol_vector state
         shared_string_t name;
         status_t flags;
-        /*
-         * UC: the semantic vector can be an index into the search
-         * space i.e. std::size_t, the elemental vectors could be a
-         * compact list of bits to set/clear given loop unrolling when
-         * superposing...  Search space of semantic vectors for this
-         * could be passed an alternate allocator/segment...
-         */
+        //std::size_t vid;
+        
+        // 50-50 balanced elemental 
         elemental_vector_t super;
         elemental_vector_t suber;
 
@@ -70,7 +73,7 @@ namespace sdm {
       
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol_vector& s) {
-          os << s.name << " (" << s.flags << "," << ElementalBits << ")";
+          os << s.name << " (" << s.flags << "," << ElementalBits <<  ")";
           return os;
         }
 
@@ -85,11 +88,13 @@ namespace sdm {
           // popcount u xor v
           return 0;
         }
-        
+
+        // ...
       };
 
       
-      // allocator for symbol
+      // allocator for symbol_vector
+      
       typedef bip::allocator<symbol_vector, segment_manager_t> vector_allocator_t;
       
       // shared string helpers
@@ -102,14 +107,12 @@ namespace sdm {
         return shared_string_t(s, allocator); 
       }
 
-
       // partial (prefix) string comparison
       
       struct partial_string {
         partial_string(const shared_string_t& str) : str(str) {}
         shared_string_t str;
       };
-
       
       struct partial_string_comparator {
         bool operator()(const shared_string_t& x, const shared_string_t& y) const {
@@ -137,15 +140,11 @@ namespace sdm {
           >, vector_allocator_t
         > symbol_table_t;
 
-    protected:
-      // 
-      inline std::size_t it2i() { }
+
       
     public:
-      
-      // the segment is a global memory mapped file we need to share
-      // this across multiple namespaces that is not enforced here but
-      // relies on caller doing so TODO factory to do this...
+
+      // constructor
             
       symbol_space(const std::string& s, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
@@ -155,14 +154,14 @@ namespace sdm {
         vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(allocator);
       }
 
+      // destructor
       
       ~symbol_space() {
         // should we remove the shared_memory_object (by name) here as well?
         // segment is global so flushing should be manged by owner... 
         segment.flush();
       }
-      
-      
+            
       // delete the rest of the gang don't ever want to copy a space -- but move?
 
       symbol_space(const symbol_space&) = delete;
@@ -181,26 +180,27 @@ namespace sdm {
       
       typedef symbol_vector vector;
 
-      
-      // insertion     
 
-      inline std::size_t insert(const std::string& k) {
-        auto p = index->insert(symbol_vector(k.c_str(), allocator));
+      // insertion returns: index     
+      
+      const std::size_t insert(const std::string& k) {
+        symbol_vector sv(k.c_str(), allocator);
+        auto p = index->insert(sv);
+
         // TODO inline get_vector_index(p.first)
         if (p.second) {
           auto it1 = index->template project<2>(p.first);
           auto it2 = index->template get<2>().begin();
           return it1 - it2; // index to inserted
-          // XXX TBC.. allocate real vector.
+
         } else {
-          return -1; // XXXX throw exception TBD XXXX
+          return 28091957;
         }
       }
 
       
       // random access
       
-      //typedef typename symbol_table_t::size_type space_size_t;
       typedef typename symbol_table_t::template nth_index<2>::type vector_by_index;
       
       // overload [] and delegate
@@ -209,20 +209,20 @@ namespace sdm {
         vector_by_index& vectors = index->template get<2>(); 
         return vectors[i]; 
       }
-
       
       // lookup by name
       
       typedef typename symbol_table_t::template nth_index<0>::type vector_by_name;
 
       inline boost::optional<const symbol_vector&> get(const std::string& k) {
+        // XXX might want to unpack this for reuse
         vector_by_name& name_idx = index->template get<0>();
         typename vector_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
       }
 
-
+      
       // search by prefix
       
       typedef typename symbol_table_t::template nth_index<1>::type vector_by_prefix;  
@@ -232,7 +232,6 @@ namespace sdm {
         vector_by_prefix& name_idx = index->template get<1>();
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
-
 
       // delegated space iterators
 

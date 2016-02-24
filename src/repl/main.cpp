@@ -14,8 +14,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 //#include <boost/filesystem.hpp>
-//#include <boost/optional.hpp>
-
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include "runtime.hpp"
 
 // wall clock timer
@@ -154,7 +154,7 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        std::size_t vid = rts.add_vector(default_spacename, cv[1]);
+        const std::size_t vid = rts.add_vector(default_spacename, cv[1]);
 
         // lookup the inserted symbol
         if (auto sym = rts.get_vector(default_spacename, cv[1]))

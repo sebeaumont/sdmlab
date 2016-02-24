@@ -19,8 +19,8 @@ namespace sdm {
 
   public:
 
-    // this is mms symbol_space implementation
-    typedef symbol_space<unsigned long, 256, 16, segment_t> space;
+    // mms symbol_space implementation definition
+    typedef symbol_space<unsigned long, 256, 32, segment_t> space;
 
     // constructor to initialize file mapped heap 
     runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
@@ -43,7 +43,7 @@ namespace sdm {
     std::pair<space::vector_iterator, space::vector_iterator> search_vectors(const std::string&, const std::string&);
 
     // create new vector
-    std::size_t add_vector(const std::string&, const std::string&);
+    const std::size_t add_vector(const std::string&, const std::string&);
     
     // properties
     float density(const std::string&, const std::string&);

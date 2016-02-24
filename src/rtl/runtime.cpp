@@ -54,7 +54,7 @@ namespace sdm {
    */
   // create new vector
 
-  std::size_t runtime::add_vector(const std::string& sn, const std::string& vn) {
+  const std::size_t runtime::add_vector(const std::string& sn, const std::string& vn) {
     return ensure_space_by_name(sn)->insert(vn);
   }
   
@@ -91,8 +91,7 @@ namespace sdm {
   // create and manage named vectors by name -- space constructor does find_or_construct on segment
   // runtime memoizes pointers to spaces to speed up vector resolution 
   
-  inline runtime::space*
-  runtime::ensure_space_by_name(const std::string& name) {
+  inline runtime::space* runtime::ensure_space_by_name(const std::string& name) {
     // lookup in cache
     auto it = spaces.find(name);
     
