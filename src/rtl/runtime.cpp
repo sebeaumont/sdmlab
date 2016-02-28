@@ -20,59 +20,64 @@ namespace sdm {
 
   
   ///////////////////
-  // named vectors //
+  // named symbols //
   ///////////////////
 
   // properties
 
   float runtime::density(const std::string& sn, const std::string& vn) {
-    boost::optional<const space::vector&> v = ensure_space_by_name(sn)->get(vn);
+    boost::optional<const space::symbol&> v = ensure_space_by_name(sn)->get(vn);
     return 0.0; //v.density();
   }
 
-  // get named vector
+  // get named symbol
 
-  boost::optional<const runtime::space::vector&>
-  runtime::get_vector(const std::string& sn, const std::string& vn) {
+  boost::optional<const runtime::space::symbol&>
+  runtime::get_symbol(const std::string& sn, const std::string& vn) {
     return get_space_by_name(sn)->get(vn);
   }
-  
+
+  boost::optional<runtime::space::vector&> runtime::get_vector(const std::string& sn, const std::string& vn) {
+    return get_space_by_name(sn)->get_vector(vn);
+  }
+
   // find by prefix
   
-  std::pair<runtime::space::vector_iterator, runtime::space::vector_iterator>
-  runtime::search_vectors(const std::string& sn, const std::string& vp) {
+  std::pair<runtime::space::symbol_iterator, runtime::space::symbol_iterator>
+  runtime::search_symbols(const std::string& sn, const std::string& vp) {
     return get_space_by_name(sn)->search(vp);
   }
   
-  // all vectors
+  // all symbols
   /*
-  runtime::get_vectors(const std::string& sn) {
-    std::vector<space::vector> vectors;
+  runtime::get_symbols(const std::string& sn) {
+    std::symbol<space::symbol> symbols;
     for (spacev :get_space_by_name(sn)
   
   }
    */
-  // create new vector
+  // create new symbol
 
-  const std::size_t runtime::add_vector(const std::string& sn, const std::string& vn) {
+  boost::optional<const std::size_t> runtime::add_symbol(const std::string& sn, const std::string& vn) {
     return ensure_space_by_name(sn)->insert(vn);
   }
+
   
   // operations
   
   void
   runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
-    boost::optional<const space::vector&> v = ensure_space_by_name(snv)->get(vn);
+    boost::optional<const space::symbol&> v = ensure_space_by_name(snv)->get(vn);
     // rhs must exist
-    boost::optional<const space::vector&> u = get_vector(snu, un);
+    boost::optional<const space::symbol&> u = get_symbol(snu, un);
     // TODO if v and u superpose else throw a notfound exception
   }
 
   // measurement
   float
   runtime::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
-    boost::optional<const space::vector&> v = get_vector(snv, vn);
-    boost::optional<const space::vector&> u = get_vector(snu, un);
+    boost::optional<const space::symbol&> v = get_symbol(snv, vn);
+    boost::optional<const space::symbol&> u = get_symbol(snu, un);
     // TODO 
     return 0.0;
   }
@@ -88,8 +93,8 @@ namespace sdm {
   /// space management
   //////////////////////
   
-  // create and manage named vectors by name -- space constructor does find_or_construct on segment
-  // runtime memoizes pointers to spaces to speed up vector resolution 
+  // create and manage named symbols by name -- space constructor does find_or_construct on segment
+  // runtime memoizes pointers to spaces to speed up symbol resolution 
   
   inline runtime::space* runtime::ensure_space_by_name(const std::string& name) {
     // lookup in cache

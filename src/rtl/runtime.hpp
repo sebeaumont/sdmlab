@@ -36,14 +36,18 @@ namespace sdm {
     // named vectors //
     ///////////////////
 
+    // get named symbol
+    boost::optional<const space::symbol&> get_symbol(const std::string&, const std::string&);
+
     // get named vector
-    boost::optional<const space::vector&> get_vector(const std::string&, const std::string&);
+    boost::optional<space::vector&> get_vector(const std::string& sn, const std::string& vn);
+
 
     // find by prefix
-    std::pair<space::vector_iterator, space::vector_iterator> search_vectors(const std::string&, const std::string&);
+    std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string&, const std::string&);
 
-    // create new vector
-    const std::size_t add_vector(const std::string&, const std::string&);
+    // create new symbol
+    boost::optional<const std::size_t> add_symbol(const std::string&, const std::string&);
     
     // properties
     float density(const std::string&, const std::string&);
@@ -86,7 +90,7 @@ namespace sdm {
     
   private:
     
-    // runtime memoizes pointers to named spaces to optimize vector resolution 
+    // runtime memoizes pointers to named spaces to optimize symbol resolution 
     space* ensure_space_by_name(const std::string&); 
 
     ////////////////////
