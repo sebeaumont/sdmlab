@@ -14,8 +14,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 //#include <boost/filesystem.hpp>
-//#include <boost/optional.hpp>
-
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include "runtime.hpp"
 
 // wall clock timer
@@ -137,7 +137,7 @@ int main(int argc, const char** argv) {
   std::string prompt("Ψ> ");
   std::string input;
   
-  std::cout << sizeof(unsigned long) << prompt;  
+  std::cout << prompt;  
 
   // simple command processor
   while (std::getline(std::cin, input)) {
@@ -154,10 +154,10 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        std::size_t vid = rts.add_vector(default_spacename, cv[1]);
+        boost::optional<const std::size_t> vid = rts.add_symbol(default_spacename, cv[1]);
 
         // lookup the inserted symbol
-        if (auto sym = rts.get_vector(default_spacename, cv[1]))
+        if (auto sym = rts.get_symbol(default_spacename, cv[1]))
           std::cout << "[" << vid << "] " << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
@@ -175,7 +175,7 @@ int main(int argc, const char** argv) {
           while(std::getline(ins, fline)) {
             boost::trim(fline);
             //std::cout << "addv(" << default_spacename << ":" << fline << ")" << std::endl;
-            rts.add_vector(default_spacename, fline);
+            rts.add_symbol(default_spacename, fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 
@@ -188,20 +188,17 @@ int main(int argc, const char** argv) {
 
       } else if (boost::iequals(cv[0], ".")) {
         // array access to space
-        /*
-        for (size_t i=0; i < mytable.entries();  ++i) {
-          std::cout << mytable[i] << std::endl;
-        }
-        */
-        ;
+        auto v = rts.get_vector(default_spacename, cv[1]);
+        std::cout << "<vector>" << std::endl;
+        
       } else
         std::cout << "syntax error:" << input << std::endl;
 
       
     } else if (cv.size() > 0) {
       // default to search if no args
-      auto ip = rts.search_vectors(default_spacename, cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::vector>(std::cout, "\n"));
+      auto ip = rts.search_symbols(default_spacename, cv[0]);
+      std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::symbol>(std::cout, "\n"));
     }
     
     std::cout << prompt;  
