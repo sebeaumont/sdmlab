@@ -11,7 +11,7 @@
 #include <boost/optional.hpp>
 
 #include "elemental_vector.hpp"
-//#include "vector_space.hpp"
+#define VELEMENT_64 1
 
 namespace sdm {
 
@@ -135,14 +135,32 @@ namespace sdm {
         vector(const void_allocator_t& a) : vector_t(a) {
           this->reserve(VArraySize);
           #pragma unroll
-          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0xffffffffffffffff);
           // todo init... zeros
         }
 
         
-        friend std::ostream& operator<<(std::ostream& os, const vector& v) {
-          os << v.size(); 
-          return os;
+        //friend std::ostream& operator<<(std::ostream& os, const vector& v) {
+        //  os << v.something const; 
+        //  return os;
+        //}
+
+        // vector properties
+        
+        inline const std::size_t count() {
+          std::size_t count = 0;
+
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+          #if VELEMENT_64
+            count += __builtin_popcountll((*this)[i]);
+          #else
+            count += __builtin_popcount((*this)[i]);
+          #endif
+          }
+          return count;
         }
 
       };
@@ -266,7 +284,7 @@ namespace sdm {
         else return *i;
       }
 
-      // xxx under construction: return vectors
+      // xxx under construction: return vectors XXX weirdly this vector is const!!!!
       
       inline boost::optional<vector&> get_vector(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
@@ -313,7 +331,7 @@ namespace sdm {
 
       std::string          name; 
       symbol_table_t*      index;
-      vector_space*      vectors; 
+      vector_space*        vectors; 
       segment_t&           segment;
       void_allocator_t     allocator;
   
