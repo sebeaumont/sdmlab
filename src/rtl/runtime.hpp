@@ -20,7 +20,7 @@ namespace sdm {
   public:
 
     // mms symbol_space implementation definition
-    typedef symbol_space<unsigned long, 256, 32, segment_t> space;
+    typedef symbol_space<unsigned long long, 265, 16, segment_t> space;
 
     // constructor to initialize file mapped heap 
     runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
