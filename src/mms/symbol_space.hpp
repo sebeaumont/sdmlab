@@ -122,14 +122,42 @@ namespace sdm {
       // vector_space implemented as a vector of vectors
       
       typedef VectorElementType element_t;
-
+      
       typedef bip::allocator<element_t, segment_manager_t> element_allocator_t;
       
       typedef bip::vector<element_t, element_allocator_t> vector_t;
-      typedef bip::allocator<vector_t, segment_manager_t> vector_allocator_t;
       
-      typedef bip::vector<vector_t, vector_allocator_t> vector_vector_t;
+      
+      // a vector type
+      
+      struct vector : public vector_t {
 
+        vector(const void_allocator_t& a) : vector_t(a) {
+          this->reserve(VArraySize);
+          #pragma unroll
+          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
+          // todo init... zeros
+        }
+
+        
+        friend std::ostream& operator<<(std::ostream& os, const vector& v) {
+          os << v.size(); 
+          return os;
+        }
+
+      };
+
+      // vector allocators
+      
+      typedef bip::allocator<vector, segment_manager_t> vector_allocator_t;
+
+      // vector of vectors
+      
+      typedef bip::vector<vector, vector_allocator_t> vector_vector_t;
+
+      
+      // vector_space is_a vector_vector_t
+      
       struct vector_space : public vector_vector_t {
 
         vector_space(const void_allocator_t& a) : vector_vector_t(a) {}
@@ -138,31 +166,40 @@ namespace sdm {
         vector_space(const::size_t n, const void_allocator_t& a) : vector_vector_t(a) {
           this->reserve(n);
         }
+        
       };
 
+      
       typedef vector_space vector_space_t;
 
+      
+      ///////////////////////////////////
+      // symbol_space public interface //
+      ///////////////////////////////////
+      
     public:
 
       // constructor pre-allocate cache space
             
       symbol_space(const std::string& s, const::size_t n, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
-        // ensure multi_index container is constructed: this is the symbol space
-        index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
+        // create vector_space
         std::string vs_name = "__" + name;
         vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(n, allocator);
+        // ensure multi_index container is constructed: this is the symbol space
+        index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
       }
 
       // default cache space
       
       symbol_space(const std::string& s, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
-        // ensure multi_index container is constructed: this is the symbol space
-        index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
+        // create vector space
         std::string vs_name = "__" + name;
         vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(allocator);
-      }
+        // ensure multi_index container is constructed: this is the symbol space
+        index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
+     }
 
       
       // destructor
@@ -190,7 +227,7 @@ namespace sdm {
      
 
       typedef symbol symbol; // public face of symbol
-      typedef vector_t vector; //xx
+      typedef vector vector; //xx
       
       
       // insert
@@ -199,9 +236,10 @@ namespace sdm {
         auto p = index->insert(symbol(k.c_str(), allocator));
         if (p.second) {
           // inserted string iterator maps to index
-          //xvectors->push_new();
+          // XXX vector space hook XXX
+          vectors->push_back(vector(allocator));
           return n2i(p.first);
-          //return (*vectors)[n2i(p.first)];
+          
         } 
         else return boost::none;
       }
@@ -234,7 +272,7 @@ namespace sdm {
         symbol_by_name& name_idx = index->template get<0>();
         typename symbol_by_name::iterator it = name_idx.find(shared_string(k));
         if (it == name_idx.end()) return boost::none;
-        else return (*vectors)[n2i(it)];
+        else return (*vectors)[(n2i(it))];
       }
       
       
@@ -275,7 +313,7 @@ namespace sdm {
 
       std::string          name; 
       symbol_table_t*      index;
-      vector_space_t*      vectors; 
+      vector_space*      vectors; 
       segment_t&           segment;
       void_allocator_t     allocator;
   

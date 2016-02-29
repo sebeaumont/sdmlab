@@ -189,7 +189,7 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], ".")) {
         // array access to space
         auto v = rts.get_vector(default_spacename, cv[1]);
-        std::cout << "<vector>" << std::endl;
+        std::cout << v << std::endl;
         
       } else
         std::cout << "syntax error:" << input << std::endl;
