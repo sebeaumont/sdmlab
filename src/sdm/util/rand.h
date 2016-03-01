@@ -1,5 +1,5 @@
-#ifndef __RAND_H__
-#define __RAND_H__
+#pragma once
+
 #include <unistd.h>
 #include <stdint.h>
 #include <fcntl.h>
@@ -7,9 +7,9 @@
 // #define UINT64_C(val) (val##ULL)
 
 // fastest PRNG
-uint64_t x; /* The state must be seeded with a nonzero value. */
+static uint64_t x; /* The state must be seeded with a nonzero value. */
 
-uint64_t xorshift64star(void) {
+static uint64_t inline xorshift64star(void) {
   x ^= x >> 12; // a
   x ^= x << 25; // b
   x ^= x >> 27; // c
@@ -27,22 +27,21 @@ static int p;
 
 /* or use system cryptograhpic source */
 
-static inline int system_seed(uint64_t* b, size_t n) {
+static inline size_t system_seed(uint64_t* b, size_t n) {
   /* init b with n uint_64_t from system entropy pool */
   int f = open("/dev/random", O_RDONLY);
   if (f < 0) return f;
   size_t required = n * sizeof(uint64_t);
-  int r = read(f, b, required);
+  size_t r = read(f, b, required);
   close(f);
   if (r != required) return -1;
   else return r;
 }
 
 
-static inline int init_prng(void) {
+static inline size_t init_prng(void) {
   p = 0;
-  if (system_seed(s, 16) < 0) return -1;
-  else return 16;
+  return (system_seed(s, 16));
 }
 
 // PRNG
@@ -92,5 +91,4 @@ void shuffle_##type(type *list, size_t len) {		\
   }                                                     \
 }		
 
-#endif // __RAND_H__
 

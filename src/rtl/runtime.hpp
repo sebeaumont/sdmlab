@@ -7,6 +7,8 @@
 #include <map>
 
 #include "../mms/symbol_space.hpp"
+#include "../sdm/util/rand.h"
+
 #include "runtime_exceptions.hpp"
 
 namespace sdm {
