@@ -13,7 +13,9 @@ namespace sdm {
 
   runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) :
     heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {
-      // new idea to pre-cache spaces (and workaroud some weirdness)
+    // init random
+    init_prng(); // XXx this might fail!
+    // new idea to pre-cache spaces (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
           ensure_space_by_name(spacename);
     }

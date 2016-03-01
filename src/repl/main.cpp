@@ -16,7 +16,7 @@
 //#include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
-#include "runtime.hpp"
+#include "../rtl/runtime.hpp"
 
 // wall clock timer
 
@@ -190,7 +190,26 @@ int main(int argc, const char** argv) {
         // array access to space
         boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         std::cout << v->count() << std::endl;
+
+      } else if (boost::iequals(cv[0], "!")) {
+        // randomize the vector...
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        v->random_n(16);
+        std::cout << v->count() << std::endl;
         
+      } else if (boost::iequals(cv[0], "1")) {
+        // randomize the vector...
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        v->ones();
+        std::cout << v->count() << std::endl;
+
+      } else if (boost::iequals(cv[0], "0")) {
+        // randomize the vector...
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        v->zeros();
+        std::cout << v->count() << std::endl;
+
+
       } else
         std::cout << "syntax error:" << input << std::endl;
 

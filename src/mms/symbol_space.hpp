@@ -11,7 +11,19 @@
 #include <boost/optional.hpp>
 
 #include "elemental_vector.hpp"
+#include "../sdm/util/rand.h"
+
+// TODO make config
 #define VELEMENT_64 1
+#define HAVE_DISPATCH
+ 
+#ifdef VELEMENT_64
+#define ONE 1ULL
+#else
+#define ONE 1U
+#endif
+#define CHAR_BITS (8)
+
 
 namespace sdm {
 
@@ -45,13 +57,14 @@ namespace sdm {
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
-      // SDM vector types
-      //typedef VectorElementType vector_t[VArraySize];
+      // XXX UC
       typedef elemental_vector<VectorElementType, segment_manager_t> elemental_vector_t;
 
 
-      
-      // Symbolic vector -- indexed by: name hash, r&b tree for prefix of name, random access 
+      /////////////////////////////////////////////////////////////////////
+      // symbol - named vector with laziy computed elemental fingerprint
+      //
+      // indexed by: name hash, r&b tree for prefix of name, random access 
 
       struct symbol {
 
@@ -119,6 +132,8 @@ namespace sdm {
         > symbol_table_t;
 
 
+      
+      ////////////////////////////////////////////////////
       // vector_space implemented as a vector of vectors
       
       typedef VectorElementType element_t;
@@ -132,12 +147,12 @@ namespace sdm {
       
       struct vector : public vector_t {
 
+        // construct fully 
         vector(const void_allocator_t& a) : vector_t(a) {
           this->reserve(VArraySize);
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0xffffffffffffffff);
-          // todo init... zeros
+          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
         }
 
         
@@ -146,11 +161,32 @@ namespace sdm {
         //  return os;
         //}
 
+                
+        /* set all bits */
+
+        inline void ones(void) {
+        #pragma unroll
+        #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            (*this)[i] = -1; 
+          }
+        }
+
+        /* clear all bits */
+
+        inline void zeros(void) {
+        #pragma unroll
+        #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            (*this)[i] = 0; 
+          }
+        }
+
+        
         // vector properties
         
         inline const std::size_t count() {
           std::size_t count = 0;
-
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
@@ -163,6 +199,127 @@ namespace sdm {
           return count;
         }
 
+        
+        inline float density() {
+          return (float) count()/(VArraySize * sizeof(element_t) * CHAR_BITS);
+        }
+
+
+        // vetor measurements
+        
+        inline const std::size_t distance(const vector& v) {
+          std::size_t distance = 0;
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            element_t r = (*this)[i] ^ (*v)[i]; 
+          #ifdef VELEMENT_64
+            distance += __builtin_popcountll(r);
+          #else
+            distance += __builtin_popcount(r);
+          #endif
+          }
+          return distance;
+        }
+
+
+        inline const std::size_t inner(const vector& v) {
+          std::size_t count = 0;
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            element_t r = (*this)[i] & (*v)[i]; 
+          #ifdef VELEMENT_64
+            count += __builtin_popcountll(r);
+          #else
+            count += __builtin_popcount(r);
+          #endif
+          }
+          return count;
+        }
+
+
+        inline std::size_t countsum(const vector& v) {
+          std::size_t count = 0;
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            element_t r = (*this)[i] | (*v)[i]; 
+          #ifdef VELEMENT_64
+            count += __builtin_popcountll(r);
+          #else
+            count += __builtin_popcount(r);
+          #endif
+          }
+          return count;
+        }
+
+
+        inline float similarity(const vector& v) {
+          // inverse of the normalized distance
+          return 1.0 - distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
+        }
+
+
+
+        /////////////////////////////////
+        // basic operations on vectors //
+        /////////////////////////////////
+
+        /* add or superpose */
+
+        inline void superpose(const vector& v) {
+        #pragma unroll
+        #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            (*this)[i] |= (*v)[i];
+          }
+        }
+
+
+        
+        /* randomize */
+        
+        inline std::size_t random_n(const std::size_t n) {
+          // 1. keep setting random bits in vector until target density is reached
+          std::size_t l = 0;
+          std::size_t c = count();
+          while (c < n) {
+            std::size_t r = irand((VArraySize * sizeof(element_t) * CHAR_BITS) - 1);
+            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+            c = count();
+            ++l;
+          }
+          return l; // instrumentation!
+        }
+
+        // use a probability (density) to set number of random bits
+        
+        inline void random(const float p) {
+          (void) random_n((std::size_t) floor(p) * (VArraySize * sizeof(element_t) * CHAR_BITS));
+        }
+
+
+        /* subtract v from u */
+
+        inline void subtract(const vector& v) {
+        #pragma unroll
+        #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            (*this)[i] &= ~(*v)[i];
+          }
+        }
+
+        inline void multiply(const vector& v) {
+        #pragma unroll
+        #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VArraySize; ++i) {
+            (*this)[i] ^= (*v)[i];
+          }
+        }
+        
       };
 
       // vector allocators
