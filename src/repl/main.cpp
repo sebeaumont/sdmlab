@@ -194,7 +194,7 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], "!")) {
         // randomize the vector...
         boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        v->random_n(16);
+        rts.randomize_vector(v, 0.001);
         std::cout << v->count() << std::endl;
         
       } else if (boost::iequals(cv[0], "1")) {

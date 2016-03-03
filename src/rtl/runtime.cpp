@@ -12,10 +12,11 @@ namespace sdm {
   ////////////////////////////////////////////
 
   runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) :
-    heap(bip::open_or_create, mmf.c_str(), initial_size), heapimage(mmf) {
-    // init random
-    init_prng(); // XXx this might fail!
-    // new idea to pre-cache spaces (and workaroud some weirdness)
+    heap(bip::open_or_create, mmf.c_str(), initial_size),
+    heapimage(mmf),
+    irand(random::index_randomizer(space::vector::dimensions)) {
+    
+    // pre-cache spaces (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
           ensure_space_by_name(spacename);
     }
@@ -90,6 +91,14 @@ namespace sdm {
   // deletion
 
 
+  // low level randomize
+  void runtime::randomize_vector(boost::optional<space::vector&> v, float p) {
+    std::size_t n = floor(p * space::vector::dimensions);
+    std::vector<unsigned>& ilist = irand.shuffle();
+    // xxx can we avoid this copy? maybe pass the iterator instead?
+    std::vector<unsigned> bitlist(ilist.begin(), ilist.begin() + n);
+    v->setbits(bitlist);
+  }
   
   //////////////////////
   /// space management
@@ -103,7 +112,7 @@ namespace sdm {
     auto it = spaces.find(name);
     
     if (it == spaces.end()) {
-      // need to delegate find_or_construct to heap
+      // delegate find_or_construct to symbol_space
       space* sp = new space(name, heap);
       spaces[name] = sp;
       return sp;
@@ -125,8 +134,8 @@ namespace sdm {
     return heap.find<space>(name.c_str());
   }
   */
-  runtime::space*
-  runtime::get_space_by_name(const std::string& name) {
+  
+  runtime::space* runtime::get_space_by_name(const std::string& name) {
     auto it = spaces.find(name);
     if (it == spaces.end())
       throw space_not_found(name);
@@ -175,5 +184,4 @@ namespace sdm {
     return heap.shrink_to_fit(heapimage.c_str());
   }
 
-  
 }
