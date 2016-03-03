@@ -7,9 +7,9 @@
 #include <map>
 
 #include "../mms/symbol_space.hpp"
-#include "../sdm/util/rand.h"
-
+#include "../sdm/util/fast_random.hpp"
 #include "runtime_exceptions.hpp"
+
 
 namespace sdm {
 
@@ -21,7 +21,10 @@ namespace sdm {
 
   public:
 
+    ///////////////////////////////////////////////
     // mms symbol_space implementation definition
+    ///////////////////////////////////////////////
+
     typedef symbol_space<unsigned long long, 265, 16, segment_t> space;
 
     // constructor to initialize file mapped heap 
@@ -85,16 +88,22 @@ namespace sdm {
     bool compactify_heap();
 
     // heap metrics
+    
     inline std::size_t heap_size() const { return heap.get_size(); }
     inline std::size_t free_heap()  const { return heap.get_free_memory(); }
     inline bool check_heap_sanity() { return heap.check_sanity(); }
 
     
+    // randomise a vector 
+    void randomize_vector(boost::optional<space::vector&>, float);
+
+    // 
+    
   private:
     
     // runtime memoizes pointers to named spaces to optimize symbol resolution 
     space* ensure_space_by_name(const std::string&); 
-
+  
     ////////////////////
     // lifetime state //
     ////////////////////
@@ -104,6 +113,7 @@ namespace sdm {
     const std::string heapimage;
     // read through cache
     std::map<const std::string, space*> spaces; // used space cache
-
+    // randomizer
+    random::index_randomizer irand;
   };
 }

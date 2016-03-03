@@ -11,7 +11,7 @@
 #include <boost/optional.hpp>
 
 #include "elemental_vector.hpp"
-#include "../sdm/util/rand.h"
+//#include "../sdm/util/fast_random.hpp"
 
 // TODO make config
 #define VELEMENT_64 1
@@ -59,6 +59,7 @@ namespace sdm {
 
       // XXX UC
       typedef elemental_vector<VectorElementType, segment_manager_t> elemental_vector_t;
+
 
 
       /////////////////////////////////////////////////////////////////////
@@ -155,7 +156,9 @@ namespace sdm {
           for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
         }
 
-        
+
+        static const std::size_t dimensions =  VArraySize * sizeof(element_t) * CHAR_BITS;
+
         //friend std::ostream& operator<<(std::ostream& os, const vector& v) {
         //  os << v.something const; 
         //  return os;
@@ -201,11 +204,11 @@ namespace sdm {
 
         
         inline float density() {
-          return (float) count()/(VArraySize * sizeof(element_t) * CHAR_BITS);
+          return (float) count() / dimensions;
         }
 
 
-        // vetor measurements
+        // vector measurements
         
         inline const std::size_t distance(const vector& v) {
           std::size_t distance = 0;
@@ -278,30 +281,19 @@ namespace sdm {
 
 
         
-        /* randomize */
+        // set a list of bits
         
-        inline std::size_t random_n(const std::size_t n) {
-          // 1. keep setting random bits in vector until target density is reached
-          std::size_t l = 0;
-          std::size_t c = count();
-          while (c < n) {
-            std::size_t r = irand((VArraySize * sizeof(element_t) * CHAR_BITS) - 1);
+        inline void setbits(const std::vector<unsigned>& bids) {
+          // XXX indexrand needs to be passed in
+          // and/or made global by runtime system  
+          for (std::size_t r : bids) {
             std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
             std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
             (*this)[i] |= (ONE << b);
-            c = count();
-            ++l;
           }
-          return l; // instrumentation!
         }
 
-        // use a probability (density) to set number of random bits
         
-        inline void random(const float p) {
-          (void) random_n((std::size_t) floor(p) * (VArraySize * sizeof(element_t) * CHAR_BITS));
-        }
-
-
         /* subtract v from u */
 
         inline void subtract(const vector& v) {
@@ -441,7 +433,7 @@ namespace sdm {
         else return *i;
       }
 
-      // xxx under construction: return vectors XXX weirdly this vector is const!!!!
+      // xxx under construction expose vectors directly
       
       inline boost::optional<vector&> get_vector(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
@@ -491,7 +483,6 @@ namespace sdm {
       vector_space*        vectors; 
       segment_t&           segment;
       void_allocator_t     allocator;
-  
     };
   }
 }
