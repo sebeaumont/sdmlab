@@ -47,7 +47,7 @@ namespace sdm {
      * for a symbol_space
      */
     
-    class symbol_space {
+    class symbol_space final {
       
       typedef SegmentClass segment_t;
       
@@ -67,7 +67,7 @@ namespace sdm {
       //
       // indexed by: name hash, r&b tree for prefix of name, random access 
 
-      struct symbol {
+      struct symbol final {
 
         // symbol_t state
         shared_string_t name;
@@ -146,7 +146,7 @@ namespace sdm {
       
       // a vector type
       
-      struct vector : public vector_t {
+      struct vector final : public vector_t {
 
         // construct fully 
         vector(const void_allocator_t& a) : vector_t(a) {
@@ -282,11 +282,14 @@ namespace sdm {
 
         
         // set a list of bits
-        
-        inline void setbits(const std::vector<unsigned>& bids) {
+        inline void setbits(const std::vector<unsigned>::iterator& start,
+                            const std::vector<unsigned>::iterator& end) {
+          for (auto it = start; it < end; ++it){
+            //inline void setbits(const std::vector<unsigned>& bids) {
           // XXX indexrand needs to be passed in
           // and/or made global by runtime system  
-          for (std::size_t r : bids) {
+          //for (std::size_t r : bids) {
+            unsigned r = *it;
             std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
             std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
             (*this)[i] |= (ONE << b);
@@ -325,7 +328,7 @@ namespace sdm {
       
       // vector_space is_a vector_vector_t
       
-      struct vector_space : public vector_vector_t {
+      struct vector_space final : public vector_vector_t {
 
         vector_space(const void_allocator_t& a) : vector_vector_t(a) {}
 

@@ -95,9 +95,7 @@ namespace sdm {
   void runtime::randomize_vector(boost::optional<space::vector&> v, float p) {
     std::size_t n = floor(p * space::vector::dimensions);
     std::vector<unsigned>& ilist = irand.shuffle();
-    // xxx can we avoid this copy? maybe pass the iterator instead?
-    std::vector<unsigned> bitlist(ilist.begin(), ilist.begin() + n);
-    v->setbits(bitlist);
+    v->setbits(ilist.begin(), ilist.begin() + n);
   }
   
   //////////////////////
