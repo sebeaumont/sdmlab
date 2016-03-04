@@ -58,7 +58,7 @@ namespace sdm {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // XXX UC
-      typedef elemental_vector<VectorElementType, segment_manager_t> elemental_vector_t;
+      typedef elemental_vector<unsigned, segment_manager_t> elemental_vector_t;
 
 
 
@@ -68,21 +68,25 @@ namespace sdm {
       // indexed by: name hash, r&b tree for prefix of name, random access 
 
       struct symbol final {
-
         // symbol_t state
-        shared_string_t name;
-        elemental_vector_t super;        // 50-50 balanced elementals 
-        elemental_vector_t suber;
+        shared_string_t _name;
+        
+      private:
+        elemental_vector_t _basis; 
 
+      public:
         // constructor
-        symbol(const char* s, const void_allocator_t& void_alloc)
-          : name(s, void_alloc), super(ElementalBits/2, 0, void_alloc), suber(ElementalBits/2, 0, void_alloc) {}
-      
+        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, 0, void_alloc) {}
+
+        inline const shared_string_t& name(void) { return _name; }
+
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << s.name << " (" << sizeof(symbol) << "," << ElementalBits <<  ")";
+          os << s._name;
           return os;
         }
+
+        
       };
 
       // allocator for symbol
@@ -126,8 +130,8 @@ namespace sdm {
       typedef multi_index_container<
         symbol,
         indexed_by<
-          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name)>,
-          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, name), partial_string_comparator>,
+          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, _name)>,
+          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, _name), partial_string_comparator>,
           random_access<>
           >, symbol_allocator_t
         > symbol_table_t;
@@ -215,7 +219,7 @@ namespace sdm {
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] ^ (*v)[i]; 
+            element_t r = (*this)[i] ^ v[i]; 
           #ifdef VELEMENT_64
             distance += __builtin_popcountll(r);
           #else
@@ -231,7 +235,7 @@ namespace sdm {
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] & (*v)[i]; 
+            element_t r = (*this)[i] & v[i]; 
           #ifdef VELEMENT_64
             count += __builtin_popcountll(r);
           #else
@@ -247,7 +251,7 @@ namespace sdm {
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] | (*v)[i]; 
+            element_t r = (*this)[i] | v[i]; 
           #ifdef VELEMENT_64
             count += __builtin_popcountll(r);
           #else
@@ -260,7 +264,7 @@ namespace sdm {
 
         inline float similarity(const vector& v) {
           // inverse of the normalized distance
-          return 1.0 - distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
+          return 1.0 - (float) distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
         }
 
 
@@ -275,7 +279,7 @@ namespace sdm {
         #pragma unroll
         #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            (*this)[i] |= (*v)[i];
+            (*this)[i] |= v[i];
           }
         }
 
@@ -285,10 +289,6 @@ namespace sdm {
         inline void setbits(const std::vector<unsigned>::iterator& start,
                             const std::vector<unsigned>::iterator& end) {
           for (auto it = start; it < end; ++it){
-            //inline void setbits(const std::vector<unsigned>& bids) {
-          // XXX indexrand needs to be passed in
-          // and/or made global by runtime system  
-          //for (std::size_t r : bids) {
             unsigned r = *it;
             std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
             std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
@@ -303,7 +303,7 @@ namespace sdm {
         #pragma unroll
         #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            (*this)[i] &= ~(*v)[i];
+            (*this)[i] &= ~v[i];
           }
         }
 
@@ -311,7 +311,7 @@ namespace sdm {
         #pragma unroll
         #pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i=0; i < VArraySize; ++i) {
-            (*this)[i] ^= (*v)[i];
+            (*this)[i] ^= v[i];
           }
         }
         
@@ -408,7 +408,8 @@ namespace sdm {
           // inserted string iterator maps to index
           // XXX vector space hook XXX
           vectors->push_back(vector(allocator));
-          return n2i(p.first);
+          assert (vectors->size()-1 == n2i(p.first));
+          return vectors->size()-1;
           
         } 
         else return boost::none;
@@ -442,9 +443,10 @@ namespace sdm {
         symbol_by_name& name_idx = index->template get<0>();
         typename symbol_by_name::iterator it = name_idx.find(shared_string(k));
         if (it == name_idx.end()) return boost::none;
+        // TODO look at n2i efficiency
         else return (*vectors)[(n2i(it))];
       }
-      
+
       
       // search by prefix
       
