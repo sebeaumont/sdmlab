@@ -186,7 +186,7 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], ">")) {
         ; // export file
 
-      } else if (boost::iequals(cv[0], ".")) {
+      } else if (boost::iequals(cv[0], "/")) {
         // array access to space
         boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         std::cout << v->count() << std::endl; 
@@ -205,6 +205,13 @@ int main(int argc, const char** argv) {
         boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
         // optional guards? tee hee
         std::cout << v->similarity(*u) << std::endl;
+        
+      } else if (boost::iequals(cv[0], ".")) {
+        //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        // optional guards? tee hee
+        std::cout << v->inner(*u) << std::endl;
         
 
         
