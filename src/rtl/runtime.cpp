@@ -19,6 +19,13 @@ namespace sdm {
       ensure_space_by_name(spacename);
   }
 
+
+  runtime::~runtime() {
+    heap.flush();
+    std::cout << "flushed..." << heapimage << std::endl;
+  }
+
+  
   
   ///////////////////
   // named vectors // 
@@ -80,8 +87,8 @@ namespace sdm {
   }
 
   // measurement
-  float
-  runtime::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
+  
+  float runtime::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
     boost::optional<const space::symbol&> v = get_symbol(snv, vn);
     boost::optional<const space::symbol&> u = get_symbol(snu, un);
     // TODO 
