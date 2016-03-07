@@ -7,58 +7,61 @@
 
 namespace sdm {
   
-  ////////////////////////////////////////////
-  // runtime constructor to initialize heap //
-  ////////////////////////////////////////////
+  ////////////////////////////////////
+  // constructor to initialize heap //
+  ////////////////////////////////////
 
-  runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) :
-    heap(bip::open_or_create, mmf.c_str(), initial_size),
-    heapimage(mmf),
-    irand(random::index_randomizer(space::vector::dimensions)) {
-    
+  runtime::runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf) : heap(bip::open_or_create, mmf.c_str(), initial_size),
+                                                                                                         heapimage(mmf),
+                                                                                                         irand(random::index_randomizer(space::vector::dimensions)) {
     // pre-cache spaces (and workaroud some weirdness)
-      for (std::string spacename: get_named_spaces())
-          ensure_space_by_name(spacename);
-    }
+    for (std::string spacename: get_named_spaces())
+      ensure_space_by_name(spacename);
+  }
+
+  
+  ///////////////////
+  // named vectors // 
+  ///////////////////
+  
+  float runtime::density(const std::string& sn, const std::string& vn) {
+    boost::optional<space::vector&> v = ensure_space_by_name(sn)->get_vector(vn);
+    return v->density();
+  }
 
   
   ///////////////////
   // named symbols //
   ///////////////////
 
-  // properties
-
-  float runtime::density(const std::string& sn, const std::string& vn) {
-    boost::optional<const space::symbol&> v = ensure_space_by_name(sn)->get(vn);
-    return 0.0; //v.density();
-  }
 
   // get named symbol
 
-  boost::optional<const runtime::space::symbol&>
-  runtime::get_symbol(const std::string& sn, const std::string& vn) {
+  boost::optional<const runtime::space::symbol&> runtime::get_symbol(const std::string& sn, const std::string& vn) {
     return get_space_by_name(sn)->get(vn);
   }
 
+  // get named vector 
+  
   boost::optional<runtime::space::vector&> runtime::get_vector(const std::string& sn, const std::string& vn) {
     return get_space_by_name(sn)->get_vector(vn);
   }
 
-  // find by prefix
+  // find symbols by prefix
   
-  std::pair<runtime::space::symbol_iterator, runtime::space::symbol_iterator>
-  runtime::search_symbols(const std::string& sn, const std::string& vp) {
+  typedef std::pair<runtime::space::symbol_iterator, runtime::space::symbol_iterator> symbol_list;
+
+  symbol_list runtime::search_symbols(const std::string& sn, const std::string& vp) {
     return get_space_by_name(sn)->search(vp);
   }
   
   // all symbols
   /*
   runtime::get_symbols(const std::string& sn) {
-    std::symbol<space::symbol> symbols;
-    for (spacev :get_space_by_name(sn)
-  
+    for (v : get_space_by_name(sn)) ;
   }
    */
+  
   // create new symbol
 
   boost::optional<const std::size_t> runtime::add_symbol(const std::string& sn, const std::string& vn) {
@@ -68,12 +71,12 @@ namespace sdm {
   
   // operations
   
-  void
-  runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
-    boost::optional<const space::symbol&> v = ensure_space_by_name(snv)->get(vn);
-    // rhs must exist
-    boost::optional<const space::symbol&> u = get_symbol(snu, un);
-    // TODO if v and u superpose else throw a notfound exception
+  void runtime::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
+    boost::optional<space::vector&> v = ensure_space_by_name(snv)->get_vector(vn);
+    boost::optional<space::vector&> u = ensure_space_by_name(snu)->get_vector(un);
+    // optional guards? 
+    v->superpose(*u);
+    
   }
 
   // measurement
@@ -91,14 +94,14 @@ namespace sdm {
   // deletion
 
 
-  // low level randomize
+  // low level randomize a vector -- writes p * d random bits
   void runtime::randomize_vector(boost::optional<space::vector&> v, float p) {
     std::size_t n = floor(p * space::vector::dimensions);
     std::vector<unsigned>& ilist = irand.shuffle();
-    // xxx can we avoid this copy? maybe pass the iterator instead?
-    std::vector<unsigned> bitlist(ilist.begin(), ilist.begin() + n);
-    v->setbits(bitlist);
+    v->setbits(ilist.begin(), ilist.begin() + n);
   }
+
+ 
   
   //////////////////////
   /// space management
@@ -138,7 +141,7 @@ namespace sdm {
   runtime::space* runtime::get_space_by_name(const std::string& name) {
     auto it = spaces.find(name);
     if (it == spaces.end())
-      throw space_not_found(name);
+      throw space_not_found(name); // no exceptions?
     else
       return it->second;
   }

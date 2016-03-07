@@ -186,11 +186,35 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], ">")) {
         ; // export file
 
-      } else if (boost::iequals(cv[0], ".")) {
+      } else if (boost::iequals(cv[0], "/")) {
         // array access to space
         boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        std::cout << v->count() << std::endl;
+        std::cout << v->count() << std::endl; 
 
+      } else if (boost::iequals(cv[0], "+")) {
+        //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        // optional guards? tee hee
+        v->superpose(*u);
+        std::cout << v->count() << std::endl;
+        
+      } else if (boost::iequals(cv[0], "?")) {
+        //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        // optional guards? tee hee
+        std::cout << v->similarity(*u) << std::endl;
+        
+      } else if (boost::iequals(cv[0], ".")) {
+        //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
+        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        // optional guards? tee hee
+        std::cout << v->inner(*u) << std::endl;
+        
+
+        
       } else if (boost::iequals(cv[0], "!")) {
         // randomize the vector...
         boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
@@ -225,9 +249,9 @@ int main(int argc, const char** argv) {
   
   // goodbye from me and goodbye from him...
   std::cout << std::endl
-            << "heap size: " << (float) rts.heap_size() / (1024*1024)
-            << " free heap: " << (float) rts.free_heap() / (1024*1024)
-            << " heap sane:" << (float) rts.check_heap_sanity() 
+            << (rts.check_heap_sanity() ? ":-)" : ":-(")
+            << " heap size: " << (float) rts.heap_size() / (1024*1024)
+            << " free: " << (float) rts.free_heap() / (1024*1024)
             << std::endl << "...bye" << std::endl;
   
   return 0;
