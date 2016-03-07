@@ -7,9 +7,10 @@
 #include <map>
 
 #include "../mms/symbol_space.hpp"
-#include "../sdm/util/fast_random.hpp"
+#include "../util/fast_random.hpp"
 #include "runtime_exceptions.hpp"
 
+#include <iostream>
 
 namespace sdm {
 
@@ -28,7 +29,7 @@ namespace sdm {
     typedef symbol_space<unsigned long long, 265, 16, segment_t> space;
 
     // constructor to initialize file mapped heap 
-    runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
+    explicit runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
 
     // no copy or move semantics
     runtime() = delete;
@@ -37,6 +38,9 @@ namespace sdm {
     const runtime& operator=(const runtime&) = delete;
     const runtime& operator=(runtime&&) = delete;
 
+    // destructor
+    ~runtime();
+    
     ///////////////////
     // named vectors //
     ///////////////////

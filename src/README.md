@@ -1,20 +1,12 @@
 # SDMLIB
 
-## TODO
-
-    - Merge new sparce random vector implementation. IN PROGRESS
-    
-    - Provide implementation of vspace for a given vector space size
-      and sparsity. DONE
-
-    - c++ and c library wrappers of above fascade. IN PROGRESS
-
-    - Optimized llvm bitcode of above. See bss library build.
-
-    - Re-implement vspave command line test tool with above. IN PROGRESS
-
-    - Library testing logging and FFIs. IN PROGRESS
-
-    - Dynamic (grow/shrink) heap. IN PROGRESS
-
-    - Garbage collection. MAY NOT BE NECESSARY.
+## Sources:
+```
+mms    Database memory management system 
+rtl    Runtime system library API and implementation
+repl   Funtime repl for developing api
+test   Proper testing
+util   General utilities
+```
+_______________________
+Copyright (c) 2011-2016 Simon Beaumont - All Rights Reserved.

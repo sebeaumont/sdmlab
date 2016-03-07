@@ -86,9 +86,16 @@ namespace sdm {
           return os;
         }
 
-        
+        // set basis vector -- we need to freeze this once evaluated
+        void setbasis(const std::vector<unsigned>::iterator& start,
+                      const std::vector<unsigned>::iterator& end) {
+          unsigned i = 0;
+          #pragma unroll
+          for (auto it = start; it < end; ++it, ++i) _basis[i] = *it;
+        }
       };
 
+      
       // allocator for symbol
       
       typedef bip::allocator<symbol, segment_manager_t> symbol_allocator_t;
@@ -373,13 +380,12 @@ namespace sdm {
 
       
       // destructor
-      
+      /*
       ~symbol_space() {
         // should we remove the shared_memory_object (by name) here as well?
-        // segment is global so flushing should be manged by owner... 
-        segment.flush();
+        // segment is global so flushing should be manged by owner...
       }
-
+      */
       // delete the rest of the gang don't ever want to copy a space -- but move?
 
       symbol_space(const symbol_space&) = delete;
