@@ -12,71 +12,76 @@
 
 #include <iostream>
 
-namespace sdm {
+namespace molemind { namespace sdm {
 
-  // space and heap memory implementation types
-  using namespace sdm::mms;
-  typedef bip::managed_mapped_file segment_t;
+  namespace bip = boost::interprocess;
+  using namespace molemind;
   
-  class runtime {
+  class database {
 
+    typedef bip::managed_mapped_file segment_t;
+    
   public:
 
-    ///////////////////////////////////////////////
-    // mms symbol_space implementation definition
-    ///////////////////////////////////////////////
+    /////////////////////////////////
+    /// mms symbol_space definition
+    /////////////////////////////////
 
-    typedef symbol_space<unsigned long long, 265, 16, segment_t> space;
+    /// type of space implementation -- todo make this platform independant...
+    
+    typedef sdm::mms::symbol_space<unsigned long long, 265, 16, segment_t> space;
 
-    // constructor to initialize file mapped heap 
-    explicit runtime(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
+    
+    /// constructor to initialize file mapped heap
+    
+    explicit database(const std::size_t initial_size, const std::size_t max_size, const std::string& mmf);
 
     // no copy or move semantics
-    runtime() = delete;
-    runtime(const runtime&) = delete;
-    runtime(runtime&&) = delete;
-    const runtime& operator=(const runtime&) = delete;
-    const runtime& operator=(runtime&&) = delete;
 
-    // destructor
-    ~runtime();
+    database() = delete;
+    database(const database&) = delete;
+    database(database&&) = delete;
+    const database& operator=(const database&) = delete;
+    const database& operator=(database&&) = delete;
+
+    /// destructor sanely syncs file mapped heap
     
-    ///////////////////
-    // named vectors //
-    ///////////////////
+    ~database();
+    
 
-    // get named symbol
+    /// get named symbol
     boost::optional<const space::symbol&> get_symbol(const std::string&, const std::string&);
 
-    // get named vector
+    /// get named vector
     boost::optional<space::vector&> get_vector(const std::string& sn, const std::string& vn);
 
 
-    // find by prefix
+    /// find by prefix
     std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string&, const std::string&);
 
-    // create new symbol
+    /// create new symbol
     boost::optional<const std::size_t> add_symbol(const std::string&, const std::string&);
     
-    // properties
-    float density(const std::string&, const std::string&);
+    /// vector properties
+    double density(const std::string&, const std::string&);
 
 
-    // binary operations
+    /// vector binary operations
     void superpose(const std::string&, const std::string&, const std::string&, const std::string&);
   
-    // measurement
-    float similarity(const std::string&, const std::string&, const std::string&, const std::string&);
+    /// vector measurement
+    double similarity(const std::string&, const std::string&, const std::string&, const std::string&);
     
-    // neighbourhood
-    
+    /// neighbourhood
+    database::space::topology neighbourhood(const std::string& sn, const std::string& snv, const std::string& vn, double p, double d, std::size_t n);    
 
-    // deletion
+    /// deletion
     
     //////////////////////
     // space operations //
     //////////////////////
 
+    
     space* get_space_by_name(const std::string&); // XXX make private and expose space properties?
     
     bool destroy_space(const std::string&);
@@ -105,7 +110,7 @@ namespace sdm {
     
   private:
     
-    // runtime memoizes pointers to named spaces to optimize symbol resolution 
+    // database memoizes pointers to named spaces to optimize symbol resolution 
     space* ensure_space_by_name(const std::string&); 
   
     ////////////////////
@@ -120,4 +125,4 @@ namespace sdm {
     // randomizer
     random::index_randomizer irand;
   };
-}
+  }}

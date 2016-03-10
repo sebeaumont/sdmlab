@@ -1,11 +1,13 @@
 # runtime master build
-project(geckortl)
+project(sdmlab)
 cmake_minimum_required (VERSION 3.0)
 enable_testing()
 
 # modern c++ please
 add_definitions("-std=c++14")
 add_definitions("-Wall")
+# is namespace wizardy allowed
+add_definitions("-Wc++1z-extensions")
 
 # YMMV so this where we tune for our target/platform
 

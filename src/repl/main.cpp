@@ -16,7 +16,9 @@
 //#include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
-#include "../rtl/runtime.hpp"
+
+// we are really testing this 
+#include "../rtl/database.hpp"
 
 // wall clock timer
 
@@ -82,7 +84,7 @@ inline bool file_exists(std::string& path) {
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  using namespace sdm;
+  using namespace molemind::sdm;
 
   // command line options
     
@@ -117,8 +119,8 @@ int main(int argc, const char** argv) {
   std::string heapfile(opts["heap"].as<std::string>());
 
 
-  // create runtime with required heap
-  runtime rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
+  // create database with requirement
+  database rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
 
   // XXX pro tem default space XXX FIX ME!!!
   const std::string default_spacename("words");
@@ -188,48 +190,46 @@ int main(int argc, const char** argv) {
 
       } else if (boost::iequals(cv[0], "/")) {
         // array access to space
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         std::cout << v->count() << std::endl; 
 
       } else if (boost::iequals(cv[0], "+")) {
         //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
         // optional guards? tee hee
         v->superpose(*u);
         std::cout << v->count() << std::endl;
         
       } else if (boost::iequals(cv[0], "?")) {
         //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
         // optional guards? tee hee
         std::cout << v->similarity(*u) << std::endl;
         
       } else if (boost::iequals(cv[0], ".")) {
         //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        boost::optional<runtime::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> u = rts.get_vector(default_spacename, cv[2]);
         // optional guards? tee hee
         std::cout << v->inner(*u) << std::endl;
         
-
-        
       } else if (boost::iequals(cv[0], "!")) {
         // randomize the vector...
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         rts.randomize_vector(v, 0.001);
         std::cout << v->count() << std::endl;
         
       } else if (boost::iequals(cv[0], "1")) {
         // randomize the vector...
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         v->ones();
         std::cout << v->count() << std::endl;
 
       } else if (boost::iequals(cv[0], "0")) {
         // randomize the vector...
-        boost::optional<runtime::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         v->zeros();
         std::cout << v->count() << std::endl;
 
@@ -241,7 +241,7 @@ int main(int argc, const char** argv) {
     } else if (cv.size() > 0) {
       // default to search if no args
       auto ip = rts.search_symbols(default_spacename, cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<runtime::space::symbol>(std::cout, "\n"));
+      std::copy(ip.first, ip.second, std::ostream_iterator<database::space::symbol>(std::cout, "\n"));
     }
     
     std::cout << prompt;  
