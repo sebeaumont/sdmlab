@@ -7,8 +7,9 @@
 #define BOOST_TEST_MODULE runtime_library
 #include <boost/test/included/unit_test.hpp>
 
-#include "runtime.hpp"
-using namespace sdm;
+#include "database.hpp"
+
+using namespace molemind::sdm;
 
 // sizing
 const std::size_t ini_size = 700 * 1024 * 1024;
@@ -19,18 +20,18 @@ const std::string test_space1 = "words";
 
 
 // create and destroy rts
-struct runtime_setup {
-  runtime rts;
-  runtime_setup () : rts(ini_size, max_size, image) {}
-  ~runtime_setup () {
+struct database_setup {
+  database rts;
+  database_setup () : rts(ini_size, max_size, image) {}
+  ~database_setup () {
     // delete heapimage
     remove(image.c_str());
   }
 };
 
-//BOOST_AUTO_TEST_SUITE(runtime_library)
+//BOOST_AUTO_TEST_SUITE(database_library)
 
-BOOST_FIXTURE_TEST_SUITE(runtime_library, runtime_setup)
+BOOST_FIXTURE_TEST_SUITE(database_library, database_setup)
 
 BOOST_AUTO_TEST_CASE(rts_init)
 {

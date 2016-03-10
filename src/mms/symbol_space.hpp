@@ -11,12 +11,14 @@
 #include <boost/optional.hpp>
 
 #include "elemental_vector.hpp"
-//#include "../sdm/util/fast_random.hpp"
 
+/////////////////////
 // TODO make config
+
 #define VELEMENT_64 1
 #define HAVE_DISPATCH
- 
+#include <dispatch/dispatch.h>
+
 #ifdef VELEMENT_64
 #define ONE 1ULL
 #else
@@ -24,15 +26,17 @@
 #endif
 #define CHAR_BITS (8)
 
+/////////////////////
 
-namespace sdm {
-
+namespace molemind { namespace sdm {
+  
   namespace mms {
-
+    
+    using namespace molemind;
     using boost::multi_index_container;
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
-    
+
     /* 
      * this class template can be instantiated in runtime library
      * source or inlined in application code; the important
@@ -78,7 +82,9 @@ namespace sdm {
         // constructor
         symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, 0, void_alloc) {}
 
-        inline const shared_string_t& name(void) { return _name; }
+        inline const std::string name(void) const {
+          return std::string(_name.begin(), _name.end());
+        }
 
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
@@ -155,11 +161,11 @@ namespace sdm {
       typedef bip::vector<element_t, element_allocator_t> vector_t;
       
       
-      // a vector type
+      /// the vector type
       
       struct vector final : public vector_t {
 
-        // construct fully 
+        /// construct fully 
         vector(const void_allocator_t& a) : vector_t(a) {
           this->reserve(VArraySize);
           #pragma unroll
@@ -167,7 +173,7 @@ namespace sdm {
           for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
         }
 
-
+        /// dimensions of this vector
         static const std::size_t dimensions =  VArraySize * sizeof(element_t) * CHAR_BITS;
 
         //friend std::ostream& operator<<(std::ostream& os, const vector& v) {
@@ -268,7 +274,7 @@ namespace sdm {
           return count;
         }
 
-
+        /// Similarity of vectors 
         inline float similarity(const vector& v) {
           // inverse of the normalized distance
           return 1.0 - (float) distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
@@ -405,8 +411,7 @@ namespace sdm {
       typedef symbol symbol; // public face of symbol
       typedef vector vector; //xx
       
-      
-      // insert
+      /// insert
       
       boost::optional<const std::size_t> insert(const std::string& k) {
         auto p = index->insert(symbol(k.c_str(), allocator));
@@ -420,32 +425,34 @@ namespace sdm {
         } 
         else return boost::none;
       }
+
       
-      // random access
+      /// random access index
       
       typedef typename symbol_table_t::template nth_index<2>::type symbol_by_index;
       
-      // overload [] and delegate
+      /// overload [] and delegate
       
       inline const symbol& operator[](std::size_t i) {
         symbol_by_index& symbols = index->template get<2>(); 
         return symbols[i]; 
       }
+
       
-      // lookup by name
+      /// lookup by name
       
       typedef typename symbol_table_t::template nth_index<0>::type symbol_by_name;
 
-      inline boost::optional<const symbol&> get(const std::string& k) {
+      inline boost::optional<const symbol&> get_symbol_by_name(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
         typename symbol_by_name::iterator i = name_idx.find(shared_string(k));
         if (i == name_idx.end()) return boost::none;
         else return *i;
       }
 
-      // xxx under construction expose vectors directly
+      /// xxx under construction: expose vectors directly
       
-      inline boost::optional<vector&> get_vector(const std::string& k) {
+      inline boost::optional<vector&> get_vector_by_name(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
         typename symbol_by_name::iterator it = name_idx.find(shared_string(k));
         if (it == name_idx.end()) return boost::none;
@@ -454,7 +461,7 @@ namespace sdm {
       }
 
       
-      // search by prefix
+      /// search by name prefix
       
       typedef typename symbol_table_t::template nth_index<1>::type symbol_by_prefix;  
       typedef typename symbol_by_prefix::iterator symbol_iterator;
@@ -464,13 +471,112 @@ namespace sdm {
         return name_idx.equal_range(partial_string(shared_string(k)));
       }
 
-      // project the iterator into direct index
+      /// project the iterator into direct index
       
       inline const std::size_t n2i(typename symbol_by_name::iterator& nit) {
         return ((index->template project<2>(nit)) - (index->template get<2>().begin()));
       }
+
+
+      ///
+      /* 
+         WIP: parallelised SIMD operations on entire vectorspace
+         1. distribute by segments (n_cores) on cpu (treat as separate arrays on gpu?) 
+         2. accumulate number of matching targets in parallel scan
+         3. allocate smallest set of scores and sort in main thread 
+      */
       
-      // delegated space iterators
+      /// point
+      
+      struct point {
+    
+        std::string name;
+        double similarity;
+        double density;
+        
+        //
+        explicit point(const std::string& v, const float s, const float d)
+          : name(v), similarity(s), density(d) {}
+
+        /// similarity is 1-d
+        /// comparison for descending similarity
+        bool operator< (const point& s) const {
+          return similarity > s.similarity;
+        }
+
+        bool operator==(const point& s) const {
+          return name == s.name && similarity == s.similarity;
+        }
+        bool operator!=(const point& s) const {
+          return name != s.name || similarity != s.similarity;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, point& p) {
+          os <<  p.name << ":" << p.similarity << ":" << p.density;
+          return os;
+        }  
+
+      };
+      
+      //////////////////////
+      /// computed topology
+      
+      typedef std::vector<point> topology;
+
+      ///////////////////////////////////////
+      /// compute neighbourhood of a vector
+      
+      inline const topology neighbourhood(const vector& u,
+                                          const double p,
+                                          const double d,
+                                          const std::size_t n) {
+        
+        const std::size_t m = vectors->size();
+        // allocate working memory - TODO try this on stack
+        auto work = new double[m*2];
+        
+        //// parallel block ////
+        #ifdef HAVE_DISPATCH
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_apply(m, queue, ^(std::size_t i) {
+            work[i*2] = (*vectors)[i].density();
+            work[i*2+1] = (*vectors)[i].similarity(u);
+          });
+        dispatch_release(queue);
+        
+        #else
+        #pragma omp parallel for 
+        for (std::size_t i=0; i < m; ++i) {
+          work[i*2] = (*vectors)[i].density();
+          work[i*2+1] = (*vectors)[i].similarity(u);
+        }
+        #endif
+        //// end parallel block ////
+      
+        std::vector<point> topo;
+        topo.reserve(m); // ??? hmm is there a statistic here?
+        
+        // filter work array
+        for (std::size_t i=0; i < m; ++i) {
+          double rho = work[i*2];
+          double sim = work[i*2+1];
+          // apply p-d-filter
+          if (rho <= d && sim >= p) {
+            topo.push_back(point((*this)[i].name(), sim, rho));
+          }
+        }
+        
+        delete[] work;
+        // sort the scores in similarity order 
+        sort(topo.begin(), topo.end());
+        const std::size_t ns = topo.size();
+        
+        // chop off (long?) tail before serialising
+        topo.erase(topo.begin() + ((n < ns) ? n : ns), topo.end()); 
+        return topo;
+      }
+  
+      /// delegated space iterators
 
       typedef typename symbol_table_t::iterator iterator;
       typedef typename symbol_table_t::const_iterator const_iterator;
@@ -485,6 +591,7 @@ namespace sdm {
       inline const size_t entries() { return index->size(); }
       inline const std::string spacename() const { return name; }
 
+      
       // TODO: shrink_to_fit, grow
       
     private:    
@@ -496,4 +603,4 @@ namespace sdm {
       void_allocator_t     allocator;
     };
   }
-}
+}}

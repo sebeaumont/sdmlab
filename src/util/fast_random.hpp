@@ -14,7 +14,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-namespace sdm {
+namespace molemind { namespace sdm {
 
   namespace random {
 
@@ -119,5 +119,4 @@ namespace sdm {
     };
     
   }
-}
-
+  }}

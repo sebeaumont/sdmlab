@@ -7,7 +7,7 @@ include_directories (${Boost_INCLUDE_DIR})
 find_package(Threads)
 
 add_executable (rtl_load_space rtl_load_space.cpp)
-target_link_libraries(rtl_load_space sdmrt)
+target_link_libraries(rtl_load_space sdm)
 
 # low level space test 
 add_executable (mms_0 mms_0.cpp)

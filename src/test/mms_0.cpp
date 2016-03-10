@@ -22,7 +22,7 @@ const std::string heapfile = "vpsace-0.img";
 const std::string v0 = "vector-0";
 
 typedef bip::managed_mapped_file segment_t;
-typedef sdm::mms::symbol_space<unsigned long, 256, 16, segment_t> space_t;
+typedef molemind::sdm::mms::symbol_space<unsigned long, 256, 16, segment_t> space_t;
 
 //int main(int argc, char** argv) {
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(insert_vector) {
   std::cout << mms << std::endl;
   //BOOST_TEST_MESSAGE(msg);
   // 5. retrieve vector
-  BOOST_REQUIRE(mms.get(v0));
+  BOOST_REQUIRE(mms.get_symbol_by_name(v0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

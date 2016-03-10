@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace sdm {
+namespace molemind { namespace sdm {
 
   /* exception class for library */
   class error : public std::runtime_error {
@@ -32,5 +32,5 @@ namespace sdm {
     space_not_found(const std::string& what_arg) : not_found(what_arg) {}
     space_not_found(const char* what_arg) : not_found(what_arg) {}
   };
-}
+  }}
 
