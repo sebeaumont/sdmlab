@@ -221,6 +221,14 @@ int main(int argc, const char** argv) {
         rts.randomize_vector(v, 0.001);
         std::cout << v->count() << std::endl;
         
+      } else if (boost::iequals(cv[0], "%")) {
+        // topo
+        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        database::space::topology t = rts.neighbourhood(default_spacename, default_spacename, cv[1], 0, 1, 20);
+        for (auto p : t) 
+          std::cout << p << std::endl;
+
+        
       } else if (boost::iequals(cv[0], "1")) {
         // randomize the vector...
         boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);

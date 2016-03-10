@@ -510,7 +510,12 @@ namespace molemind { namespace sdm {
         bool operator!=(const point& s) const {
           return name != s.name || similarity != s.similarity;
         }
-        
+
+        friend std::ostream& operator<<(std::ostream& os, point& p) {
+          os <<  p.name << ":" << p.similarity << ":" << p.density;
+          return os;
+        }  
+
       };
       
       //////////////////////
