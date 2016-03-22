@@ -542,7 +542,7 @@ namespace molemind { namespace sdm {
             work[i*2] = (*vectors)[i].density();
             work[i*2+1] = (*vectors)[i].similarity(u);
           });
-        dispatch_release(queue);
+        // XXXX ARC forbids release XXXXX dispatch_release(queue);
         
         #else
         #pragma omp parallel for 
