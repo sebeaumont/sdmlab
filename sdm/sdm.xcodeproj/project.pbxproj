@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		963A949E1CAD7E8B00A321C8 /* post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963A949D1CAD7E8B00A321C8 /* post.swift */; };
 		966893A31C85EF3800C72187 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 966893A21C85EF3800C72187 /* main.cpp */; };
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
@@ -100,6 +101,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		963A949D1CAD7E8B00A321C8 /* post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = post.swift; sourceTree = "<group>"; };
 		966893711C85EA6D00C72187 /* mms */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mms; path = ../../src/mms; sourceTree = "<group>"; };
 		966893721C85EA6D00C72187 /* repl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = repl; path = ../../src/repl; sourceTree = "<group>"; };
 		966893731C85EA6D00C72187 /* rtl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rtl; path = ../../src/rtl; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				96FAEE191CA0A4B100EA6AD3 /* Assets.xcassets */,
 				96FAEE1B1CA0A4B100EA6AD3 /* LaunchScreen.storyboard */,
 				96FAEE1E1CA0A4B100EA6AD3 /* Info.plist */,
+				963A949D1CAD7E8B00A321C8 /* post.swift */,
 			);
 			path = dig;
 			sourceTree = "<group>";
@@ -559,6 +562,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96FAEE151CA0A4B100EA6AD3 /* SecondViewController.swift in Sources */,
+				963A949E1CAD7E8B00A321C8 /* post.swift in Sources */,
 				96FAEE111CA0A4B100EA6AD3 /* AppDelegate.swift in Sources */,
 				96FAEE131CA0A4B100EA6AD3 /* FirstViewController.swift in Sources */,
 			);

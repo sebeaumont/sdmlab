@@ -7,7 +7,7 @@
 //
 #import <Foundation/Foundation.h>
 
-//! SDM Database
+//! SDM Database 
 @interface SDMDatabase : NSObject
 
 - (instancetype) initWithName: (NSString*) name
