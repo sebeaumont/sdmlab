@@ -28,7 +28,6 @@ namespace molemind {
     database::~database() {
       if (check_heap_sanity()) {
         heap.flush();
-        std::cout << "flushed:" << heapimage << std::endl;
       } 
     }
     

@@ -47,13 +47,13 @@ func destroySDMDatabase(filename: String) -> Void {
   if manager.fileExistsAtPath(filepath) {
     do {
       try manager.removeItemAtPath(filepath)
-      NSLog("removed database: %s", filepath)
+      NSLog("removed database: %@", filepath)
     } catch {
       // more specific please!
-      NSLog("failed to remove database: %s", filepath)
+      NSLog("failed to remove database: %@", filepath)
     }
   } else {
-   NSLog("no database to remove: %s", filepath)
+   NSLog("no database to remove: %@", filepath)
   }
 }
 
@@ -76,5 +76,28 @@ allocate per chunk before running out of memory.
 */
 
 func postRun() -> Void {
-  createSDMTestDatabase(20, maxMb: 700)
+  let db = createSDMTestDatabase(20, maxMb: 700)
+  let nv = probeSymbolCardinality(db)
+  destroySDMTestDatabase()
+}
+
+func probeSymbolCardinality(db: SDMDatabase) -> Int {
+  let testspace = "Test"
+  // TODO get current cardianality of space and add
+  //let card = db.getSpaceCardinality(testspace)
+  var card: Int = 0
+  
+  while true {
+    do {
+      try db.addSymbol("symbol-\(card)", space: testspace)
+      card += 1
+      if card % 10000 == 0 {
+        NSLog("added: %d", card)
+      }
+      
+    } catch {
+      NSLog("catch: %d", card)
+      return card
+    }
+  }
 }
