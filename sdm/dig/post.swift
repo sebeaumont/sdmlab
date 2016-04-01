@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 // These are the Power On Self Tests for the dig app
 import sdmi
 
@@ -26,14 +27,54 @@ func fileInDocumentsDirectory(filename: String) -> String {
 }
 
 
-func createSDMTestDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
-  let Mb : UInt = 1024 * 1024;
+
+// sdm helpers
+
+func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
+  let Mb : UInt = 1024 * 1024
   // create sdm
   let db = SDMDatabase(name: fileInDocumentsDirectory(filename), size: sizeMb*Mb, max: maxMb*Mb)
-  print(db)
-  // built in unit tests -- hohum :-)
-  db.addSymbol("Simon", space:"People")
-  db.addSymbol("Hazel", space:"People")
-  // get symbols/vectors
+  // logging anyone?
+  NSLog("created database: %@ %d/%d", db, sizeMb, maxMb)
   return db
+}
+
+
+func destroySDMDatabase(filename: String) -> Void {
+  let manager = NSFileManager.defaultManager()
+  let filepath = fileInDocumentsDirectory(filename)
+  
+  if manager.fileExistsAtPath(filepath) {
+    do {
+      try manager.removeItemAtPath(filepath)
+      NSLog("removed database: %s", filepath)
+    } catch {
+      // more specific please!
+      NSLog("failed to remove database: %s", filepath)
+    }
+  } else {
+   NSLog("no database to remove: %s", filepath)
+  }
+}
+
+// derived utility functions
+
+func createSDMTestDatabase(sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
+  return createSDMDatabase(".POST", sizeMb: sizeMb, maxMb: maxMb)
+}
+
+
+func destroySDMTestDatabase() -> Void {
+  return destroySDMDatabase(".POST")
+}
+
+
+/* 
+The plan here is to create a database then try and grow it in chunks
+populatingchunks as we go and calibrating the number of vectors we can
+allocate per chunk before running out of memory.
+*/
+
+func postRun() -> Void {
+  createSDMTestDatabase(20, maxMb: 700)
 }
