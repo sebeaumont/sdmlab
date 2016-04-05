@@ -36,10 +36,6 @@ func statFile(filename: String) -> [String : AnyObject]? {
 
 func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
   let Mb : UInt = 1024 * 1024
-  // stat file
-  if let filestats = statFile(filename) {
-    NSLog("file stats: %@", filestats)
-  }
   // create sdm
   let db = SDMDatabase(name: fileInDocumentsDirectory(filename), size: sizeMb*Mb, max: maxMb*Mb)
   // logging anyone?
@@ -65,16 +61,6 @@ func destroySDMDatabase(filename: String) -> Void {
   }
 }
 
-// derived utility functions
-
-func createSDMTestDatabase(sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
-  return createSDMDatabase(".POST", sizeMb: sizeMb, maxMb: maxMb)
-}
-
-
-func destroySDMTestDatabase() -> Void {
-  return destroySDMDatabase(".POST")
-}
 
 
 /* 
@@ -84,9 +70,20 @@ allocate per chunk before running out of memory.
 */
 
 func postRun() -> Void {
-  let db = createSDMTestDatabase(500, maxMb: 700)
-  let nv = probeSymbolCardinality(db, testspace: "Test")
-  destroySDMTestDatabase()
+  
+  let filename = ".POST"
+  let testspace = "Test"
+  
+  // stat file
+  if let filestats = statFile(filename) {
+    NSLog("file stats: %@", filestats)
+    destroySDMDatabase(filename)
+  }
+  
+  let db = createSDMDatabase(filename, sizeMb: 500, maxMb: 700)
+  let nv = probeSymbolCardinality(db, testspace: testspace)
+
+  destroySDMDatabase(filename)
 }
 
 // insert symbols into test space
@@ -95,7 +92,7 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   let start = db.getSpaceCard(testspace)
   // TODO get current cardianality of space and add
   //let card = db.getSpaceCardinality(testspace)
-  NSLog("starting load: %@", testspace)
+  NSLog("starting load: %@ [%d]", testspace, start)
   var card: UInt = start
   
   while true {
