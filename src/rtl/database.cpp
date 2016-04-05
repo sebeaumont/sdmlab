@@ -14,9 +14,12 @@ namespace molemind {
                        const std::size_t max_size,
                        const std::string& mmf)
       // init
-      : heap(bip::open_or_create, mmf.c_str(), initial_size),
+      : inisize(initial_size),
+        maxheap(max_size),
+        heap(bip::open_or_create, mmf.c_str(), initial_size),
         heapimage(mmf),
         irand(random::index_randomizer(space::vector::dimensions)) {
+          
       // pre-load space cache (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
         ensure_space_by_name(spacename);
@@ -28,16 +31,15 @@ namespace molemind {
     database::~database() {
       if (check_heap_sanity()) {
         heap.flush();
-        std::cout << "flushed:" << heapimage << std::endl;
       } 
     }
     
         
-    ///////////////////
+    ////////////////////
     /// named vectors // 
-    ///////////////////
+    ////////////////////
  
-    // get named vector
+    /// get named vector
     
     boost::optional<database::space::vector&> database::get_vector(const std::string& sn, const std::string& vn) {
       return get_space_by_name(sn)->get_vector_by_name(vn);
@@ -51,19 +53,19 @@ namespace molemind {
     }
     
     
-    ///////////////////
+    ////////////////////
     /// named symbols //
-    ///////////////////
+    ////////////////////
     
     
-    // get named symbol
+    /// get named symbol
     
     boost::optional<const database::space::symbol&> database::get_symbol(const std::string& sn, const std::string& vn) {
       return get_space_by_name(sn)->get_symbol_by_name(vn);
     }
     
  
-    // find symbols by prefix
+    /// find symbols by prefix
     
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
@@ -78,10 +80,28 @@ namespace molemind {
       }
     */
     
-    // create new symbol
+    /// create new symbol -- this can cause bad alloc
 
     boost::optional<const std::size_t> database::add_symbol(const std::string& sn, const std::string& vn) {
-      return ensure_space_by_name(sn)->insert(vn);
+      try {
+        // this can return none if already exists!
+        return ensure_space_by_name(sn)->insert(vn);
+        
+      } catch (boost::interprocess::bad_alloc& e) {
+
+        std::cout << "add_symbol: bad_alloc - free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
+        /*
+        if (can_grow_heap() && grow_heap_by(inisize)) {
+  
+          try {
+            return boost::none; // XXXX return ensure_space_by_name(sn)->insert(vn);
+          } catch (boost::interprocess::bad_alloc& e2) {
+            //return boost::none;
+          }
+        } else return boost::none;
+        */
+        return boost::none;
+      }
     }
     
     
@@ -196,6 +216,10 @@ namespace molemind {
       return names;
     }
     
+
+    std::size_t database::get_space_cardinality(const std::string& sn) {
+      return get_space_by_name(sn)->entries();
+    }
     
     ////////////////////////
     // gc, heap management
@@ -203,7 +227,16 @@ namespace molemind {
     
     bool database::grow_heap_by(const std::size_t& extra_bytes) {
       // mapped_file grow
-      return heap.grow(heapimage.c_str(), extra_bytes);
+      // todo unmap heap
+      //
+      if (heap.grow(heapimage.c_str(), extra_bytes)) {
+        // remap
+        heap = segment_t(bip::open_only, heapimage.c_str());
+        std::cout << "free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
+        if (check_heap_sanity())
+          return true;
+      }
+      return false;
     }
     
     bool database::compactify_heap() {

@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 // These are the Power On Self Tests for the dig app
 import sdmi
 
@@ -25,15 +26,90 @@ func fileInDocumentsDirectory(filename: String) -> String {
   return fileURL.path!
 }
 
+func statFile(filename: String) -> [String : AnyObject]? {
+  let filepath = fileInDocumentsDirectory(filename)
+  return try? NSFileManager.defaultManager().attributesOfItemAtPath(filepath)
+}
 
-func createSDMTestDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
-  let Mb : UInt = 1024 * 1024;
+
+// sdm helpers
+
+func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
+  let Mb : UInt = 1024 * 1024
+  // stat file
+  if let filestats = statFile(filename) {
+    NSLog("file stats: %@", filestats)
+  }
   // create sdm
   let db = SDMDatabase(name: fileInDocumentsDirectory(filename), size: sizeMb*Mb, max: maxMb*Mb)
-  print(db)
-  // built in unit tests -- hohum :-)
-  db.addSymbol("Simon", space:"People")
-  db.addSymbol("Hazel", space:"People")
-  // get symbols/vectors
+  // logging anyone?
+  NSLog("created database: %@ %d/%d", db, sizeMb, maxMb)
   return db
+}
+
+
+func destroySDMDatabase(filename: String) -> Void {
+  let manager = NSFileManager.defaultManager()
+  let filepath = fileInDocumentsDirectory(filename)
+  
+  if manager.fileExistsAtPath(filepath) {
+    do {
+      try manager.removeItemAtPath(filepath)
+      NSLog("removed database: %@", filepath)
+    } catch {
+      // more specific please!
+      NSLog("failed to remove database: %@", filepath)
+    }
+  } else {
+   NSLog("no database to remove: %@", filepath)
+  }
+}
+
+// derived utility functions
+
+func createSDMTestDatabase(sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
+  return createSDMDatabase(".POST", sizeMb: sizeMb, maxMb: maxMb)
+}
+
+
+func destroySDMTestDatabase() -> Void {
+  return destroySDMDatabase(".POST")
+}
+
+
+/* 
+The plan here is to create a database then try and grow it in chunks
+populatingchunks as we go and calibrating the number of vectors we can
+allocate per chunk before running out of memory.
+*/
+
+func postRun() -> Void {
+  let db = createSDMTestDatabase(500, maxMb: 700)
+  //let nv = probeSymbolCardinality(db, start: db.getSpaceCard("Test"))
+  destroySDMTestDatabase()
+}
+
+// insert symbols into test space
+
+func probeSymbolCardinality(db: SDMDatabase, start: Int = 0) -> Int {
+  let testspace = "Test"
+  // TODO get current cardianality of space and add
+  //let card = db.getSpaceCardinality(testspace)
+  NSLog("starting load: %@", testspace)
+  var card: Int = start
+  
+  while true {
+    let sid = db.addSymbol("symbol-\(card)", space: testspace)
+    
+    if sid >= 0 {
+      card += 1
+      if card % 10000 == 0 {
+        NSLog("added: %d", card)
+      }
+      
+    } else {
+      NSLog("limit: %d, (%d)", card, sid)
+      return card
+    }
+  }
 }

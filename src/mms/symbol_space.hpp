@@ -419,7 +419,7 @@ namespace molemind { namespace sdm {
           // inserted string iterator maps to index
           // XXX vector space hook XXX
           vectors->push_back(vector(allocator));
-          assert (vectors->size()-1 == n2i(p.first));
+          //assert (vectors->size()-1 == n2i(p.first));
           return vectors->size()-1;
           
         } 
