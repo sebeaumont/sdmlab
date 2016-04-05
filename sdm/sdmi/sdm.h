@@ -17,6 +17,6 @@
 - (NSInteger) addSymbol: (NSString*) name
                   space: (NSString*) space;
 
-- (NSInteger) getSpaceCard: (NSString*) name;
+- (NSUInteger) getSpaceCard: (NSString*) name;
 
 @end

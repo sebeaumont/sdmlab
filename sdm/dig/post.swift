@@ -85,18 +85,18 @@ allocate per chunk before running out of memory.
 
 func postRun() -> Void {
   let db = createSDMTestDatabase(500, maxMb: 700)
-  //let nv = probeSymbolCardinality(db, start: db.getSpaceCard("Test"))
+  let nv = probeSymbolCardinality(db, testspace: "Test")
   destroySDMTestDatabase()
 }
 
 // insert symbols into test space
 
-func probeSymbolCardinality(db: SDMDatabase, start: Int = 0) -> Int {
-  let testspace = "Test"
+func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
+  let start = db.getSpaceCard(testspace)
   // TODO get current cardianality of space and add
   //let card = db.getSpaceCardinality(testspace)
   NSLog("starting load: %@", testspace)
-  var card: Int = start
+  var card: UInt = start
   
   while true {
     let sid = db.addSymbol("symbol-\(card)", space: testspace)

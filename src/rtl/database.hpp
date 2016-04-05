@@ -88,7 +88,7 @@ namespace molemind { namespace sdm {
 
     std::vector<std::string> get_named_spaces();
     
-    std::size_t get_space_cardinality(const std::string&);
+    boost::optional<std::size_t> get_space_cardinality(const std::string&);
     
     
     ///////////////////////////

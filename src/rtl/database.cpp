@@ -217,8 +217,12 @@ namespace molemind {
     }
     
 
-    std::size_t database::get_space_cardinality(const std::string& sn) {
-      return get_space_by_name(sn)->entries();
+    boost::optional<std::size_t> database::get_space_cardinality(const std::string& sn) {
+      try {
+        return get_space_by_name(sn)->entries();
+      } catch (space_not_found& e) {
+        return boost::none;
+      }
     }
     
     ////////////////////////
