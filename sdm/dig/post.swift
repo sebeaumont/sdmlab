@@ -26,12 +26,20 @@ func fileInDocumentsDirectory(filename: String) -> String {
   return fileURL.path!
 }
 
+func statFile(filename: String) -> [String : AnyObject]? {
+  let filepath = fileInDocumentsDirectory(filename)
+  return try? NSFileManager.defaultManager().attributesOfItemAtPath(filepath)
+}
 
 
 // sdm helpers
 
 func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
   let Mb : UInt = 1024 * 1024
+  // stat file
+  if let filestats = statFile(filename) {
+    NSLog("file stats: %@", filestats)
+  }
   // create sdm
   let db = SDMDatabase(name: fileInDocumentsDirectory(filename), size: sizeMb*Mb, max: maxMb*Mb)
   // logging anyone?
@@ -76,27 +84,31 @@ allocate per chunk before running out of memory.
 */
 
 func postRun() -> Void {
-  let db = createSDMTestDatabase(20, maxMb: 700)
-  let nv = probeSymbolCardinality(db)
+  let db = createSDMTestDatabase(100, maxMb: 700)
+  let nv = probeSymbolCardinality(db, start: db.getSpaceCard("Test"))
   destroySDMTestDatabase()
 }
 
-func probeSymbolCardinality(db: SDMDatabase) -> Int {
+// insert symbols into test space
+
+func probeSymbolCardinality(db: SDMDatabase, start: Int = 0) -> Int {
   let testspace = "Test"
   // TODO get current cardianality of space and add
   //let card = db.getSpaceCardinality(testspace)
-  var card: Int = 0
+  NSLog("starting load: %@", testspace)
+  var card: Int = start
   
   while true {
-    do {
-      try db.addSymbol("symbol-\(card)", space: testspace)
+    let sid = db.addSymbol("symbol-\(card)", space: testspace)
+    
+    if sid >= 0 {
       card += 1
       if card % 10000 == 0 {
         NSLog("added: %d", card)
       }
       
-    } catch {
-      NSLog("catch: %d", card)
+    } else {
+      NSLog("limit: %d, (%d)", card, sid)
       return card
     }
   }
