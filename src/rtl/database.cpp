@@ -23,9 +23,6 @@ namespace molemind {
       // pre-load space cache (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
         ensure_space_by_name(spacename);
-          
-      // xxx
-      std::cout << "free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
     }
     
     
@@ -87,20 +84,23 @@ namespace molemind {
 
     boost::optional<const std::size_t> database::add_symbol(const std::string& sn, const std::string& vn) {
       try {
+        // this can return none if already exists!
         return ensure_space_by_name(sn)->insert(vn);
         
       } catch (boost::interprocess::bad_alloc& e) {
 
-        std::cout << "free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
-        
+        std::cout << "add_symbol: bad_alloc - free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
+        /*
         if (can_grow_heap() && grow_heap_by(inisize)) {
   
           try {
             return boost::none; // XXXX return ensure_space_by_name(sn)->insert(vn);
           } catch (boost::interprocess::bad_alloc& e2) {
-            return boost::none;
+            //return boost::none;
           }
         } else return boost::none;
+        */
+        return boost::none;
       }
     }
     

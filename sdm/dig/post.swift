@@ -84,8 +84,8 @@ allocate per chunk before running out of memory.
 */
 
 func postRun() -> Void {
-  let db = createSDMTestDatabase(100, maxMb: 700)
-  let nv = probeSymbolCardinality(db, start: db.getSpaceCard("Test"))
+  let db = createSDMTestDatabase(500, maxMb: 700)
+  //let nv = probeSymbolCardinality(db, start: db.getSpaceCard("Test"))
   destroySDMTestDatabase()
 }
 
