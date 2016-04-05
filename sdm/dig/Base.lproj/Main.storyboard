@@ -36,6 +36,16 @@
                                     <constraint firstAttribute="width" constant="303" id="ePj-oz-Hzl"/>
                                 </constraints>
                             </progressView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="afq-yV-3md">
+                                <rect key="frame" x="277" y="178" width="46" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="46" id="OGV-DL-yyQ"/>
+                                </constraints>
+                                <state key="normal" title="Test"/>
+                                <connections>
+                                    <action selector="testAction:" destination="9pv-A4-QxB" eventType="primaryActionTriggered" id="GE9-KB-Jfw"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -43,8 +53,10 @@
                             <constraint firstItem="KQZ-1w-vlD" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" constant="40" id="Cdw-80-DYo"/>
                             <constraint firstItem="zZg-Ne-vpZ" firstAttribute="centerX" secondItem="A5M-7J-77L" secondAttribute="centerX" id="F39-jo-5uH"/>
                             <constraint firstItem="zZg-Ne-vpZ" firstAttribute="top" secondItem="A5M-7J-77L" secondAttribute="bottom" constant="8" symbolic="YES" id="Qpq-gd-3hQ"/>
+                            <constraint firstItem="afq-yV-3md" firstAttribute="top" secondItem="zZg-Ne-vpZ" secondAttribute="bottom" constant="24" id="UPt-2L-DSD"/>
                             <constraint firstItem="KQZ-1w-vlD" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="WCV-bw-Frm"/>
                             <constraint firstItem="A5M-7J-77L" firstAttribute="bottom" secondItem="KQZ-1w-vlD" secondAttribute="bottom" constant="3" id="e9c-vk-0UM" userLabel="research &amp; development.bottom = molemind.bottom"/>
+                            <constraint firstItem="afq-yV-3md" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="gr6-4Q-mTK"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>

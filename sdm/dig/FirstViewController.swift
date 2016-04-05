@@ -22,6 +22,10 @@ class FirstViewController: UIViewController {
     
   }
 
+  
+  @IBAction func testAction(sender: AnyObject) {
+    postRun()
+  }
 
 }
 
