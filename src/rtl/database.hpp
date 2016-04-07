@@ -88,6 +88,9 @@ namespace molemind { namespace sdm {
 
     std::vector<std::string> get_named_spaces();
     
+    boost::optional<std::size_t> get_space_cardinality(const std::string&);
+    
+    
     ///////////////////////////
     // gc, heap utilities etc.
     ///////////////////////////
@@ -102,11 +105,11 @@ namespace molemind { namespace sdm {
     inline std::size_t free_heap()  const { return heap.get_free_memory(); }
     inline bool check_heap_sanity() { return heap.check_sanity(); }
 
+    inline bool can_grow_heap() { return (heap.get_size() < maxheap); }
     
     // randomise a vector 
     void randomize_vector(boost::optional<space::vector&>, float);
 
-    // 
     
   private:
     
@@ -116,8 +119,10 @@ namespace molemind { namespace sdm {
     ////////////////////
     // lifetime state //
     ////////////////////
-    
+    //bool growing = false;
     // constructed
+    std::size_t inisize;
+    std::size_t maxheap;
     segment_t heap;
     const std::string heapimage;
     // read through cache

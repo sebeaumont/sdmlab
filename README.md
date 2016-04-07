@@ -5,19 +5,25 @@ This project is the Sparse Distributed Memory Research and Development
 Hub.  The main artefact is the sdm runtime library and database
 targeted for a number of platforms.
 
+We now fully support iOS 9 and OSX/Linux/BSD x86_64 using the
+following tools.
+
+- clang++
+- Swift on iOS
+- boost
+
 The application is high performance associative memory to further
-research into the capabilities of a fully general model of sparse
-encoding and hyper-dimensional sparse space.
+research and development of the capabilities of a fully general model
+of sparse encoding and hyper-dimensional sparse space.
 
 We are also developing a DSL for ML based on SDM using the following
 toolchain and libraries:
 
-- clang, llvm
 - ghc
 - idris (dependant type language)
 
-
+Project contact: [Simon Beaumont](mailto:s@molemind.net) 
 _______________________
-Copyright (c) 2012-2016 Simon Beaumont. All Rights Reserved
+Copyright (c) 2012-2016 Simon Beaumont. All Rights Reserved.
 
 

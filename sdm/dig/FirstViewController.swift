@@ -9,7 +9,6 @@
 import UIKit
 
 
-
 class FirstViewController: UIViewController {
   
   override func viewDidLoad() {
@@ -20,8 +19,13 @@ class FirstViewController: UIViewController {
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
     // Dispose of any resources that can be recreated.
+    
   }
 
+  
+  @IBAction func testAction(sender: AnyObject) {
+    postRun()
+  }
 
 }
 

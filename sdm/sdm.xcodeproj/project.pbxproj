@@ -102,10 +102,10 @@
 
 /* Begin PBXFileReference section */
 		963A949D1CAD7E8B00A321C8 /* post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = post.swift; sourceTree = "<group>"; };
-		966893711C85EA6D00C72187 /* mms */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mms; path = ../../src/mms; sourceTree = "<group>"; };
-		966893721C85EA6D00C72187 /* repl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = repl; path = ../../src/repl; sourceTree = "<group>"; };
-		966893731C85EA6D00C72187 /* rtl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rtl; path = ../../src/rtl; sourceTree = "<group>"; };
-		966893751C85EA6D00C72187 /* test */ = {isa = PBXFileReference; lastKnownFileType = folder; name = test; path = ../../src/test; sourceTree = "<group>"; };
+		966893711C85EA6D00C72187 /* mms */ = {isa = PBXFileReference; lastKnownFileType = text; name = mms; path = ../src/mms; sourceTree = "<group>"; };
+		966893721C85EA6D00C72187 /* repl */ = {isa = PBXFileReference; lastKnownFileType = text; name = repl; path = ../src/repl; sourceTree = "<group>"; };
+		966893731C85EA6D00C72187 /* rtl */ = {isa = PBXFileReference; lastKnownFileType = text; name = rtl; path = ../src/rtl; sourceTree = "<group>"; };
+		966893751C85EA6D00C72187 /* test */ = {isa = PBXFileReference; lastKnownFileType = text; name = test; path = ../src/test; sourceTree = "<group>"; };
 		966893891C85EC5500C72187 /* libsdm.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsdm.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		9668939B1C85EEBB00C72187 /* sdmtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sdmtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		966893A21C85EF3800C72187 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/repl/main.cpp; sourceTree = "<group>"; };
@@ -446,7 +446,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Simon Beaumont";
 				TargetAttributes = {
 					966893881C85EC5500C72187 = {
@@ -740,6 +740,7 @@
 		966893921C85EC5500C72187 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
@@ -753,6 +754,7 @@
 		966893931C85EC5500C72187 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
