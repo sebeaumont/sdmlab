@@ -10,13 +10,20 @@
 //! SDM Database 
 @interface SDMDatabase : NSObject
 
-- (instancetype) initWithName: (NSString*) name
-                         size: (NSUInteger) size
-                          max: (NSUInteger) max;
+NS_ASSUME_NONNULL_BEGIN
 
-- (bool) addSymbolWithName: (NSString*) name
+- (nullable instancetype) initWithName: (NSString*) name
+                           initialSize: (NSUInteger) size
+                               maxSize: (NSUInteger) max;
+
+- (BOOL) addSymbolWithName: (NSString*) name
                    inSpace: (NSString*) space;
 
 - (NSUInteger) getSpaceCard: (NSString*) name;
+
+- (BOOL)  giveMeSomethingWithLabel: (NSString*) label
+                             error: (NSError **) error;
+
+NS_ASSUME_NONNULL_END
 
 @end

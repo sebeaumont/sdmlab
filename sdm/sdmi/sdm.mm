@@ -27,8 +27,8 @@ NSString* errorDomain = @"net.molemind.dig.error";
 // constructor
 
 - (instancetype) initWithName:(NSString*) name
-                         size:(NSUInteger) size
-                          max:(NSUInteger) max {
+                  initialSize:(NSUInteger) size
+                      maxSize:(NSUInteger) max {
   // init sdm database object XXX this can throw
   if (self = [super init]) {
     _sdm = new molemind::sdm::database((std::size_t) size,
@@ -55,7 +55,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
 // XXX add a symbol to a database space -- add_symbol is tristate optional<bool>
 // failed, true->added, false->exists -- we can try the **error
 
-- (bool) addSymbolWithName: (NSString*) name
+- (BOOL) addSymbolWithName: (NSString*) name
                    inSpace: (NSString*) space {
   // 
   auto v = _sdm->add_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
@@ -68,6 +68,14 @@ NSString* errorDomain = @"net.molemind.dig.error";
 - (NSUInteger) getSpaceCard: (NSString*) name {
   auto v = _sdm->get_space_cardinality([name cStringUsingEncoding:NSUTF8StringEncoding]);
   return (v ? (NSUInteger) *v : 0);
+}
+
+
+// dummy one for to test this error malarkey
+
+- (BOOL) giveMeSomethingWithLabel: (NSString*) label
+                            error: (NSError **) error {
+  return nil;
 }
 
 

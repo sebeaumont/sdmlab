@@ -8,8 +8,13 @@
 
 import Foundation
 
-
+//////////////////////////////////////////////////////
 // These are the Power On Self Tests for the dig app
+
+///////////////////////////
+// !!! HARD HAT AREA !!! //
+///////////////////////////
+
 import sdmi
 
 
@@ -34,13 +39,10 @@ func statFile(filename: String) -> [String : AnyObject]? {
 
 // sdm helpers
 
-func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase {
+func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase? {
   let Mb : UInt = 1024 * 1024
-  // create sdm
-  let db = SDMDatabase(name: fileInDocumentsDirectory(filename), size: sizeMb*Mb, max: maxMb*Mb)
-  // logging anyone?
-  NSLog("created database: %@ %d/%d", db, sizeMb, maxMb)
-  return db
+  // create sd
+  return SDMDatabase(name: fileInDocumentsDirectory(filename), initialSize: sizeMb*Mb, maxSize: maxMb*Mb)
 }
 
 
@@ -73,6 +75,8 @@ func postRun() -> Void {
   
   let filename = ".POST"
   let testspace = "Test"
+  let iniSizeMb : UInt = 500
+  let maxSizeMb : UInt = 700
   
   // stat file
   if let filestats = statFile(filename) {
@@ -80,11 +84,24 @@ func postRun() -> Void {
     destroySDMDatabase(filename)
   }
   
-  let db = createSDMDatabase(filename, sizeMb: 500, maxMb: 700)
-  let nv = probeSymbolCardinality(db, testspace: testspace)
-
+  if let db = createSDMDatabase(filename, sizeMb: iniSizeMb, maxMb: maxSizeMb) {
+    NSLog("created database: %@ %d/%d", db, iniSizeMb, maxSizeMb)
+    let card = probeSymbolCardinality(db, testspace: testspace)
+    // testing, testing, 1, 2, 3...
+    NSLog("testspace: %@:%d", testspace, card)
+    
+    if let foo = try? db.giveMeSomethingWithLabel(testspace) {
+      print("foo: \(foo)", foo)
+    }
+    
+  } else {
+    NSLog("failed database: %@ %d/%d", filename, iniSizeMb, maxSizeMb)
+  }
+  
+  //
   destroySDMDatabase(filename)
 }
+
 
 // insert symbols into test space
 
@@ -97,10 +114,13 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   
   while true {
     let wasAdded = db.addSymbolWithName("symbol-\(card)", inSpace: testspace)
-    
+   
     if wasAdded {
       card += 1
       if card % 10000 == 0 {
+        // TODO: some heap stats
+        //
+        
         NSLog("added: %d", card)
       }
       
