@@ -220,8 +220,8 @@ namespace molemind { namespace sdm {
         }
 
         
-        inline float density() {
-          return (float) count() / dimensions;
+        inline double density() {
+          return (double) count() / dimensions;
         }
 
 
@@ -275,9 +275,9 @@ namespace molemind { namespace sdm {
         }
 
         /// Similarity of vectors 
-        inline float similarity(const vector& v) {
+        inline double similarity(const vector& v) {
           // inverse of the normalized distance
-          return 1.0 - (float) distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
+          return 1.0 - (double) distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
         }
 
 
@@ -495,7 +495,7 @@ namespace molemind { namespace sdm {
         double density;
         
         //
-        explicit point(const std::string& v, const float s, const float d)
+        explicit point(const std::string& v, const double s, const double d)
           : name(v), similarity(s), density(d) {}
 
         /// similarity is 1-d

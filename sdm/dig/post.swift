@@ -96,16 +96,16 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   var card: UInt = start
   
   while true {
-    let sid = db.addSymbol("symbol-\(card)", space: testspace)
+    let wasAdded = db.addSymbolWithName("symbol-\(card)", inSpace: testspace)
     
-    if sid >= 0 {
+    if wasAdded {
       card += 1
       if card % 10000 == 0 {
         NSLog("added: %d", card)
       }
       
     } else {
-      NSLog("limit: %d, (%d)", card, sid)
+      NSLog("limit: %d", card)
       return card
     }
   }
