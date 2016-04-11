@@ -41,15 +41,21 @@ namespace molemind {
  
     /// get named vector
     
-    boost::optional<database::space::vector&> database::get_vector(const std::string& sn, const std::string& vn) {
-      return get_space_by_name(sn)->get_vector_by_name(vn);
+    boost::optional<database::space::vector&> database::get_vector(const std::string& sn, const std::string& vn) noexcept {
+      auto sp = get_space_by_name(sn);
+      return (sp == nullptr) ? boost::none : sp->get_vector_by_name(vn);
     }
     
     
-    // XXX optional
-    double database::density(const std::string& sn, const std::string& vn) {
-      boost::optional<space::vector&> v = ensure_space_by_name(sn)->get_vector_by_name(vn);
-      return v->density();
+    // fully guarded
+    boost::optional<const double> database::density(const std::string& sn, const std::string& vn) noexcept {
+      auto sp = get_space_by_name(sn);
+      if (sp == nullptr) {
+        return boost::none;
+      } else {
+        auto v = sp->get_vector_by_name(vn);
+        if (v) return v->density(); else return boost::none;
+      }
     }
     
     
@@ -60,7 +66,7 @@ namespace molemind {
     
     /// get named symbol
     
-    boost::optional<const database::space::symbol&> database::get_symbol(const std::string& sn, const std::string& vn) {
+    boost::optional<const database::space::symbol&> database::get_symbol(const std::string& sn, const std::string& vn) noexcept {
       return get_space_by_name(sn)->get_symbol_by_name(vn);
     }
     
@@ -69,7 +75,7 @@ namespace molemind {
     
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    symbol_list database::search_symbols(const std::string& sn, const std::string& vp) {
+    symbol_list database::search_symbols(const std::string& sn, const std::string& vp) noexcept {
       return get_space_by_name(sn)->search(vp);
     }
     
@@ -82,14 +88,22 @@ namespace molemind {
     
     /// create new symbol -- this can cause bad alloc
 
-    boost::optional<const std::size_t> database::add_symbol(const std::string& sn, const std::string& vn) {
-      try {
-        // this can return none if already exists!
-        return ensure_space_by_name(sn)->insert(vn);
+    boost::optional<const bool> database::add_symbol(const std::string& sn, const std::string& vn) noexcept try {
+      
+        // N.B. may side-effect the creation of a space and a symbol/vector
+        auto ov = ensure_space_by_name(sn)->insert(vn);
+        if (ov) return true;
+        else return false;
         
-      } catch (boost::interprocess::bad_alloc& e) {
+    } catch (boost::interprocess::bad_alloc& e) {
 
-        std::cout << "add_symbol: bad_alloc - free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
+        // TODO: arrange callback with suitable info?...
+        std::cout << "add_symbol: caught bad_alloc with heap stats:"
+                  << " free:" << free_heap()
+                  << " max:" << maxheap
+                  << " init:" << inisize
+                  << " heap:" << heap_size()
+                  << std::endl;
         /*
         if (can_grow_heap() && grow_heap_by(inisize)) {
   
@@ -101,23 +115,26 @@ namespace molemind {
         } else return boost::none;
         */
         return boost::none;
-      }
     }
+    
     
     
     // operations
     
-    void database::superpose(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
-      boost::optional<space::vector&> v = ensure_space_by_name(snv)->get_vector_by_name(vn);
-      boost::optional<space::vector&> u = ensure_space_by_name(snu)->get_vector_by_name(un);
+    void database::superpose(const std::string& ts, const std::string& tn,
+                             const std::string& ss, const std::string& sn) noexcept {
+      // TODO source and target vectors must exist...
+      boost::optional<space::vector&> v = ensure_space_by_name(ts)->get_vector_by_name(tn);
+      boost::optional<space::vector&> u = ensure_space_by_name(ss)->get_vector_by_name(sn);
       // optional guards? 
       v->superpose(*u);
-      
     }
+    
+        
     
     // measurement
     
-    double database::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) {
+    boost::optional<double> database::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) noexcept {
       boost::optional<const space::symbol&> v = get_symbol(snv, vn);
       boost::optional<const space::symbol&> u = get_symbol(snu, un);
       // TODO 
@@ -126,25 +143,39 @@ namespace molemind {
 
     
     // neighbourhood
-    database::space::topology database::neighbourhood(const::std::string& sn,
-                                                      const std::string& snv, const std::string& vn,
-                                                      double p, double d, std::size_t n) {
-      //
-      auto v = get_space_by_name(snv)->get_vector_by_name(vn);
-      return get_space_by_name(sn)->neighbourhood(*v, p, d, n);
+    boost::optional<database::space::topology> database::neighbourhood(const::std::string& ts,
+                                                      const std::string& ss, const std::string& sv,
+                                                      double p, double d, std::size_t n) noexcept {
+      // all parts must exist
+      auto s = get_space_by_name(ss);
+      if (s) {
+        boost::optional<space::vector&> v = s->get_vector_by_name(sv);
+        if (v) return s->neighbourhood(*v, p, d, n);
+        else return boost::none;
+      } else return boost::none;
     }
-    
-    // deletion
+        
+    // TODO deletion
 
 
     // low level randomize a vector -- writes p * d random bits
-    void database::randomize_vector(boost::optional<space::vector&> v, float p) {
-      std::size_t n = floor(p * space::vector::dimensions);
-      std::vector<unsigned>& ilist = irand.shuffle();
-      v->setbits(ilist.begin(), ilist.begin() + n);
+    void database::randomize_vector(boost::optional<space::vector&> v, double p) noexcept {
+      if (v) {
+        std::size_t n = floor(p * space::vector::dimensions);
+        std::vector<unsigned>& ilist = irand.shuffle();
+        v->setbits(ilist.begin(), ilist.begin() + n);
+      }
     }
     
+    void database::ones_vector(boost::optional<space::vector&> v) noexcept {
+      if (v) v->ones();
+    }
+      
+    void database::zeros_vector(boost::optional<space::vector&> v) noexcept {
+      if (v) v->zeros();
+    }
     
+  
     
     
     //////////////////////
@@ -182,23 +213,24 @@ namespace molemind {
        }
     */
     
+    // this is meant to be fast so no optional's here -- we could inline this.
     database::space* database::get_space_by_name(const std::string& name) {
       auto it = spaces.find(name);
       if (it == spaces.end())
-        throw space_not_found(name); // no exceptions?
+        return nullptr;
       else
         return it->second;
     }
     
     // destroy space permanently
     
-    bool database::destroy_space(const std::string& name) {
+    bool database::destroy_space(const std::string& name) noexcept {
       return heap.destroy<space>(name.c_str());
     }
     
     // lookup all spaces in the heap/segment manager
     
-    std::vector<std::string> database::get_named_spaces() {
+    std::vector<std::string> database::get_named_spaces() noexcept {
       std::vector<std::string> names;
       
       typedef segment_t::const_named_iterator const_named_it;
@@ -217,19 +249,17 @@ namespace molemind {
     }
     
 
-    boost::optional<std::size_t> database::get_space_cardinality(const std::string& sn) {
-      try {
-        return get_space_by_name(sn)->entries();
-      } catch (space_not_found& e) {
-        return boost::none;
-      }
+    boost::optional<std::size_t> database::get_space_cardinality(const std::string& sn) noexcept {
+      auto sp = get_space_by_name(sn);
+      if (sp) return sp->entries();
+      else return boost::none;
     }
     
     ////////////////////////
     // gc, heap management
     ////////////////////////
     
-    bool database::grow_heap_by(const std::size_t& extra_bytes) {
+    bool database::grow_heap_by(const std::size_t& extra_bytes) noexcept {
       // mapped_file grow
       // todo unmap heap
       //
@@ -243,7 +273,7 @@ namespace molemind {
       return false;
     }
     
-    bool database::compactify_heap() {
+    bool database::compactify_heap() noexcept {
       // mapped_file shrink_to_fit -- compact
       return heap.shrink_to_fit(heapimage.c_str());
     }

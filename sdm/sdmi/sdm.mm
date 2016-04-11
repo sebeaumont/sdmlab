@@ -18,7 +18,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
 // wrap c++ database object
 
 @interface SDMDatabase()
-@property (nonatomic, readwrite, assign) molemind::sdm::database* sdm;
+@property (nonatomic, readonly, assign) molemind::sdm::database* sdm;
 @end
 
 @implementation SDMDatabase
@@ -52,16 +52,18 @@ NSString* errorDomain = @"net.molemind.dig.error";
  maybe we should only return nullables which Swift should see as optionals?
 */
 
-// add a symbol to a database space
+// XXX add a symbol to a database space -- add_symbol is tristate optional<bool>
+// failed, true->added, false->exists -- we can try the **error
 
-- (NSInteger) addSymbol: (NSString*) name
-                  space: (NSString*) space {
+- (bool) addSymbolWithName: (NSString*) name
+                   inSpace: (NSString*) space {
+  // 
   auto v = _sdm->add_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
                             [name cStringUsingEncoding:NSUTF8StringEncoding]);
-  return (v ? (NSInteger) *v : -1);
+  return (v ? true : false);
 }
 
-// get space card
+// get space cardinality
 
 - (NSUInteger) getSpaceCard: (NSString*) name {
   auto v = _sdm->get_space_cardinality([name cStringUsingEncoding:NSUTF8StringEncoding]);

@@ -7,7 +7,8 @@
 
 namespace molemind { namespace sdm {
 
-  /* exception class for library */
+  /* exception classes for c++ library */
+  
   class error : public std::runtime_error {
   public:
     error(const std::string& what_arg) : std::runtime_error(what_arg) {}
@@ -32,5 +33,13 @@ namespace molemind { namespace sdm {
     space_not_found(const std::string& what_arg) : not_found(what_arg) {}
     space_not_found(const char* what_arg) : not_found(what_arg) {}
   };
-  }}
+ 
+  
+  class out_of_memory : public std::runtime_error {
+  public:
+    out_of_memory(const std::string& what_arg) : std::runtime_error(what_arg) {}
+    out_of_memory(const char* what_arg) : std::runtime_error(what_arg) {}
+  };
+
+}}
 

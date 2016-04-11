@@ -14,8 +14,8 @@
                          size: (NSUInteger) size
                           max: (NSUInteger) max;
 
-- (NSInteger) addSymbol: (NSString*) name
-                  space: (NSString*) space;
+- (bool) addSymbolWithName: (NSString*) name
+                   inSpace: (NSString*) space;
 
 - (NSUInteger) getSpaceCard: (NSString*) name;
 
