@@ -12,12 +12,17 @@
 
 #include "elemental_vector.hpp"
 
+
+#ifdef HAVE_DISPATCH
+#include <dispatch/dispatch.h>
+#else
+// openMP
+#endif
+
 /////////////////////
 // TODO make config
 
 #define VELEMENT_64 1
-#define HAVE_DISPATCH
-#include <dispatch/dispatch.h>
 
 #ifdef VELEMENT_64
 #define ONE 1ULL

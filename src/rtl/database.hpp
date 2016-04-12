@@ -89,6 +89,12 @@ namespace molemind { namespace sdm {
     /// zeros
     void zeros_vector(boost::optional<space::vector&> v) noexcept;
 
+    // get space
+    space* get_space_by_name(const std::string&); 
+
+    /// database memoizes pointers to named spaces to optimize symbol resolution 
+    space* ensure_space_by_name(const std::string&); 
+
     
     /////////////////////////
     /// vector properties ///
@@ -177,16 +183,12 @@ namespace molemind { namespace sdm {
     
     
     
-  private:
-    // get space
-    space* get_space_by_name(const std::string&); 
-    // database memoizes pointers to named spaces to optimize symbol resolution 
-    space* ensure_space_by_name(const std::string&); 
-    
-    
+  private:    
+   
     ////////////////////
     // lifetime state //
     ////////////////////
+
     // constructed
     std::size_t inisize;
     std::size_t maxheap;
