@@ -113,18 +113,16 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   var card: UInt = start
   
   while true {
-    let wasAdded = db.addSymbolWithName("symbol-\(card)", inSpace: testspace)
-   
-    if wasAdded {
-      card += 1
-      if card % 10000 == 0 {
-        // TODO: some heap stats
-        //
+    
+    if let foo = try? db.addSymbolWithName("symbol-\(card)", inSpace: testspace) {
+        card += 1
+        if card % 10000 == 0 {
+          // TODO: some heap stats
+          NSLog("added: \(card) \(foo)")
+        }
         
-        NSLog("added: %d", card)
-      }
-      
     } else {
+      
       NSLog("limit: %d", card)
       return card
     }

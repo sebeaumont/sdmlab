@@ -56,12 +56,14 @@ NSString* errorDomain = @"net.molemind.dig.error";
 // failed, true->added, false->exists -- we can try the **error
 
 - (BOOL) addSymbolWithName: (NSString*) name
-                   inSpace: (NSString*) space {
+                   inSpace: (NSString*) space
+                     error: (NSError**) error {
   // 
   auto v = _sdm->add_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
                             [name cStringUsingEncoding:NSUTF8StringEncoding]);
-  return (v ? true : false);
-}
+  if (v) return (*v) ? true : false;
+  else return nil;
+} 
 
 // get space cardinality
 

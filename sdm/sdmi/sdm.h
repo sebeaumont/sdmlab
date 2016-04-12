@@ -17,7 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
                                maxSize: (NSUInteger) max;
 
 - (BOOL) addSymbolWithName: (NSString*) name
-                   inSpace: (NSString*) space;
+                   inSpace: (NSString*) space
+                     error: (NSError **) error;
+
 
 - (NSUInteger) getSpaceCard: (NSString*) name;
 
