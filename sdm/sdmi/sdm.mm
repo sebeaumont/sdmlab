@@ -52,7 +52,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
 */
 
 // XXX UC add a symbol to a database space -- add_symbol is tristate optional<bool>
-// failed, true->added, false->exists -- we can try the **error
+// -- wee need a nullable bool...
 // this will throw in Swift but returns void
 
 - (BOOL) addSymbolWithName: (NSString*) name
@@ -65,7 +65,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
   
   // true->added, false->existed, nil->fail
   if (v) return (*v) ? true : false;
-  else return nil;
+  else return false;
 } 
 
 
@@ -81,7 +81,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
 
 - (BOOL) giveMeSomethingWithLabel: (NSString*) label
                             error: (NSError **) error {
-  return nil;
+  return false;
 }
 
 - (NSUInteger) getHeapSize {
