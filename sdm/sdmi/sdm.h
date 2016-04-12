@@ -17,14 +17,20 @@ NS_ASSUME_NONNULL_BEGIN
                                maxSize: (NSUInteger) max;
 
 - (BOOL) addSymbolWithName: (NSString*) name
-                   inSpace: (NSString*) space
-                     error: (NSError **) error;
+                                inSpace: (NSString*) space
+                                  error: (NSError**) error;
 
 
 - (NSUInteger) getSpaceCard: (NSString*) name;
 
 - (BOOL)  giveMeSomethingWithLabel: (NSString*) label
                              error: (NSError **) error;
+
+
+- (NSUInteger) getHeapSize;
+
+- (NSUInteger) getFreeHeap;
+
 
 NS_ASSUME_NONNULL_END
 

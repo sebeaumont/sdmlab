@@ -114,16 +114,18 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   
   while true {
     
-    if let foo = try? db.addSymbolWithName("symbol-\(card)", inSpace: testspace) {
-        card += 1
-        if card % 10000 == 0 {
-          // TODO: some heap stats
-          NSLog("added: \(card) \(foo)")
-        }
+    if let _ = try? db.addSymbolWithName("symbol-\(card)", inSpace: testspace) {
+      card += 1
+      if card % 10000 == 0 {
+        let free = db.getFreeHeap()
+        let heap = db.getHeapSize()
+        NSLog("added: \(card) heap: \(heap) free: \(free)")
+      }
         
     } else {
-      
-      NSLog("limit: %d", card)
+      let free = db.getFreeHeap()
+      let heap = db.getHeapSize()
+      NSLog("failed: \(card) heap: \(heap) free: \(free)")
       return card
     }
   }
