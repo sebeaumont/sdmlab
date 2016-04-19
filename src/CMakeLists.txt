@@ -21,6 +21,7 @@ add_definitions("-march=native")
 ############################################
 # compiler specific project wide defintions
 
+
 # this gets gcc to pass -q to the assembler which will use the clang
 # assembler which groks the avx instructions - yeah don't ask there's
 # history here...
@@ -41,7 +42,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 
-#####
+######################################################################
 # we use think different threading backends on Darwin derived systems
 # also we probe what cpu features we can exploit...
 
