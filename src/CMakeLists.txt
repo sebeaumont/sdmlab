@@ -53,7 +53,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   message(STATUS "Will compile for Blocks/GCD and other Apple sweetness...")
   set(HAVE_DISPATCH 1)
   add_definitions("-stdlib=libc++")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-stdlib=libc++")
   exec_program("sysctl -n machdep.cpu.features" OUTPUT_VARIABLE CPU_FEATURES)
 
 else()
