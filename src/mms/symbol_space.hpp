@@ -12,12 +12,17 @@
 
 #include "elemental_vector.hpp"
 
+
+#ifdef HAVE_DISPATCH
+#include <dispatch/dispatch.h>
+#else
+// openMP
+#endif
+
 /////////////////////
 // TODO make config
 
 #define VELEMENT_64 1
-#define HAVE_DISPATCH
-#include <dispatch/dispatch.h>
 
 #ifdef VELEMENT_64
 #define ONE 1ULL
@@ -52,7 +57,7 @@ namespace molemind { namespace sdm {
      */
     
     class symbol_space final {
-      
+
       typedef SegmentClass segment_t;
       
       // Heap allocators derived from segment
@@ -79,6 +84,7 @@ namespace molemind { namespace sdm {
         elemental_vector_t _basis; 
 
       public:
+
         // constructor
         symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, 0, void_alloc) {}
 
@@ -152,7 +158,7 @@ namespace molemind { namespace sdm {
 
       
       ////////////////////////////////////////////////////
-      // vector_space implemented as a vector of vectors
+      /// vector_space implemented as a vector of vectors
       
       typedef VectorElementType element_t;
       
@@ -162,7 +168,7 @@ namespace molemind { namespace sdm {
       
       
       /// the vector type
-      
+    public:
       struct vector final : public vector_t {
 
         /// construct fully 
@@ -330,6 +336,7 @@ namespace molemind { namespace sdm {
         
       };
 
+    private:
       // vector allocators
       
       typedef bip::allocator<vector, segment_manager_t> vector_allocator_t;

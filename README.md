@@ -5,10 +5,10 @@ This project is the Sparse Distributed Memory Research and Development
 Hub.  The main artefact is the sdm runtime library and database
 targeted for a number of platforms.
 
-We now fully support iOS 9 and OSX/Linux/BSD x86_64 using the
+We now fully support iOS 9.3 and OSX/Linux/BSD x86_64 using the
 following tools.
 
-- clang++
+- clang++ on Darwin based systems, gcc on Linux based systems
 - Swift on iOS
 - boost
 
@@ -21,6 +21,11 @@ toolchain and libraries:
 
 - ghc
 - idris (dependant type language)
+
+There is an additional ios framework (sdmi) which wraps the c++
+implementation with an objective c++ API suitable for importing into
+Swift.
+
 
 Project contact: [Simon Beaumont](mailto:s@molemind.net) 
 _______________________

@@ -88,35 +88,17 @@ namespace molemind {
     
     /// create new symbol -- this can cause bad alloc
 
-    boost::optional<const bool> database::add_symbol(const std::string& sn, const std::string& vn) noexcept try {
-      
+    boost::optional<const bool> database::add_symbol(const std::string& sn, const std::string& vn) noexcept {
+      try {
         // N.B. may side-effect the creation of a space and a symbol/vector
         auto ov = ensure_space_by_name(sn)->insert(vn);
         if (ov) return true;
         else return false;
         
-    } catch (boost::interprocess::bad_alloc& e) {
-
-        // TODO: arrange callback with suitable info?...
-        std::cout << "add_symbol: caught bad_alloc with heap stats:"
-                  << " free:" << free_heap()
-                  << " max:" << maxheap
-                  << " init:" << inisize
-                  << " heap:" << heap_size()
-                  << std::endl;
-        /*
-        if (can_grow_heap() && grow_heap_by(inisize)) {
-  
-          try {
-            return boost::none; // XXXX return ensure_space_by_name(sn)->insert(vn);
-          } catch (boost::interprocess::bad_alloc& e2) {
-            //return boost::none;
-          }
-        } else return boost::none;
-        */
+      } catch (boost::interprocess::bad_alloc& e) {
         return boost::none;
+      }
     }
-    
     
     
     // operations

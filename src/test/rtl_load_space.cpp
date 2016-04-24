@@ -54,6 +54,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
   }
   
   auto word_space = rts.get_space_by_name(test_space1);
+
   BOOST_CHECK_EQUAL(word_space->entries(), loaded);
 
   BOOST_TEST_MESSAGE("loaded: " << loaded);
