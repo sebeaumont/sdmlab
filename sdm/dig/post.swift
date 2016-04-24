@@ -90,9 +90,10 @@ func postRun() -> Void {
     // testing, testing, 1, 2, 3...
     NSLog("testspace: %@:%d", testspace, card)
     
+    /*
     if let foo = try? db.giveMeSomethingWithLabel(testspace) {
       print("foo: \(foo)", foo)
-    }
+    }*/
     
   } else {
     NSLog("failed database: %@ %d/%d", filename, iniSizeMb, maxSizeMb)

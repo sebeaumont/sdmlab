@@ -60,41 +60,33 @@ namespace molemind { namespace sdm {
     
     ~database();
     
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
-    // xxx no doubt these will go away once efficient portable serialisaions have been wrought.
-    
-    /// get named symbol
-    boost::optional<const space::symbol&> get_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
-
-    /// get named vector
-    boost::optional<space::vector&> get_vector(const std::string& space_name, const std::string& vector_name) noexcept;
-
-
-    /// find by prefix
-    std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
-
     /// create new symbol
     /// return tristate: failed, false->existed, true->added (be careful unwrapping) see:
     /// http://www.boost.org/doc/libs/1_60_0/libs/optional/doc/html/boost_optional/a_note_about_optional_bool_.html
+
     boost::optional<const bool> add_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
+
+    /// search for symbols starting with prefix
     
-    /// randomise a vector
-    void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
-
-    /// ones
-    void ones_vector(boost::optional<space::vector&> v) noexcept;
+    std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
-    /// zeros
-    void zeros_vector(boost::optional<space::vector&> v) noexcept;
+    
+    //////////////////////
+    /// heap utilities ///
+    //////////////////////
 
-    // get space
-    space* get_space_by_name(const std::string&); 
+    bool grow_heap_by(const std::size_t&) noexcept;
 
-    /// database memoizes pointers to named spaces to optimize symbol resolution 
-    space* ensure_space_by_name(const std::string&); 
+    bool compactify_heap() noexcept;
 
+    /// heap metrics
+    
+    inline std::size_t heap_size() noexcept { return heap.get_size(); }
+    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
+    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
+    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
+    
+ 
     
     /////////////////////////
     /// vector properties ///
@@ -137,9 +129,6 @@ namespace molemind { namespace sdm {
     boost::optional<double> inner(const std::string&, const std::string&,
                                   const std::string&, const std::string&) noexcept;
 
-    ////////////////////
-    /// find vectors ///
-    ////////////////////
     
     /// toplogy of n nearest neighbours satisfying p, d constraints
     boost::optional<database::space::topology> neighbourhood(const std::string& target_space,
@@ -163,25 +152,37 @@ namespace molemind { namespace sdm {
     
     boost::optional<std::size_t> get_space_cardinality(const std::string&) noexcept;
     
-    /// TODO space operators
+       
     
+  protected:
     
-    //////////////////////
-    /// heap utilities ///
-    //////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
+    // xxx no doubt these will go away once efficient portable serialisaions have been wrought.
+    
+    /// get named symbol
+    boost::optional<const space::symbol&> get_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
 
-    bool grow_heap_by(const std::size_t&) noexcept;
+    /// get named vector
+    boost::optional<space::vector&> get_vector(const std::string& space_name, const std::string& vector_name) noexcept;
 
-    bool compactify_heap() noexcept;
 
-    /// heap metrics
+    /// randomise a vector
+    void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
+
+    /// ones
+    void ones_vector(boost::optional<space::vector&> v) noexcept;
     
-    inline std::size_t heap_size() noexcept { return heap.get_size(); }
-    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
-    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
-    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
+    /// zeros
+    void zeros_vector(boost::optional<space::vector&> v) noexcept;
+
+    // get space
+    space* get_space_by_name(const std::string&); 
+
+    /// database memoizes pointers to named spaces to optimize symbol resolution 
+    space* ensure_space_by_name(const std::string&); 
     
-    
+
     
   private:    
    
@@ -198,5 +199,6 @@ namespace molemind { namespace sdm {
     std::map<const std::string, space*> spaces; // used space cache
     // randomizer
     random::index_randomizer irand;
+ 
   };
   }}
