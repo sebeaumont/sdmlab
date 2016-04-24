@@ -48,24 +48,28 @@ NSString* errorDomain = @"net.molemind.dig.error";
 
 /* 
  TODO: mostly adapting boost optionals and string encoding for c++ methods
- don't like signed values for size_t
  maybe we should only return nullables which Swift should see as optionals?
 */
 
-// XXX add a symbol to a database space -- add_symbol is tristate optional<bool>
-// failed, true->added, false->exists -- we can try the **error
+// XXX UC add a symbol to a database space -- add_symbol is tristate optional<bool>
+// -- wee need a nullable bool...
+// this will throw in Swift but returns void
 
 - (BOOL) addSymbolWithName: (NSString*) name
                    inSpace: (NSString*) space
                      error: (NSError**) error {
-  // 
+  
+  // the semantics of add_symbol will ensure the space and add name to it
   auto v = _sdm->add_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
                             [name cStringUsingEncoding:NSUTF8StringEncoding]);
+  
+  // true->added, false->existed, nil->fail
   if (v) return (*v) ? true : false;
-  else return nil;
+  else return false;
 } 
 
-// get space cardinality
+
+// get space cardinality -- correct for a non-existent space
 
 - (NSUInteger) getSpaceCard: (NSString*) name {
   auto v = _sdm->get_space_cardinality([name cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -77,8 +81,15 @@ NSString* errorDomain = @"net.molemind.dig.error";
 
 - (BOOL) giveMeSomethingWithLabel: (NSString*) label
                             error: (NSError **) error {
-  return nil;
+  return false;
 }
 
+- (NSUInteger) getHeapSize {
+  return _sdm->heap_size();
+}
+
+- (NSUInteger) getFreeHeap {
+  return _sdm->free_heap();
+}
 
 @end

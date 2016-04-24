@@ -20,3 +20,4 @@ a.out
 *.dylib
 *.bc
 
+doc
