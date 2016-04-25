@@ -3,6 +3,18 @@ project(sdmlab)
 cmake_minimum_required (VERSION 3.0)
 enable_testing()
 
+# project version
+
+set (SDM_VERSION_MAJOR 6)
+set (SDM_VERSION_MINOR 0)
+
+# install paths
+
+set (CMAKE_INSTALL_PREFIX "/usr/local")
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+
 ##################
 # c++ compiler
 
@@ -10,10 +22,8 @@ enable_testing()
 add_definitions("-std=c++14")
 add_definitions("-Wall")
 
-# is namespace wizardy allowed?
+# is future namespace wizardy allowed?
 # YES: add_definitions("-Wc++1z-extensions")
-
-# YMMV so this where we tune for our target/platform
 
 add_definitions("-O3")
 add_definitions("-march=native")

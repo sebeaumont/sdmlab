@@ -53,14 +53,15 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
     loaded++;
   }
   
-  auto word_space = rts.get_space_by_name(test_space1);
 
-  BOOST_CHECK_EQUAL(word_space->entries(), loaded);
-
-  BOOST_TEST_MESSAGE("loaded: " << loaded);
+  auto card = rts.get_space_cardinality(test_space1);
+  if (card) BOOST_CHECK_EQUAL(*card, loaded);
+  
+  BOOST_TEST_MESSAGE("search for: " << loaded);
   
   // lookup all vectors
-  for (auto it = word_space->begin(); it != word_space->end(); ++it) {
+  auto sit = rts.search_symbols(test_space1, "");
+  for (auto it = sit.first; it != sit.second; ++it) {
     //std::cout << *it << std::endl;
     loaded--;
   }
