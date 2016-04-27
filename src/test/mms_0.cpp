@@ -12,7 +12,7 @@
 
 #define BOOST_TEST_MODULE mms-0
 #include <boost/test/included/unit_test.hpp>
-#include "symbol_space.hpp"
+#include "mms/symbol_space.hpp"
 
 namespace bip = boost::interprocess;
     

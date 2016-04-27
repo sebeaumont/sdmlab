@@ -73,10 +73,10 @@ namespace molemind {
  
     /// find symbols by prefix
     
-    typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
-    
-    symbol_list database::search_symbols(const std::string& sn, const std::string& vp) noexcept {
-      return get_space_by_name(sn)->search(vp);
+    boost::optional<database::symbol_list> database::search_symbols(const std::string& sn, const std::string& vp) noexcept {
+      auto sp = get_space_by_name(sn);
+      if (sp) return sp->search(vp);
+      else return boost::none;
     }
     
     // all symbols

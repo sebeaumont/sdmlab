@@ -123,7 +123,7 @@ int main(int argc, const char** argv) {
   database rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
 
   // XXX pro tem default space XXX FIX ME!!!
-  const std::string default_spacename("words");
+  const std::string default_spacename("test");
   
   // see if we can find space names
   std::vector<std::string> spaces = rts.get_named_spaces();
@@ -156,11 +156,11 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        boost::optional<const std::size_t> vid = rts.add_symbol(default_spacename, cv[1]);
+        boost::optional<const bool> s = rts.add_symbol(default_spacename, cv[1]);
 
         // lookup the inserted symbol
         if (auto sym = rts.get_symbol(default_spacename, cv[1]))
-          std::cout << "[" << vid << "] " << *sym << std::endl;
+          std::cout << "[" << s << "] " << *sym << std::endl;
         else
           std::cout << cv[1] << ": not found after insert (bug?)" << std::endl;
         
@@ -187,7 +187,9 @@ int main(int argc, const char** argv) {
         
       } else if (boost::iequals(cv[0], ">")) {
         ; // export file
-
+      
+      /* TODO convert these to use abstract api */
+        
       } else if (boost::iequals(cv[0], "/")) {
         // array access to space
         boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
@@ -220,15 +222,15 @@ int main(int argc, const char** argv) {
         boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         rts.randomize_vector(v, 0.001);
         std::cout << v->count() << std::endl;
-        
+      
       } else if (boost::iequals(cv[0], "%")) {
         // topo
-        boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
-        database::space::topology t = rts.neighbourhood(default_spacename, default_spacename, cv[1], 0, 1, 20);
-        for (auto p : t) 
+        //boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
+        boost::optional<database::space::topology> t = rts.neighbourhood(default_spacename, default_spacename, cv[1], 0, 1, 20);
+        if (t) for (auto p : *t)
           std::cout << p << std::endl;
 
-        
+       
       } else if (boost::iequals(cv[0], "1")) {
         // randomize the vector...
         boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
@@ -240,7 +242,7 @@ int main(int argc, const char** argv) {
         boost::optional<database::space::vector&> v = rts.get_vector(default_spacename, cv[1]);
         v->zeros();
         std::cout << v->count() << std::endl;
-
+    
 
       } else
         std::cout << "syntax error:" << input << std::endl;
@@ -249,7 +251,8 @@ int main(int argc, const char** argv) {
     } else if (cv.size() > 0) {
       // default to search if no args
       auto ip = rts.search_symbols(default_spacename, cv[0]);
-      std::copy(ip.first, ip.second, std::ostream_iterator<database::space::symbol>(std::cout, "\n"));
+      if (ip) std::copy((*ip).first, (*ip).second, std::ostream_iterator<database::space::symbol>(std::cout, "\n"));
+      else std::cout << "not found" << std::endl;
     }
     
     std::cout << prompt;  
