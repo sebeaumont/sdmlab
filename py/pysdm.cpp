@@ -103,13 +103,19 @@ BOOST_PYTHON_MODULE(pysdm) {
     
   // python interface to c++ database class
   class_<database, boost::noncopyable>("database", init<std::size_t, std::size_t, std::string>())
+
+    
     .def("free", &database::free_heap, "free heap memory")
     .def("heap", &database::heap_size, "size of heap")
+    
     .def("add_symbol", &database::add_symbol, return_value_policy<return_optional>(), args("space", "name"),
          "add a symbol to a space")
-    .def("search_symbols", &database::search_symbols, args("space", "prefix"),
+
+    .def("search_symbols", &database::search_symbols, return_value_policy<return_optional>(), args("space", "prefix"),
          "return iterator of symbols with given prefix")
+
     .def("cardinality", &database::get_space_cardinality, return_value_policy<return_optional>())
+
     .def("iff", &database::test_if, return_value_policy<return_optional>())
     ;
 
