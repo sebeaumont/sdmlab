@@ -1,5 +1,5 @@
 # test programs for rtl
-include_directories(../rtl ../mms)
+include_directories(..)
 
 #find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(Boost REQUIRED)

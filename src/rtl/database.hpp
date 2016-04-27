@@ -67,8 +67,9 @@ namespace molemind { namespace sdm {
     boost::optional<const bool> add_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
 
     /// search for symbols starting with prefix
+    typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
     
     //////////////////////
@@ -152,9 +153,15 @@ namespace molemind { namespace sdm {
     
     boost::optional<std::size_t> get_space_cardinality(const std::string&) noexcept;
     
-       
+    /// test
+    inline boost::optional<bool> test_if(int n) {
+      if (n==0)return false;
+      else if (n==1) return true;
+      else return boost::none;
+    }
+
     
-  protected:
+    //protected:
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however

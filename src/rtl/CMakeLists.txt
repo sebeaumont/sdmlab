@@ -1,6 +1,7 @@
-# build c++ shared library 
-# header only boost
+# build c++ shared library
+include_directories(..)
 
+# header only boost
 find_package(Boost) 
 include_directories (${Boost_INCLUDE_DIR})
 
