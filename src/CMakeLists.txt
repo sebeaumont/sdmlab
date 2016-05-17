@@ -10,7 +10,7 @@ set (SDM_VERSION_MINOR 0)
 
 # install paths
 
-set (CMAKE_INSTALL_PREFIX "/usr/local")
+set (CMAKE_INSTALL_PREFIX "/opt/molemind")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 

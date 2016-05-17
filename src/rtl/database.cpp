@@ -116,7 +116,8 @@ namespace molemind {
     
     // measurement
     
-    boost::optional<double> database::similarity(const std::string& snv, const std::string& vn, const std::string& snu, const std::string& un) noexcept {
+    boost::optional<double> database::similarity(const std::string& snv, const std::string& vn,
+                                                 const std::string& snu, const std::string& un) noexcept {
       boost::optional<const space::symbol&> v = get_symbol(snv, vn);
       boost::optional<const space::symbol&> u = get_symbol(snu, un);
       // TODO 
@@ -126,8 +127,8 @@ namespace molemind {
     
     // neighbourhood
     boost::optional<database::space::topology> database::neighbourhood(const::std::string& ts,
-                                                      const std::string& ss, const std::string& sv,
-                                                      double p, double d, std::size_t n) noexcept {
+                                                                       const std::string& ss, const std::string& sv,
+                                                                       double p, double d, std::size_t n) noexcept {
       // all parts must exist
       auto s = get_space_by_name(ss);
       if (s) {
