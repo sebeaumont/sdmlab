@@ -4,10 +4,10 @@
 #  SDM_LIBRARIES
 
 find_path(SDM_INCLUDE_DIR sdm/database.hpp
-          HINTS /usr/local/include /opt/molemind/include)
+  HINTS /usr/local/include /opt/molemind/include)
 
 find_library(SDM_LIBRARY NAMES sdm
-             HINTS /usr/local/lib /opt/molemind/lib)
+  HINTS /usr/local/lib /opt/molemind/lib)
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set SDM_FOUND to TRUE

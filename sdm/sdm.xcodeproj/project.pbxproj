@@ -11,6 +11,7 @@
 		966893A31C85EF3800C72187 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 966893A21C85EF3800C72187 /* main.cpp */; };
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
+		96ACE9D81CEB2A100032C2E6 /* cdsm.c in Sources */ = {isa = PBXBuildFile; fileRef = 96ACE9D61CEB2A100032C2E6 /* cdsm.c */; };
 		96DC4EBE1C9C2ED400687D47 /* database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4EBD1C9C2ED400687D47 /* database.cpp */; };
 		96DC4EC01C9C2F1300687D47 /* database.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 96DC4EBF1C9C2F1300687D47 /* database.hpp */; };
 		96FAEE111CA0A4B100EA6AD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FAEE101CA0A4B100EA6AD3 /* AppDelegate.swift */; };
@@ -110,8 +111,11 @@
 		9668939B1C85EEBB00C72187 /* sdmtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sdmtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		966893A21C85EF3800C72187 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/repl/main.cpp; sourceTree = "<group>"; };
 		966893A71C85F27A00C72187 /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = ../../../../../usr/local/lib/libboost_program_options.dylib; sourceTree = "<group>"; };
+		96ACE9D61CEB2A100032C2E6 /* cdsm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = cdsm.c; path = ../src/rtl/cdsm.c; sourceTree = "<group>"; };
+		96ACE9D71CEB2A100032C2E6 /* cdsm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cdsm.h; path = ../src/rtl/cdsm.h; sourceTree = "<group>"; };
 		96DC4EBD1C9C2ED400687D47 /* database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = database.cpp; path = ../src/rtl/database.cpp; sourceTree = "<group>"; };
 		96DC4EBF1C9C2F1300687D47 /* database.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = database.hpp; path = ../src/rtl/database.hpp; sourceTree = "<group>"; };
+		96E16FF91CEA257B001AD72F /* libcsdm.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcsdm.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		96FAEE0E1CA0A4B000EA6AD3 /* dig.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = dig.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		96FAEE101CA0A4B100EA6AD3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		96FAEE121CA0A4B100EA6AD3 /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
@@ -150,6 +154,13 @@
 			files = (
 				966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */,
 				966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96E16FF61CEA257B001AD72F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,6 +207,8 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
+				96ACE9D61CEB2A100032C2E6 /* cdsm.c */,
+				96ACE9D71CEB2A100032C2E6 /* cdsm.h */,
 				96DC4EBF1C9C2F1300687D47 /* database.hpp */,
 				96DC4EBD1C9C2ED400687D47 /* database.cpp */,
 				966893A71C85F27A00C72187 /* libboost_program_options.dylib */,
@@ -220,6 +233,7 @@
 				96FAEE2E1CA0A4B100EA6AD3 /* digUITests.xctest */,
 				96FAEE431CA0BFEB00EA6AD3 /* sdmi.framework */,
 				96FAEE4C1CA0BFEC00EA6AD3 /* sdmiTests.xctest */,
+				96E16FF91CEA257B001AD72F /* libcsdm.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -300,6 +314,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		96E16FF71CEA257B001AD72F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		96FAEE401CA0BFEB00EA6AD3 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -346,6 +367,23 @@
 			productName = sdmi;
 			productReference = 9668939B1C85EEBB00C72187 /* sdmtest */;
 			productType = "com.apple.product-type.tool";
+		};
+		96E16FF81CEA257B001AD72F /* csdm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96E16FFC1CEA257B001AD72F /* Build configuration list for PBXNativeTarget "csdm" */;
+			buildPhases = (
+				96E16FF51CEA257B001AD72F /* Sources */,
+				96E16FF61CEA257B001AD72F /* Frameworks */,
+				96E16FF71CEA257B001AD72F /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = csdm;
+			productName = csdm;
+			productReference = 96E16FF91CEA257B001AD72F /* libcsdm.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
 		};
 		96FAEE0D1CA0A4B000EA6AD3 /* dig */ = {
 			isa = PBXNativeTarget;
@@ -455,6 +493,9 @@
 					9668939A1C85EEBB00C72187 = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
+					96E16FF81CEA257B001AD72F = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					96FAEE0D1CA0A4B000EA6AD3 = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
@@ -495,6 +536,7 @@
 				96FAEE2D1CA0A4B100EA6AD3 /* digUITests */,
 				96FAEE421CA0BFEB00EA6AD3 /* sdmi */,
 				96FAEE4B1CA0BFEC00EA6AD3 /* sdmiTests */,
+				96E16FF81CEA257B001AD72F /* csdm */,
 			);
 		};
 /* End PBXProject section */
@@ -554,6 +596,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				966893A31C85EF3800C72187 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96E16FF51CEA257B001AD72F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96ACE9D81CEB2A100032C2E6 /* cdsm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -781,6 +831,30 @@
 			};
 			name = Release;
 		};
+		96E16FFA1CEA257B001AD72F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		96E16FFB1CEA257B001AD72F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		96FAEE351CA0A4B100EA6AD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -979,6 +1053,15 @@
 			buildConfigurations = (
 				966893A01C85EEBB00C72187 /* Debug */,
 				966893A11C85EEBB00C72187 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96E16FFC1CEA257B001AD72F /* Build configuration list for PBXNativeTarget "csdm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96E16FFA1CEA257B001AD72F /* Debug */,
+				96E16FFB1CEA257B001AD72F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
