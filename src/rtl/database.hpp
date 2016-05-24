@@ -72,22 +72,7 @@ namespace molemind { namespace sdm {
     boost::optional<symbol_list> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
     
-    //////////////////////
-    /// heap utilities ///
-    //////////////////////
-
-    bool grow_heap_by(const std::size_t&) noexcept;
-
-    bool compactify_heap() noexcept;
-
-    /// heap metrics
-    
-    inline std::size_t heap_size() noexcept { return heap.get_size(); }
-    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
-    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
-    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
-    
- 
+  
     
     /////////////////////////
     /// vector properties ///
@@ -160,7 +145,23 @@ namespace molemind { namespace sdm {
       else return boost::none;
     }
 
+  
+    //////////////////////
+    /// heap utilities ///
+    //////////////////////
     
+    bool grow_heap_by(const std::size_t&) noexcept;
+    
+    bool compactify_heap() noexcept;
+    
+    /// heap metrics
+    
+    inline std::size_t heap_size() noexcept { return heap.get_size(); }
+    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
+    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
+    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
+    
+
     //protected:
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,10 +179,10 @@ namespace molemind { namespace sdm {
     void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
 
     /// ones
-    void ones_vector(boost::optional<space::vector&> v) noexcept;
+    void unit_vector(boost::optional<space::vector&> v) noexcept;
     
     /// zeros
-    void zeros_vector(boost::optional<space::vector&> v) noexcept;
+    void zero_vector(boost::optional<space::vector&> v) noexcept;
 
     // get space
     space* get_space_by_name(const std::string&); 

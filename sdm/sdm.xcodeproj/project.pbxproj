@@ -8,10 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		963A949E1CAD7E8B00A321C8 /* post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963A949D1CAD7E8B00A321C8 /* post.swift */; };
+		963BB6991CF4CF0B00EDC116 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A31C85EF3800C72187 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 966893A21C85EF3800C72187 /* main.cpp */; };
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
-		96ACE9D81CEB2A100032C2E6 /* cdsm.c in Sources */ = {isa = PBXBuildFile; fileRef = 96ACE9D61CEB2A100032C2E6 /* cdsm.c */; };
+		968254181CF4A5FE0093597F /* csdm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968254171CF4A5FE0093597F /* csdm.cpp */; };
 		96DC4EBE1C9C2ED400687D47 /* database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4EBD1C9C2ED400687D47 /* database.cpp */; };
 		96DC4EC01C9C2F1300687D47 /* database.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 96DC4EBF1C9C2F1300687D47 /* database.hpp */; };
 		96FAEE111CA0A4B100EA6AD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FAEE101CA0A4B100EA6AD3 /* AppDelegate.swift */; };
@@ -111,8 +112,7 @@
 		9668939B1C85EEBB00C72187 /* sdmtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sdmtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		966893A21C85EF3800C72187 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/repl/main.cpp; sourceTree = "<group>"; };
 		966893A71C85F27A00C72187 /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = ../../../../../usr/local/lib/libboost_program_options.dylib; sourceTree = "<group>"; };
-		96ACE9D61CEB2A100032C2E6 /* cdsm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = cdsm.c; path = ../src/rtl/cdsm.c; sourceTree = "<group>"; };
-		96ACE9D71CEB2A100032C2E6 /* cdsm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cdsm.h; path = ../src/rtl/cdsm.h; sourceTree = "<group>"; };
+		968254171CF4A5FE0093597F /* csdm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = csdm.cpp; path = ../src/rtl/csdm.cpp; sourceTree = "<group>"; };
 		96DC4EBD1C9C2ED400687D47 /* database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = database.cpp; path = ../src/rtl/database.cpp; sourceTree = "<group>"; };
 		96DC4EBF1C9C2F1300687D47 /* database.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = database.hpp; path = ../src/rtl/database.hpp; sourceTree = "<group>"; };
 		96E16FF91CEA257B001AD72F /* libcsdm.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcsdm.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -161,6 +161,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				963BB6991CF4CF0B00EDC116 /* libsdm.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,8 +208,7 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
-				96ACE9D61CEB2A100032C2E6 /* cdsm.c */,
-				96ACE9D71CEB2A100032C2E6 /* cdsm.h */,
+				968254171CF4A5FE0093597F /* csdm.cpp */,
 				96DC4EBF1C9C2F1300687D47 /* database.hpp */,
 				96DC4EBD1C9C2ED400687D47 /* database.cpp */,
 				966893A71C85F27A00C72187 /* libboost_program_options.dylib */,
@@ -603,7 +603,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96ACE9D81CEB2A100032C2E6 /* cdsm.c in Sources */,
+				968254181CF4A5FE0093597F /* csdm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

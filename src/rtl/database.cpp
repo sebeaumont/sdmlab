@@ -34,7 +34,9 @@ namespace molemind {
       } 
     }
     
-        
+    
+/* API */
+    
     ////////////////////
     /// named vectors // 
     ////////////////////
@@ -137,8 +139,7 @@ namespace molemind {
         else return boost::none;
       } else return boost::none;
     }
-        
-    // TODO deletion
+    
 
 
     // low level randomize a vector -- writes p * d random bits
@@ -150,23 +151,23 @@ namespace molemind {
       }
     }
     
-    void database::ones_vector(boost::optional<space::vector&> v) noexcept {
+    void database::unit_vector(boost::optional<space::vector&> v) noexcept {
       if (v) v->ones();
     }
       
-    void database::zeros_vector(boost::optional<space::vector&> v) noexcept {
+    void database::zero_vector(boost::optional<space::vector&> v) noexcept {
       if (v) v->zeros();
     }
     
-  
     
+    /* END API */
     
     //////////////////////
     /// space management
     //////////////////////
     
     // create and manage named symbols by name -- space constructor does find_or_construct on segment
-    // database memoizes pointers to spaces to speed up symbol resolution 
+    // database memoizes pointers to spaces to speed up symbol resolution
     
     inline database::space* database::ensure_space_by_name(const std::string& name) {
       // lookup in cache
@@ -185,16 +186,16 @@ namespace molemind {
     }
     
     // lookup a space by name
-    /* 
-       this has weird behaviour -- hangs or throws assersion errors
-       so I'm doing a workaround and cache all spaces at rts start up via ensure space_by_name
-       probably be quicker...
-       
-       std::pair<database::space*, std::size_t>
-       database::get_space_by_name(const std::string& name) {
-       return heap.find<space>(name.c_str());
-       }
-    */
+    /*
+     this has weird behaviour -- hangs or throws assersion errors
+     so I'm doing a workaround and cache all spaces at rts start up via ensure space_by_name
+     probably be quicker...
+     
+     std::pair<database::space*, std::size_t>
+     database::get_space_by_name(const std::string& name) {
+     return heap.find<space>(name.c_str());
+     }
+     */
     
     // this is meant to be fast so no optional's here -- we could inline this.
     database::space* database::get_space_by_name(const std::string& name) {
@@ -225,17 +226,17 @@ namespace molemind {
         std::size_t name_len = named_beg->name_length();
         if (name[0] != '_')
           names.push_back(std::string(name, name_len));
-        // constant void pointer to the named object
-        //const void *value = named_beg->value();
-      }
+          // constant void pointer to the named object
+          //const void *value = named_beg->value();
+          }
       return names;
     }
     
-
+    
     boost::optional<std::size_t> database::get_space_cardinality(const std::string& sn) noexcept {
       auto sp = get_space_by_name(sn);
       if (sp) return sp->entries();
-      else return boost::none;
+        else return boost::none;
     }
     
     ////////////////////////
@@ -251,15 +252,16 @@ namespace molemind {
         heap = segment_t(bip::open_only, heapimage.c_str());
         std::cout << "free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
         if (check_heap_sanity())
-          return true;
-      }
-      return false;
-    }
-    
-    bool database::compactify_heap() noexcept {
-      // mapped_file shrink_to_fit -- compact
-      return heap.shrink_to_fit(heapimage.c_str());
-    }
+        return true;
+        }
+        return false;
+        }
+        
+        bool database::compactify_heap() noexcept {
+          // mapped_file shrink_to_fit -- compact
+          return heap.shrink_to_fit(heapimage.c_str());
+        }
+
     
   }
 }

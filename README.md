@@ -24,7 +24,7 @@ toolchain and libraries:
 
 There is an additional ios framework (sdmi) which wraps the c++
 implementation with an objective c++ API suitable for importing into
-Swift.
+Swift. These are currently being replaced by a common c library.
 
 
 Project contact: [Simon Beaumont](mailto:s@molemind.net) 
