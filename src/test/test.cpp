@@ -1,19 +1,20 @@
-// unit tests for runtime class
+// unit tests for api lib
 
-#include "runtime.hpp"
+#include "../rtl/csdm.h"
+#include <iostream>
+
+// declare error handler
+void die(error_t e) {
+  std::cerr << "ERROR:" << e.code << "@" << e.message << "?" << e.reason  << std::endl;
+  std::abort();
+}
 
 // test
 int main(int argc, char** argv) {
-
-  using namespace sdm;
-
-  // sizing
-  const std::size_t ini_size = 700 * 1024 * 1024;
-  const std::size_t max_size = 700 * 1024 * 1024;
   
-  // 1. create runtime system
-  runtime rts(ini_size, max_size, "testheap.img");
-
-    
-  return 1;
+  std::cout << "open db...";
+  const sdm_database db = guard(sdm_open_database("test.sdm", 700, 1400), die);
+  // don't really like how we can unwrap willy nilly here...
+  std::cout << db.either.right << std::endl;
+  
 }
