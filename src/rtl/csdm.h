@@ -57,37 +57,42 @@ typedef struct {
     topology_t as_topo;
     database_t as_database;
   } value;
-} result_t;
+} value_t;
 
 
 // type constructors
 
-static inline result_t real(double x) {
-  result_t r;
+static inline value_t real(double x) {
+  value_t r;
   r.type = REAL_T;
   r.value.as_real = x;
   return r;
 }
 
-static inline result_t nat(nat_t x) {
-  result_t r;
+static inline value_t nat(nat_t x) {
+  value_t r;
   r.type = NAT_T;
   r.value.as_nat = x;
   return r;
 }
 
-static inline result_t topology(topology_t x) {
-  result_t r;
+static inline value_t topology(topology_t x) {
+  value_t r;
   r.type = TOPOLOGY_T;
   r.value.as_topo = x;
   return r;
 }
 
-static inline result_t database(database_t x) {
-  result_t r;
+static inline value_t database(database_t x) {
+  value_t r;
   r.type = DATABASE_T;
   r.value.as_database = x;
   return r;
+}
+
+static inline error_t error(nat_t c) {
+  error_t e;
+  return e;
 }
 
 // result unwrappers?
@@ -104,7 +109,7 @@ typedef enum {
 typedef struct {
   either_t type;
   union {
-    result_t right;
+    value_t right;
     error_t left;
   } value;
 } sdm_t;
@@ -117,12 +122,48 @@ static inline sdm_t left(error_t x) {
   return e;
 }
 
-static inline sdm_t right(result_t x) {
+static inline sdm_t right(value_t x) {
   sdm_t e;
   e.type = RIGHT_T;
   e.value.right = x;
   return e;
 }
+
+
+// most evolved
+// specific error handling code...
+
+typedef struct {
+  either_t type;
+  union {
+    error_t left;
+    database_t right;
+  } either;
+} sdm_database;
+
+
+
+static inline sdm_database database2(database_t x) {
+  sdm_database r;
+  if (x == nullptr) {
+    r.type = LEFT_T;
+    r.either.left = error(101);
+  } else {
+    r.type = RIGHT_T;
+    r.either.right = x;
+  }
+  return r;
+}
+
+// vs. generic unwrap?
+static inline sdm_t database3(database_t x) {
+  if (x == nullptr) {
+    return left(error(101));
+  } else {
+    return right(database(x));
+  }
+}
+
 
 
 /***********************
@@ -136,7 +177,7 @@ extern "C" {
   inline const sdm_t dsm_major_version() { return right(nat(SDM_VERSION_MAJOR)); }
   inline const sdm_t dsm_minor_version() { return right(nat(SDM_VERSION_MINOR)); }
   
-  const sdm_t dsm_open_database(string_t name, nat_t initial_size, nat_t max_size);
+  const sdm_database dsm_open_database(string_t name, nat_t initial_size, nat_t max_size);
   
   const sdm_t dsm_get_neighbourhood(string_t name,
                                        string_t space,
