@@ -186,20 +186,19 @@ static inline either database3(database_t x) {
 typedef void (*error_handler)(error_t e);
   
 // since we can't overload
-#define sdm_guard(EITHER_,FAIL_) if (EITHER_.type == LEFT_T) FAIL_(EITHER_.value.left), return EITHER_
+// TODO #define sdm_guard(EITHER_,FAIL_) if ((EITHER_).type == LEFT_T) FAIL_((EITHER_).value.left); else return (EITHER_)
 
-/*
-static inline const either guard(either e, error_handler fail) {
+
+static inline const either sdm_guard(either e, error_handler fail) {
   if (e.type == LEFT_T) fail(e.value.left);
   return e;
 }
-*/
+
   
 static inline const sdm_database sdm_database_guard(sdm_database d, error_handler fail) {
   if (d.type == LEFT_T) fail(d.value.left);
   return d;
 }
-
   
 
 
