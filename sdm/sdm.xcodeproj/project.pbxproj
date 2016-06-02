@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		963A949E1CAD7E8B00A321C8 /* post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963A949D1CAD7E8B00A321C8 /* post.swift */; };
 		963BB6991CF4CF0B00EDC116 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
-		963BB6A61CF5E7D700EDC116 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 963BB6A51CF5E7D700EDC116 /* test.cpp */; };
 		963BB6A71CF5E80600EDC116 /* libcsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96E16FF91CEA257B001AD72F /* libcsdm.dylib */; };
+		963BB6A91CF8EF6800EDC116 /* ctest.c in Sources */ = {isa = PBXBuildFile; fileRef = 963BB6A81CF8EF6800EDC116 /* ctest.c */; };
 		966893A31C85EF3800C72187 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 966893A21C85EF3800C72187 /* main.cpp */; };
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
@@ -117,6 +117,7 @@
 		963A949D1CAD7E8B00A321C8 /* post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = post.swift; sourceTree = "<group>"; };
 		963BB69E1CF5E73900EDC116 /* csdmunit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = csdmunit; sourceTree = BUILT_PRODUCTS_DIR; };
 		963BB6A51CF5E7D700EDC116 /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../src/test/test.cpp; sourceTree = "<group>"; };
+		963BB6A81CF8EF6800EDC116 /* ctest.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ctest.c; path = ../src/test/ctest.c; sourceTree = "<group>"; };
 		966893711C85EA6D00C72187 /* mms */ = {isa = PBXFileReference; lastKnownFileType = text; name = mms; path = ../src/mms; sourceTree = "<group>"; };
 		966893721C85EA6D00C72187 /* repl */ = {isa = PBXFileReference; lastKnownFileType = text; name = repl; path = ../src/repl; sourceTree = "<group>"; };
 		966893731C85EA6D00C72187 /* rtl */ = {isa = PBXFileReference; lastKnownFileType = text; name = rtl; path = ../src/rtl; sourceTree = "<group>"; };
@@ -236,6 +237,7 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
+				963BB6A81CF8EF6800EDC116 /* ctest.c */,
 				963BB6A51CF5E7D700EDC116 /* test.cpp */,
 				968254171CF4A5FE0093597F /* csdm.cpp */,
 				96DC4EBF1C9C2F1300687D47 /* database.hpp */,
@@ -639,7 +641,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				963BB6A61CF5E7D700EDC116 /* test.cpp in Sources */,
+				963BB6A91CF8EF6800EDC116 /* ctest.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

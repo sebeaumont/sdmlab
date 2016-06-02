@@ -99,7 +99,7 @@ static inline value_t database(database_t x) {
 }
 
 
-// error type
+// error_t constructor
 
 static inline error_t error(string_t m, string_t r, nat_t c) {
   error_t e;
@@ -110,7 +110,7 @@ static inline error_t error(string_t m, string_t r, nat_t c) {
 }
 
 // result unwrappers?
-
+// as_real, as_nat(n, error_handler) ...
 // either
 
 typedef enum {
@@ -154,7 +154,7 @@ typedef struct {
   union {
     error_t left;
     database_t right;
-  } either;
+  } value;
 } sdm_database;
 
 
@@ -162,37 +162,41 @@ typedef struct {
 
 static inline sdm_database database2(database_t x) {
   sdm_database r;
-  if (x == nullptr) {
+  if (x == 0) {
     r.type = LEFT_T;
-    r.either.left = error("database2", "null", 10);
+    r.value.left = error("database2", "null", 10);
   } else {
     r.type = RIGHT_T;
-    r.either.right = x;
+    r.value.right = x;
   }
   return r;
 }
 
 // vs. generic
 static inline either database3(database_t x) {
-  if (x == nullptr) {
+  if (x == 0) {
     return left(error("database3", "null", 20));
   } else {
     return right(database(x));
   }
 }
 
-
-static inline const either guard(either e) {
-  if (e.type == LEFT_T) {
-      // raise error
-  }
-  return e;
-}
   
+// error handler for receiving failure
 typedef void (*error_handler)(error_t e);
   
-static inline const sdm_database guard(sdm_database d, error_handler fail) {
-  if (d.type == LEFT_T) fail(d.either.left);
+// since we can't overload
+#define sdm_guard(EITHER_,FAIL_) if (EITHER_.type == LEFT_T) FAIL_(EITHER_.value.left), return EITHER_
+
+/*
+static inline const either guard(either e, error_handler fail) {
+  if (e.type == LEFT_T) fail(e.value.left);
+  return e;
+}
+*/
+  
+static inline const sdm_database sdm_database_guard(sdm_database d, error_handler fail) {
+  if (d.type == LEFT_T) fail(d.value.left);
   return d;
 }
 
@@ -208,13 +212,13 @@ inline const either sdm_major_version() { return right(nat(SDM_VERSION_MAJOR)); 
 inline const either sdm_minor_version() { return right(nat(SDM_VERSION_MINOR)); }
   
 const sdm_database sdm_open_database(string_t name, nat_t initial_size, nat_t max_size);
-const either sdm_space_cardinality(sdm_database& db, string_t name);
+const either sdm_space_cardinality(sdm_database db, string_t name);
   
-const either sdm_get_neighbourhood(string_t name,
-                                  string_t space,
-                                  real_t similarity_lower_bound,
-                                  real_t density_upper_bound,
-                                  nat_t cardinality_upper_bound);
+const either sdm_neighbourhood(string_t name,
+                               string_t space,
+                               real_t similarity_lower_bound,
+                               real_t density_upper_bound,
+                               nat_t cardinality_upper_bound);
   
   
 

@@ -12,7 +12,7 @@ set_target_properties(sdm PROPERTIES
   VERSION ${SDM_VERSION_MAJOR}.${SDM_VERSION_MINOR}
   SOVERSION ${SDM_VERSION_MAJOR})
 
-# c bindings 
+# c bindings
 add_library(csdm SHARED csdm.cpp)
 
 set_target_properties(csdm PROPERTIES

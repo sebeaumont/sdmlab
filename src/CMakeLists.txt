@@ -1,12 +1,14 @@
 # c++ shared library and tools master build
+# copyright simon beaumont 2012-2016 - all rights reserved
+
 project(sdmlab)
 cmake_minimum_required (VERSION 3.0)
 enable_testing()
 
 # project version
 
-set (SDM_VERSION_MAJOR 6)
-set (SDM_VERSION_MINOR 0)
+set (SDM_VERSION_MAJOR 7)
+set (SDM_VERSION_MINOR 1)
 
 # install paths
 
@@ -15,18 +17,23 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 
-##################
-# c++ compiler
+#########################################
+# project global c/c++ compiler settings
+#########################################
 
-# modern c++ please
-add_definitions("-std=c++14")
-add_definitions("-Wall")
+# common to both c & c++ flags
+set(SDM_ALL_FLAGS "-Wall -O3 -march=native")
+
+# c++ only
+set(SDM_CXX_FLAGS "-std=c++14")
+
+# c only
+set(SDM_C_FLAGS "-std=c11")
+
 
 # is future namespace wizardy allowed?
-# YES: add_definitions("-Wc++1z-extensions")
+# YES: set(SDM_CXX_FLAGS "-Wc++1z-extensions")
 
-add_definitions("-O3")
-add_definitions("-march=native")
 
 ############################################
 # compiler specific project wide defintions
@@ -35,20 +42,16 @@ add_definitions("-march=native")
 # this gets gcc to pass -q to the assembler which will use the clang
 # assembler which groks the avx instructions - yeah don't ask there's
 # history here...
-
-IF ((${CMAKE_SYSTEM_NAME} MATCHES "Darwin") AND (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU"))
-  add_definitions("-Wa,-q") 
-ENDIF()
+#IF ((${CMAKE_SYSTEM_NAME} MATCHES "Darwin") AND (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU"))
+#  set(SDM_CXX_FLAGS "-Wa,-q") 
+#ENDIF()
 
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # TODO for clang these are clang specific
-  # add_definitions("-Rpass=.*") # have clang show optimizations
-  # add_definitions("-fsanitize=address") doesn't work with apple 3.6 compiler!
-  add_definitions("-funroll-loops")
-  add_definitions("-fvectorize")
-  add_definitions("-fslp-vectorize")
-  add_definitions("-fslp-vectorize-aggressive")
+  # set(SDM_CXX_FLAGS "-Rpass=.*") # have clang show optimizations
+  # set(SDM_CXX_FLAGS "-fsanitize=address") doesn't work with apple 3.6 compiler!
+  set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -funroll-loops -fvectorize -fslp-vectorize -fslp-vectorize-aggressive")
 endif()
 
 
@@ -62,7 +65,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # OS X/XNU specific configuration - should work for iOS?
   message(STATUS "Will compile for Blocks/GCD and other Apple sweetness...")
   set(HAVE_DISPATCH 1)
-  add_definitions("-stdlib=libc++")
+  set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -stdlib=libc++")
   set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-stdlib=libc++")
   exec_program("sysctl -n machdep.cpu.features" OUTPUT_VARIABLE CPU_FEATURES)
 
@@ -75,15 +78,15 @@ else()
 
     message(STATUS "OpenMP is configured")
     set(HAVE_OPENMP 1)
-    add_definitions("-fopenmp")
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS})
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
+    set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -fopenmp")
+    set(SDM_C_FLAGS ${SDM_C_FLAGS} ${OpenMP_C_FLAGS})
+    set(SDM_CXX_FLAGS ${SDM_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     
     find_package(Threads REQUIRED)
 
     if (CMAKE_USE_PTHREADS_INIT)
-      add_definitions("-pthread")
+      set(SDM_CXX_FLAGS ${SDM_CXX_FLAGS} "-pthread")
     endif()
 
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
@@ -94,6 +97,11 @@ else()
 
 endif()
 
+set(CMAKE_CXX_FLAGS "${SDM_CXX_FLAGS} ${SDM_ALL_FLAGS}")
+set(CMAKE_C_FLAGS "${SDM_C_FLAGS} ${SDM_ALL_FLAGS}")
+
+message(${CMAKE_CXX_FLAGS})
+message(${CMAKE_C_FLAGS})
 
 # normalise features before searching
 string(TOUPPER ${CPU_FEATURES} CPU_FEATURES)
