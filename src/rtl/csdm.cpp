@@ -43,11 +43,12 @@ const either sdm_space_cardinality(sdm_database db, string_t name) {
   return right(nat(n));
 }
 
-const either sdm_neighbourhood(string_t name,
-                                 string_t spacename,
-                                 real_t similarity_lower_bound,
-                                 real_t density_upper_bound,
-                                 nat_t card_upper_bound) {
+const either sdm_neighbourhood(sdm_database db,
+                               string_t name,
+                               string_t spacename,
+                               real_t similarity_lower_bound,
+                               real_t density_upper_bound,
+                               nat_t card_upper_bound) {
   // 
   topology_t t;                 // XXX 
   t.card = card_upper_bound;    // XXX

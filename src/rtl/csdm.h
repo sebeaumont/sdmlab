@@ -213,7 +213,8 @@ inline const either sdm_minor_version() { return right(nat(SDM_VERSION_MINOR)); 
 const sdm_database sdm_open_database(string_t name, nat_t initial_size, nat_t max_size);
 const either sdm_space_cardinality(sdm_database db, string_t name);
   
-const either sdm_neighbourhood(string_t name,
+const either sdm_neighbourhood(sdm_database db,
+                               string_t name,
                                string_t space,
                                real_t similarity_lower_bound,
                                real_t density_upper_bound,
