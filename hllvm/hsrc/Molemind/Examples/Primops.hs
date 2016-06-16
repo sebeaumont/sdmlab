@@ -17,7 +17,7 @@ foreign import prim "get_message_STG" getMessage# :: Word# -> (# Int#, Word# #)
 -- 
 data Message = Good { payload :: {-# UNPACK #-} !Word64 }
              | Bad { error :: {-# UNPACK #-} !Word64 }
-             | Ugly { part :: {-# UNPACK #-} !Word64 }
+             | Ugly { part :: {-# UNPACK #-} !Int64 }
              deriving (Show)
 
 
@@ -26,5 +26,5 @@ getMessage :: Word -> Message
 getMessage (W# p) = case getMessage# p of
   (# 1#, stuff #) -> Good (W64# 1957##)
   (# 2#, error #) -> Bad (W64# 1984##)
-  (# part, _ #) -> Ugly (W64# 1999##)
+  (# part, _ #) -> Ugly (I64# part)
 
