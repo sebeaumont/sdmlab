@@ -30,8 +30,8 @@ ghc=/usr/local/bin/ghc
 all:	test
 
 get_message.o:	get_message.llp
-	$(llc) -O3 -pre-RA-sched=list-burr -regalloc=greedy -relocation-model=static -filetype=obj get_message.llp -o get_message.o		
-	#$(llc) -O3 -filetype=obj get_message.llp -o get_message.o
+	#$(llc) -O3 -pre-RA-sched=list-burr -regalloc=greedy -relocation-model=static -filetype=obj get_message.llp -o get_message.o		
+	$(llc) -O3 -filetype=obj get_message.llp -o get_message.o
 
 
 get_message.llp: get_message.ll
@@ -43,7 +43,7 @@ get_message.ll:	get_message.c Makefile
 
 
 test:	Main.hs Primops.hs get_message.o Makefile
-	$(ghc) -fllvm -keep-llvm-files -fforce-recomp -pgmc $(cc) -pgml $(cc) -pgmlc $(llc) -pgmlo $(opt) -O2 -Wall -rtsopts -threaded --make -outputdir=. Main.hs Primops.hs RegularFunctions.hs get_message.o -o test
+	$(ghc) -fllvm -keep-llvm-files -fforce-recomp -pgmc $(cc) -pgml $(cc) -pgmlc $(llc) -pgmlo $(opt) -O2 -Wall -rtsopts --make -outputdir=. Main.hs Primops.hs RegularFunctions.hs get_message.o -o test
 	#$(ghc) -O2 -Wall -rtsopts -threaded --make -outputdir=. Main.hs Primops.hs get_message.o -o test
 
 test2:	Main.hs Primops.hs get_message.o Makefile

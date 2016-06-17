@@ -1,5 +1,5 @@
 module Molemind.Examples.RF (myfunction) where
 
 myfunction :: String -> Int
-myfunction x = 42
+myfunction _ = 42
 
