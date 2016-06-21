@@ -13,7 +13,7 @@ cabal.sandbox.config
 Setup.hs
 dist
 config.hpp
-*.ll
+*.ll*
 *.o
 a.out
 *.ibc
