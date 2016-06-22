@@ -144,52 +144,53 @@ int main(int argc, const char** argv) {
   }
   
   cout << "read from stdin..." << endl;
+  // accumualated stats...
+  u_int docs = 0;
+
+  u_int singletons = 0;
+  u_int rows = 0;
   
-  int docno = 1;
   // main i/o loop
-  
   string input;
   
   // simple cline processor
   while (getline(cin, input)) {
+    rows++;
     
     boost::trim(input);
     vector<string> tv;
-    
     tokenize_line(input, tv);
     
     if (tv.size() == 0) {
-      // assume we have a blank line which signals end of doc
-      docno++;
+      // assume we have a blank line which signals end of doc? not sure if we care...
+      docs++;
       
-    } else {
+    } else if (tv.size() > 1) {
+      
       // we need to permute the pairs treating this as a partial order with the relation > (which can be mapped to shift)
-      // 1. create ordered set of terms in frame
-      set<string> termset(tv.begin(), tv.end());
+      // meanwhile we decorate the combinaitons...
       
-      // record number of pairs i.e. binomial coefficient which in
-      // this case will be (choose 2 from termset.size)
-      int n = 0;
+      // un-ordered set of terms in frame
+      set<string> termset(tv.begin(), tv.end());
       
       // pairwise combinatations of terms
       for (auto first = termset.begin(); first != termset.end(); ++first) {
         for (auto next = std::next(first); next != termset.end(); ++next) {
           // first R next
           db.superpose(spacename, *first, spacename, *next);
-          // reify inverse?
+          // reify if required inverse...
           if (symmetric) db.superpose(spacename, *next, spacename, *first);
         }
       }
-    }
+      
+    } else singletons++;
   }
-  
+  docs++;
+
   // goodbye from me and goodbye from him...
-  cout << endl
-            << "end "
-            << (db.check_heap_sanity() ? ":-)" : ":-(")
-            << " size: " << B2MB(db.heap_size())
-            << " free: " << B2MB(db.free_heap())
-            << endl;
+  cout << "<EOF> rows: " << rows << " docs: " << docs << " singletons: " << singletons << endl;
+  cout << spacename << "#" << db.get_space_cardinality(spacename) << endl;
+  cout << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
   
   return 0;
 }
