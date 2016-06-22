@@ -123,7 +123,7 @@ int main(int argc, const char** argv) {
   database rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
 
   // XXX pro tem default space XXX FIX ME!!!
-  const std::string default_spacename("test");
+  const std::string default_spacename("words");
   
   // see if we can find space names
   std::vector<std::string> spaces = rts.get_named_spaces();
@@ -156,7 +156,7 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        boost::optional<const bool> s = rts.add_symbol(default_spacename, cv[1]);
+        boost::optional<const bool> s = rts.ensure_vector(default_spacename, cv[1]);
 
         // lookup the inserted symbol
         if (auto sym = rts.get_symbol(default_spacename, cv[1]))
@@ -177,7 +177,7 @@ int main(int argc, const char** argv) {
           while(std::getline(ins, fline)) {
             boost::trim(fline);
             //std::cout << "addv(" << default_spacename << ":" << fline << ")" << std::endl;
-            rts.add_symbol(default_spacename, fline);
+            rts.ensure_vector(default_spacename, fline);
             n++;
           }
           std::cout << mytimer << " loaded: " << n << std::endl; 

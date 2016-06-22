@@ -90,7 +90,7 @@ namespace molemind {
     
     /// create new symbol -- this can cause bad alloc
 
-    boost::optional<const bool> database::add_symbol(const std::string& sn, const std::string& vn) noexcept {
+    boost::optional<const bool> database::ensure_vector(const std::string& sn, const std::string& vn) noexcept {
       try {
         // N.B. may side-effect the creation of a space and a symbol/vector
         auto ov = ensure_space_by_name(sn)->insert(vn);
@@ -107,10 +107,27 @@ namespace molemind {
     
     void database::superpose(const std::string& ts, const std::string& tn,
                              const std::string& ss, const std::string& sn) noexcept {
-      // TODO source and target vectors must exist...
-      boost::optional<space::vector&> v = ensure_space_by_name(ts)->get_vector_by_name(tn);
-      boost::optional<space::vector&> u = ensure_space_by_name(ss)->get_vector_by_name(sn);
-      // optional guards? 
+      
+      // create spaces if required
+      auto tsp = ensure_space_by_name(ts);
+      auto ssp = ensure_space_by_name(ss);
+      
+      // if not found insert and retry!
+      boost::optional<space::vector&> v = tsp->get_vector_by_name(tn);
+      if (!v) {
+        tsp->insert(tn);
+        v = tsp->get_vector_by_name(tn);
+        assert(v);
+      }
+      
+      // if not found insert and retry!
+      boost::optional<space::vector&> u = ssp->get_vector_by_name(sn);
+      if (!u) {
+        ssp->insert(tn);
+        u = tsp->get_vector_by_name(tn);
+        assert(u);
+      }
+  
       v->superpose(*u);
     }
     

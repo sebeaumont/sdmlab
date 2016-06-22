@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
   
   while(std::getline(ins, fline)) {
     boost::trim(fline);
-    auto s = rts.add_symbol(test_space1, fline);
+    auto s = rts.ensure_vector(test_space1, fline);
     if (s) loaded++;
   }
   

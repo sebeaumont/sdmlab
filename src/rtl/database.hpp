@@ -64,7 +64,7 @@ namespace molemind { namespace sdm {
     /// return tristate: failed, false->existed, true->added (be careful unwrapping) see:
     /// http://www.boost.org/doc/libs/1_60_0/libs/optional/doc/html/boost_optional/a_note_about_optional_bool_.html
 
-    boost::optional<const bool> add_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
+    boost::optional<const bool> ensure_vector(const std::string& space_name, const std::string& symbol_name) noexcept;
 
     /// search for symbols starting with prefix
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;

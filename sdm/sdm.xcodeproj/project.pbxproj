@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		960FF2B81D1A85CF001F75A2 /* frametrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 960FF2B71D1A85CF001F75A2 /* frametrain.cpp */; };
+		960FF2BB1D1A8911001F75A2 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
+		960FF2BC1D1A8A28001F75A2 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		963A949E1CAD7E8B00A321C8 /* post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963A949D1CAD7E8B00A321C8 /* post.swift */; };
 		963BB6991CF4CF0B00EDC116 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		963BB6A71CF5E80600EDC116 /* libcsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96E16FF91CEA257B001AD72F /* libcsdm.dylib */; };
@@ -82,6 +85,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		960FF2AE1D1A8556001F75A2 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		963BB69C1CF5E73900EDC116 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -114,6 +126,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		960FF2B01D1A8556001F75A2 /* frametrainer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = frametrainer; sourceTree = BUILT_PRODUCTS_DIR; };
+		960FF2B71D1A85CF001F75A2 /* frametrain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = frametrain.cpp; path = ../src/test/frametrain.cpp; sourceTree = "<group>"; };
 		963A949D1CAD7E8B00A321C8 /* post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = post.swift; sourceTree = "<group>"; };
 		963BB69E1CF5E73900EDC116 /* csdmunit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = csdmunit; sourceTree = BUILT_PRODUCTS_DIR; };
 		963BB6A51CF5E7D700EDC116 /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../src/test/test.cpp; sourceTree = "<group>"; };
@@ -155,6 +169,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		960FF2AD1D1A8556001F75A2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				960FF2BC1D1A8A28001F75A2 /* libsdm.dylib in Frameworks */,
+				960FF2BB1D1A8911001F75A2 /* libboost_program_options.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		963BB69B1CF5E73900EDC116 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -227,6 +250,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		960FF2B11D1A8556001F75A2 /* frametrainer */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = frametrainer;
+			sourceTree = "<group>";
+		};
 		963BB69F1CF5E73900EDC116 /* csdmunit */ = {
 			isa = PBXGroup;
 			children = (
@@ -237,6 +267,7 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
+				960FF2B71D1A85CF001F75A2 /* frametrain.cpp */,
 				963BB6A81CF8EF6800EDC116 /* ctest.c */,
 				963BB6A51CF5E7D700EDC116 /* test.cpp */,
 				968254171CF4A5FE0093597F /* csdm.cpp */,
@@ -251,6 +282,7 @@
 				96FAEE441CA0BFEB00EA6AD3 /* sdmi */,
 				96FAEE521CA0BFEC00EA6AD3 /* sdmiTests */,
 				963BB69F1CF5E73900EDC116 /* csdmunit */,
+				960FF2B11D1A8556001F75A2 /* frametrainer */,
 				966893681C85E9E900C72187 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -267,6 +299,7 @@
 				96FAEE4C1CA0BFEC00EA6AD3 /* sdmiTests.xctest */,
 				96E16FF91CEA257B001AD72F /* libcsdm.dylib */,
 				963BB69E1CF5E73900EDC116 /* csdmunit */,
+				960FF2B01D1A8556001F75A2 /* frametrainer */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -366,6 +399,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		960FF2AF1D1A8556001F75A2 /* frametrainer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 960FF2B61D1A8556001F75A2 /* Build configuration list for PBXNativeTarget "frametrainer" */;
+			buildPhases = (
+				960FF2AC1D1A8556001F75A2 /* Sources */,
+				960FF2AD1D1A8556001F75A2 /* Frameworks */,
+				960FF2AE1D1A8556001F75A2 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = frametrainer;
+			productName = frametrainer;
+			productReference = 960FF2B01D1A8556001F75A2 /* frametrainer */;
+			productType = "com.apple.product-type.tool";
+		};
 		963BB69D1CF5E73900EDC116 /* csdmunit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 963BB6A21CF5E73900EDC116 /* Build configuration list for PBXNativeTarget "csdmunit" */;
@@ -537,6 +587,9 @@
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Simon Beaumont";
 				TargetAttributes = {
+					960FF2AF1D1A8556001F75A2 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					963BB69D1CF5E73900EDC116 = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
@@ -591,6 +644,7 @@
 				96FAEE4B1CA0BFEC00EA6AD3 /* sdmiTests */,
 				96E16FF81CEA257B001AD72F /* csdm */,
 				963BB69D1CF5E73900EDC116 /* csdmunit */,
+				960FF2AF1D1A8556001F75A2 /* frametrainer */,
 			);
 		};
 /* End PBXProject section */
@@ -637,6 +691,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		960FF2AC1D1A8556001F75A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				960FF2B81D1A85CF001F75A2 /* frametrain.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		963BB69A1CF5E73900EDC116 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -768,6 +830,26 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		960FF2B41D1A8556001F75A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		960FF2B51D1A8556001F75A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		963BB6A31CF5E73900EDC116 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1112,6 +1194,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		960FF2B61D1A8556001F75A2 /* Build configuration list for PBXNativeTarget "frametrainer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				960FF2B41D1A8556001F75A2 /* Debug */,
+				960FF2B51D1A8556001F75A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		963BB6A21CF5E73900EDC116 /* Build configuration list for PBXNativeTarget "csdmunit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1119,6 +1209,7 @@
 				963BB6A41CF5E73900EDC116 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		966893621C85E9E900C72187 /* Build configuration list for PBXProject "sdm" */ = {
 			isa = XCConfigurationList;
