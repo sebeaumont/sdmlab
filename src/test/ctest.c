@@ -6,7 +6,7 @@
 
 // declare error handlers
 
-void die(error_t e) {
+void die(sdm_error_t e) {
   // 
   //std::cerr << "ERROR:" << e.code << "@" << e.message << "?" << e.reason  << std::endl;
   //std::abort();
@@ -14,7 +14,7 @@ void die(error_t e) {
   exit(e.code);
 }
 
-void warning(error_t e) {
+void warning(sdm_error_t e) {
   printf("ERROR:%d %s %s\n", e.code, e.message, e.reason);
 }
 

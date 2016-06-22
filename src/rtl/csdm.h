@@ -38,7 +38,7 @@ typedef struct { string_t name; real_t distance; real_t density; } point_t;
 
 typedef struct { point_t* pointset; nat_t card; } topology_t;
 
-typedef struct { string_t message; string_t reason; integer_t code; } error_t;
+typedef struct { string_t message; string_t reason; integer_t code; } sdm_error_t;
 
 typedef const void* database_t;
 
@@ -99,10 +99,10 @@ static inline value_t database(database_t x) {
 }
 
 
-// error_t constructor
+// sdm_error_t constructor
 
-static inline error_t error(string_t m, string_t r, nat_t c) {
-  error_t e;
+static inline sdm_error_t error(string_t m, string_t r, nat_t c) {
+  sdm_error_t e;
   e.message = m;
   e.reason = r;
   e.code = c;
@@ -119,18 +119,18 @@ typedef enum {
 } either_t;
 
 // either: sum type of value or error
-// type either = value_t | error_t
+// type either = value_t | sdm_error_t
   
 typedef struct {
   either_t type;
   union {
     value_t right;
-    error_t left;
+    sdm_error_t left;
   } value;
 } either;
 
 
-static inline either left(error_t x) {
+static inline either left(sdm_error_t x) {
   either e;
   e.type = LEFT_T;
   e.value.left = x;
@@ -152,7 +152,7 @@ static inline either right(value_t x) {
 typedef struct {
   either_t type;
   union {
-    error_t left;
+    sdm_error_t left;
     database_t right;
   } value;
 } sdm_database;
@@ -183,7 +183,7 @@ static inline either database3(database_t x) {
 
   
 // error handler for receiving failure
-typedef void (*error_handler)(error_t e);
+typedef void (*error_handler)(sdm_error_t e);
   
 // since we can't overload
 // TODO #define sdm_guard(EITHER_,FAIL_) if ((EITHER_).type == LEFT_T) FAIL_((EITHER_).value.left); else return (EITHER_)
@@ -207,8 +207,8 @@ static inline const sdm_database sdm_database_guard(sdm_database d, error_handle
  ***********************/
 
 
-inline const either sdm_major_version() { return right(nat(SDM_VERSION_MAJOR)); }
-inline const either sdm_minor_version() { return right(nat(SDM_VERSION_MINOR)); }
+static inline const either sdm_major_version() { return right(nat(SDM_VERSION_MAJOR)); }
+static inline const either sdm_minor_version() { return right(nat(SDM_VERSION_MINOR)); }
   
 const sdm_database sdm_open_database(string_t name, nat_t initial_size, nat_t max_size);
 const either sdm_space_cardinality(sdm_database db, string_t name);

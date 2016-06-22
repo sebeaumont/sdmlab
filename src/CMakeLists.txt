@@ -79,14 +79,14 @@ else()
     message(STATUS "OpenMP is configured")
     set(HAVE_OPENMP 1)
     set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -fopenmp")
-    set(SDM_C_FLAGS ${SDM_C_FLAGS} ${OpenMP_C_FLAGS})
-    set(SDM_CXX_FLAGS ${SDM_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
+    set(SDM_C_FLAGS "${SDM_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     
     find_package(Threads REQUIRED)
 
     if (CMAKE_USE_PTHREADS_INIT)
-      set(SDM_CXX_FLAGS ${SDM_CXX_FLAGS} "-pthread")
+      set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -pthread")
     endif()
 
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
