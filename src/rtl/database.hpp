@@ -64,15 +64,13 @@ namespace molemind { namespace sdm {
     /// return tristate: failed, false->existed, true->added (be careful unwrapping) see:
     /// http://www.boost.org/doc/libs/1_60_0/libs/optional/doc/html/boost_optional/a_note_about_optional_bool_.html
 
-    boost::optional<const bool> ensure_vector(const std::string& space_name, const std::string& symbol_name) noexcept;
+    boost::optional<const bool> ensure_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
 
     /// search for symbols starting with prefix
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    boost::optional<symbol_list> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
-    
-  
     
     /////////////////////////
     /// vector properties ///
@@ -137,14 +135,7 @@ namespace molemind { namespace sdm {
     std::vector<std::string> get_named_spaces() noexcept;
     
     boost::optional<std::size_t> get_space_cardinality(const std::string&) noexcept;
-    
-    /// test
-    inline boost::optional<bool> test_if(int n) {
-      if (n==0)return false;
-      else if (n==1) return true;
-      else return boost::none;
-    }
-
+   
   
     //////////////////////
     /// heap utilities ///

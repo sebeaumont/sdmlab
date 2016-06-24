@@ -96,7 +96,7 @@ namespace molemind { namespace sdm {
       uniform_random _generator;
       //random_cmrrsr _cmrrsr; //= random_cmrrsr(428394849);
       //my_adapter _generator; //= my_adapter(_cmrrsr);
-      std::vector<unsigned> _idx;
+      std::vector<unsigned> _idx; // why not size_t?
 
     public:
      
@@ -105,7 +105,7 @@ namespace molemind { namespace sdm {
         _idx.reserve(n);
         // initialize list of indexes one time
         for (std::size_t i = 0; i < n; ++i)
-          _idx.push_back(i);
+          _idx.push_back((unsigned) i);
       }
       
       

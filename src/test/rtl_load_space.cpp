@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
   
   while(std::getline(ins, fline)) {
     boost::trim(fline);
-    auto s = rts.ensure_vector(test_space1, fline);
+    auto s = rts.ensure_symbol(test_space1, fline);
     if (s) loaded++;
   }
   
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
   
   
   // lookup all vectors
-  auto sit = rts.search_symbols(test_space1, "");
+  auto sit = rts.prefix_search(test_space1, "");
   if (sit) for (auto it = sit->first; it != sit->second; ++it) {
     //std::cout << *it << std::endl;
     loaded--;
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(rts_search_empty_space) {
   
   int found = 0;
   // lookup all vectors
-  auto sit = rts.search_symbols(test_space1, "");
+  auto sit = rts.prefix_search(test_space1, "");
   if (sit) for (auto it = sit->first; it != sit->second; ++it) {
     //std::cout << *it << std::endl;
     found++;

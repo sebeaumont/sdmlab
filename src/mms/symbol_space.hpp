@@ -68,7 +68,7 @@ namespace molemind { namespace sdm {
 
       // XXX UC
       typedef elemental_vector<unsigned, segment_manager_t> elemental_vector_t;
-
+      typedef std::vector<unsigned> sparse_index_t;
 
 
       /////////////////////////////////////////////////////////////////////
@@ -98,12 +98,13 @@ namespace molemind { namespace sdm {
           return os;
         }
 
-        // set basis vector -- we need to freeze this once evaluated
-        void setbasis(const std::vector<unsigned>::iterator& start,
-                      const std::vector<unsigned>::iterator& end) {
+        // set sparse basis (elemental) vector -- we need to freeze this once evaluated
+        // todo abstract
+        void setbasis(const sparse_index_t::iterator& start,
+                      const sparse_index_t::iterator& end) {
           unsigned i = 0;
           #pragma unroll
-          for (auto it = start; it < end; ++it, ++i) _basis[i] = *it;
+          for (auto it = start; (i < ElementalBits) && (it < end); ++it, ++i) _basis[i] = *it;
         }
       };
 
@@ -417,20 +418,25 @@ namespace molemind { namespace sdm {
 
       typedef symbol symbol; // public face of symbol
       typedef vector vector; //xx
+    
+      
+      /////////////////////////////////////
+      /// multi index container indexes ///
+      /////////////////////////////////////
+      
+      typedef std::pair<typename symbol_table_t::iterator, bool> inserted_t;
       
       /// insert
-      
-      boost::optional<const std::size_t> insert(const std::string& k) {
-        auto p = index->insert(symbol(k.c_str(), allocator));
+
+      inserted_t insert(const std::string& k) {
+        inserted_t p = index->insert(symbol(k.c_str(), allocator));
         if (p.second) {
-          // inserted string iterator maps to index
-          // XXX vector space hook XXX
+          // inserted: string iterator maps to index
+          // call vector allocator
           vectors->push_back(vector(allocator));
           //assert (vectors->size()-1 == n2i(p.first));
-          return vectors->size()-1;
-          
-        } 
-        else return boost::none;
+        }
+        return p;
       }
 
       

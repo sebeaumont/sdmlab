@@ -13,13 +13,15 @@ namespace molemind {
     database::database(const std::size_t initial_size,
                        const std::size_t max_size,
                        const std::string& mmf)
-      // init
-      : inisize(initial_size),
-        maxheap(max_size),
+      // init slots
+      : inisize(initial_size),      // initial size of heap in bytes
+        maxheap(max_size),          // maximum size of heap in bytes
+        // construct the memory mapped segment for database
         heap(bip::open_or_create, mmf.c_str(), initial_size),
-        heapimage(mmf),
+        heapimage(mmf),             // diskimage path
+        // initialize PRNG
         irand(random::index_randomizer(space::vector::dimensions)) {
-          
+      
       // pre-load space cache (and workaroud some weirdness)
       for (std::string spacename: get_named_spaces())
         ensure_space_by_name(spacename);
@@ -29,25 +31,16 @@ namespace molemind {
     /// destructor flushes the segment iff sane
     
     database::~database() {
-      if (check_heap_sanity()) {
-        heap.flush();
-      } 
+      if (check_heap_sanity()) heap.flush();
     }
     
     
-/* API */
     
     ////////////////////
     /// named vectors // 
     ////////////////////
  
-    /// get named vector
-    
-    boost::optional<database::space::vector&> database::get_vector(const std::string& sn, const std::string& vn) noexcept {
-      auto sp = get_space_by_name(sn);
-      return (sp == nullptr) ? boost::none : sp->get_vector_by_name(vn);
-    }
-    
+   
     
     // fully guarded
     boost::optional<const double> database::density(const std::string& sn, const std::string& vn) noexcept {
@@ -61,21 +54,9 @@ namespace molemind {
     }
     
     
-    ////////////////////
-    /// named symbols //
-    ////////////////////
-    
-    
-    /// get named symbol
-    
-    boost::optional<const database::space::symbol&> database::get_symbol(const std::string& sn, const std::string& vn) noexcept {
-      return get_space_by_name(sn)->get_symbol_by_name(vn);
-    }
-    
- 
     /// find symbols by prefix
     
-    boost::optional<database::symbol_list> database::search_symbols(const std::string& sn, const std::string& vp) noexcept {
+    boost::optional<database::symbol_list> database::prefix_search(const std::string& sn, const std::string& vp) noexcept {
       auto sp = get_space_by_name(sn);
       if (sp) return sp->search(vp);
       else return boost::none;
@@ -88,14 +69,26 @@ namespace molemind {
       }
     */
     
-    /// create new symbol -- this can cause bad alloc
-
-    boost::optional<const bool> database::ensure_vector(const std::string& sn, const std::string& vn) noexcept {
-      try {
-        // N.B. may side-effect the creation of a space and a symbol/vector
-        auto ov = ensure_space_by_name(sn)->insert(vn);
-        if (ov) return true;
-        else return false;
+    /// get existing or create new symbol -- this can cause bad alloc
+    /// snd may side-effect the creation of a space and a symbol+vector within it
+    
+    boost::optional<const bool> database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
+      auto space = ensure_space_by_name(sn);
+      auto sym = space->get_symbol_by_name(vn);
+      if (sym) return true; // found
+  
+      // try and create symbol
+      else try {
+        // UC...
+        database::space::inserted_t p = space->insert(vn);
+        if (p.second) {
+          const database::space::symbol& s = *(p.first);
+          //auto v = s._basis;
+          
+          // s._basis (vector) randomize
+  
+          return false;
+        } else return boost::none;
         
       } catch (boost::interprocess::bad_alloc& e) {
         return boost::none;
@@ -137,9 +130,7 @@ namespace molemind {
     
     boost::optional<double> database::similarity(const std::string& snv, const std::string& vn,
                                                  const std::string& snu, const std::string& un) noexcept {
-      boost::optional<const space::symbol&> v = get_symbol(snv, vn);
-      boost::optional<const space::symbol&> u = get_symbol(snu, un);
-      // TODO 
+      // TODO
       return 0.0;
     }
 
@@ -158,8 +149,10 @@ namespace molemind {
     }
     
 
-
+    // init symbol --- needs randomizer
+    
     // low level randomize a vector -- writes p * d random bits
+    
     void database::randomize_vector(boost::optional<space::vector&> v, double p) noexcept {
       if (v) {
         std::size_t n = floor(p * space::vector::dimensions);
