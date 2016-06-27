@@ -96,7 +96,7 @@ namespace molemind { namespace sdm {
       uniform_random _generator;
       //random_cmrrsr _cmrrsr; //= random_cmrrsr(428394849);
       //my_adapter _generator; //= my_adapter(_cmrrsr);
-      std::vector<unsigned> _idx; // why not size_t?
+      std::vector<size_t> _idx; // why not size_t?
 
     public:
      
@@ -105,13 +105,13 @@ namespace molemind { namespace sdm {
         _idx.reserve(n);
         // initialize list of indexes one time
         for (std::size_t i = 0; i < n; ++i)
-          _idx.push_back((unsigned) i);
+          _idx.push_back(i);
       }
       
       
       // generate a shuffled vector of indexes could fix/template length of this
       
-      inline std::vector<unsigned>& shuffle(void) {
+      inline std::vector<std::size_t>& shuffle(void) {
         std::random_shuffle(_idx.begin(), _idx.end(), _generator);
         return _idx;
       }

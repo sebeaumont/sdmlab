@@ -67,8 +67,9 @@ namespace molemind { namespace sdm {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // XXX UC
-      typedef elemental_vector<unsigned, segment_manager_t> elemental_vector_t;
-      typedef std::vector<unsigned> sparse_index_t;
+      typedef elemental_vector<std::size_t, segment_manager_t> elemental_vector_t;
+      //typedef elemental_vector::index_t sparse_index_t;
+      //typedef std::vector<std::size_t> sparse_index_t;
 
 
       /////////////////////////////////////////////////////////////////////
@@ -86,8 +87,11 @@ namespace molemind { namespace sdm {
       public:
 
         // constructor
-        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, 0, void_alloc) {}
-
+        symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
+        
+        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
+        
+        
         inline const std::string name(void) const {
           return std::string(_name.begin(), _name.end());
         }
@@ -98,14 +102,6 @@ namespace molemind { namespace sdm {
           return os;
         }
 
-        // set sparse basis (elemental) vector -- we need to freeze this once evaluated
-        // todo abstract
-        void setbasis(const sparse_index_t::iterator& start,
-                      const sparse_index_t::iterator& end) {
-          unsigned i = 0;
-          #pragma unroll
-          for (auto it = start; (i < ElementalBits) && (it < end); ++it, ++i) _basis[i] = *it;
-        }
       };
 
       
@@ -306,10 +302,10 @@ namespace molemind { namespace sdm {
 
         
         // set a list of bits
-        inline void setbits(const std::vector<unsigned>::iterator& start,
-                            const std::vector<unsigned>::iterator& end) {
+        inline void setbits(const std::vector<std::size_t>::iterator& start,
+                            const std::vector<std::size_t>::iterator& end) {
           for (auto it = start; it < end; ++it){
-            unsigned r = *it;
+            std::size_t r = *it;
             std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
             std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
             (*this)[i] |= (ONE << b);
@@ -439,6 +435,16 @@ namespace molemind { namespace sdm {
         return p;
       }
 
+      inserted_t insert(const std::string& k, const std::vector<std::size_t>& fp) {
+        inserted_t p = index->insert(symbol(k.c_str(), fp, allocator));
+        if (p.second) {
+          // inserted: string iterator maps to index
+          // call vector allocator
+          vectors->push_back(vector(allocator));
+          //assert (vectors->size()-1 == n2i(p.first));
+        }
+        return p;
+      }
       
       /// random access index
       

@@ -18,8 +18,10 @@ namespace molemind {
         typedef bip::allocator<bip::vector<T, bip::allocator<T, M>>, M> bitv_vector_allocator_t;
         typedef typename bip::allocator<void, M> void_allocator_t;
         
-        elemental_vector(std::size_t s, const T& i, const void_allocator_t& a) : vector_t(s, i, a) {}
+        elemental_vector(std::size_t s, const void_allocator_t& a) : vector_t(s, 0, a) {}
         
+        elemental_vector(const std::vector<std::size_t>& fs, const:: size_t s, const void_allocator_t& a) : vector_t(fs.begin(), fs.begin()+s, a) {}
+
       };
     }
   }

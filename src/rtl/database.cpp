@@ -79,14 +79,12 @@ namespace molemind {
   
       // try and create symbol
       else try {
-        // UC...
-        database::space::inserted_t p = space->insert(vn);
+        // UC... need a random list of indexes
+        //std::vector<std::size_t> fp = irand.shuffle();
+        database::space::inserted_t p = space->insert(vn, irand.shuffle());
         if (p.second) {
-          const database::space::symbol& s = *(p.first);
-          //auto v = s._basis;
-          
-          // s._basis (vector) randomize
-  
+          //const database::space::symbol& s = *(p.first);
+          //
           return false;
         } else return boost::none;
         
@@ -156,7 +154,7 @@ namespace molemind {
     void database::randomize_vector(boost::optional<space::vector&> v, double p) noexcept {
       if (v) {
         std::size_t n = floor(p * space::vector::dimensions);
-        std::vector<unsigned>& ilist = irand.shuffle();
+        std::vector<std::size_t>& ilist = irand.shuffle();
         v->setbits(ilist.begin(), ilist.begin() + n);
       }
     }
