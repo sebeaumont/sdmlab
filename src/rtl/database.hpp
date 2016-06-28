@@ -8,7 +8,6 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
-//#include "runtime_exceptions.hpp"
 
 #include <iostream>
 
@@ -56,37 +55,26 @@ namespace molemind { namespace sdm {
     const database& operator=(const database&) = delete;
     const database& operator=(database&&) = delete;
 
-    /// destructor will tidy up sanely - fear not
+    /// destructor will cautiously ensure all pages are flushed
     
     ~database();
     
-    /// create new symbol
-    /// return tristate: failed, false->existed, true->added (be careful unwrapping) see:
-    /// http://www.boost.org/doc/libs/1_60_0/libs/optional/doc/html/boost_optional/a_note_about_optional_bool_.html
+    /// UC return status type
+    
+    typedef enum { OLD=1, NEW=2, MEMOUT=-3, OPFAIL=-2, ERROR=-1 } status_t;
 
-    boost::optional<const bool> add_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
+    /// error guard
+    inline const bool is_error(status_t s) const { return (s<0); }
+
+    /// create new symbol
+    
+    status_t ensure_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
 
     /// search for symbols starting with prefix
+    typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
-    
-    //////////////////////
-    /// heap utilities ///
-    //////////////////////
-
-    bool grow_heap_by(const std::size_t&) noexcept;
-
-    bool compactify_heap() noexcept;
-
-    /// heap metrics
-    
-    inline std::size_t heap_size() noexcept { return heap.get_size(); }
-    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
-    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
-    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
-    
- 
     
     /////////////////////////
     /// vector properties ///
@@ -101,16 +89,16 @@ namespace molemind { namespace sdm {
     /////////////////////////////////////////////////////
     
     /// add or superpose
-    void superpose(const std::string& ts, const std::string& tn,
-                   const std::string& ss, const std::string& sn) noexcept;
+    status_t superpose(const std::string& ts, const std::string& tn,
+                       const std::string& ss, const std::string& sn) noexcept;
   
     /// subtract
-    void subtract(const std::string& ts, const std::string& tn,
-                  const std::string& ss, const std::string& sn) noexcept;
+    status_t subtract(const std::string& ts, const std::string& tn,
+                      const std::string& ss, const std::string& sn) noexcept;
     
     /// multiply
-    void multiply(const std::string& ts, const std::string& tn,
-                  const std::string& ss, const std::string& sn) noexcept;
+    status_t multiply(const std::string& ts, const std::string& tn,
+                      const std::string& ss, const std::string& sn) noexcept;
     
     /// TODO exponents
     
@@ -151,10 +139,25 @@ namespace molemind { namespace sdm {
     std::vector<std::string> get_named_spaces() noexcept;
     
     boost::optional<std::size_t> get_space_cardinality(const std::string&) noexcept;
+   
+  
+    //////////////////////
+    /// heap utilities ///
+    //////////////////////
     
-       
+    bool grow_heap_by(const std::size_t&) noexcept;
     
-  protected:
+    bool compactify_heap() noexcept;
+    
+    /// heap metrics
+    
+    inline std::size_t heap_size() noexcept { return heap.get_size(); }
+    inline std::size_t free_heap() noexcept { return heap.get_free_memory(); }
+    inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
+    inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
+    
+
+    //protected:
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
@@ -171,10 +174,10 @@ namespace molemind { namespace sdm {
     void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
 
     /// ones
-    void ones_vector(boost::optional<space::vector&> v) noexcept;
+    void unit_vector(boost::optional<space::vector&> v) noexcept;
     
     /// zeros
-    void zeros_vector(boost::optional<space::vector&> v) noexcept;
+    void zero_vector(boost::optional<space::vector&> v) noexcept;
 
     // get space
     space* get_space_by_name(const std::string&); 

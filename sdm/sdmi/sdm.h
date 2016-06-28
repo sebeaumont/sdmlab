@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*
 /// find by prefix
-std::pair<space::symbol_iterator, space::symbol_iterator> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+std::pair<space::symbol_iterator, space::symbol_iterator> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
 */
 
 /*

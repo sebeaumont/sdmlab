@@ -51,7 +51,7 @@ NSString* errorDomain = @"net.molemind.dig.error";
  maybe we should only return nullables which Swift should see as optionals?
 */
 
-// XXX UC add a symbol to a database space -- add_symbol is tristate optional<bool>
+// XXX UC add a symbol to a database space -- ensure_symbol is tristate optional<bool>
 // -- wee need a nullable bool...
 // this will throw in Swift but returns void
 
@@ -59,13 +59,13 @@ NSString* errorDomain = @"net.molemind.dig.error";
                    inSpace: (NSString*) space
                      error: (NSError**) error {
   
-  // the semantics of add_symbol will ensure the space and add name to it
-  auto v = _sdm->add_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
-                            [name cStringUsingEncoding:NSUTF8StringEncoding]);
+  // the semantics of ensure_symbol will ensure the space and add name to it
+  database::status_t v = _sdm->ensure_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
+                                             [name cStringUsingEncoding:NSUTF8StringEncoding]);
   
   // true->added, false->existed, nil->fail
-  if (v) return (*v) ? true : false;
-  else return false;
+  // TODO better errors now we have codes.
+  return (v>0) ? true : false;
 } 
 
 

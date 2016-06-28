@@ -67,17 +67,18 @@ namespace molemind { namespace sdm {
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
       // XXX UC
-      typedef elemental_vector<unsigned, segment_manager_t> elemental_vector_t;
-
+      typedef elemental_vector<std::size_t, segment_manager_t> elemental_vector_t;
+      //typedef elemental_vector::index_t sparse_index_t;
+      //typedef std::vector<std::size_t> sparse_index_t;
 
 
       /////////////////////////////////////////////////////////////////////
-      // symbol - named vector with laziy computed elemental fingerprint
+      // symbol - named vector with lazily computed elemental fingerprint
       //
-      // indexed by: name hash, r&b tree for prefix of name, random access 
+      // indexed by: name hash, rb tree for prefix of name, random access
 
       struct symbol final {
-        // symbol_t state
+
         shared_string_t _name;
         
       private:
@@ -85,26 +86,29 @@ namespace molemind { namespace sdm {
 
       public:
 
-        // constructor
-        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, 0, void_alloc) {}
-
+        // constructor with fingerprint
+        symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
+        
+        // constructor without fingerprint
+        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
+        
+        
         inline const std::string name(void) const {
           return std::string(_name.begin(), _name.end());
         }
+        
+        typedef elemental_vector_t basis_vector_t;
 
+        inline const basis_vector_t& basis(void) const {
+          return _basis;
+        }
+        
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
           os << s._name;
           return os;
         }
 
-        // set basis vector -- we need to freeze this once evaluated
-        void setbasis(const std::vector<unsigned>::iterator& start,
-                      const std::vector<unsigned>::iterator& end) {
-          unsigned i = 0;
-          #pragma unroll
-          for (auto it = start; it < end; ++it, ++i) _basis[i] = *it;
-        }
       };
 
       
@@ -303,12 +307,41 @@ namespace molemind { namespace sdm {
         }
 
 
+        // set bits from basic vector
+        inline void whitebits(const typename symbol::basis_vector_t& v) {
+          size_t h = v.size() / 2;
+          // clear
+          for (auto it = v.begin(); it < v.begin() + h; ++it) {
+              std::size_t r = *it;
+              std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+              std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+              (*this)[i] &= ~(ONE << b);
+          }
+          // set
+          for (auto it = v.begin() + h; it < v.end(); ++it) {
+            std::size_t r = *it;
+            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+
+
+        // set bits from basic vector
+        inline void setbits(const typename symbol::basis_vector_t& v) {
+          for (std::size_t r: v) {
+            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+        
         
         // set a list of bits
-        inline void setbits(const std::vector<unsigned>::iterator& start,
-                            const std::vector<unsigned>::iterator& end) {
+        inline void setbits(const std::vector<std::size_t>::iterator& start,
+                            const std::vector<std::size_t>::iterator& end) {
           for (auto it = start; it < end; ++it){
-            unsigned r = *it;
+            std::size_t r = *it;
             std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
             std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
             (*this)[i] |= (ONE << b);
@@ -417,22 +450,37 @@ namespace molemind { namespace sdm {
 
       typedef symbol symbol; // public face of symbol
       typedef vector vector; //xx
+    
+      
+      /////////////////////////////////////
+      /// multi index container indexes ///
+      /////////////////////////////////////
+      
+      typedef std::pair<typename symbol_table_t::iterator, bool> inserted_t;
       
       /// insert
-      
-      boost::optional<const std::size_t> insert(const std::string& k) {
-        auto p = index->insert(symbol(k.c_str(), allocator));
+
+      inserted_t insert(const std::string& k) {
+        inserted_t p = index->insert(symbol(k.c_str(), allocator));
         if (p.second) {
-          // inserted string iterator maps to index
-          // XXX vector space hook XXX
+          // inserted: string iterator maps to index
+          // call vector allocator
           vectors->push_back(vector(allocator));
           //assert (vectors->size()-1 == n2i(p.first));
-          return vectors->size()-1;
-          
-        } 
-        else return boost::none;
+        }
+        return p;
       }
 
+      inserted_t insert(const std::string& k, const std::vector<std::size_t>& fp) {
+        inserted_t p = index->insert(symbol(k.c_str(), fp, allocator));
+        if (p.second) {
+          // inserted: string iterator maps to index
+          // call vector allocator
+          vectors->push_back(vector(allocator));
+          //assert (vectors->size()-1 == n2i(p.first));
+        }
+        return p;
+      }
       
       /// random access index
       
