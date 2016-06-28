@@ -1,6 +1,6 @@
 // Copyright (c) 2015, 2016 Simon Beaumont - All Rights Reserved
 
-/// Public interface to the C++ API
+/// Implementation of sdm::database
 
 #include "database.hpp"
 
@@ -40,9 +40,11 @@ namespace molemind {
     /// named vectors // 
     ////////////////////
  
-   
+  
+    // fully guarded operations e.g.
     
-    // fully guarded
+    /// vector density
+    
     boost::optional<const double> database::density(const std::string& sn, const std::string& vn) noexcept {
       auto sp = get_space_by_name(sn);
       if (sp == nullptr) {
@@ -62,64 +64,77 @@ namespace molemind {
       else return boost::none;
     }
     
-    // all symbols
-    /*
-      database::get_symbols(const std::string& sn) {
-      for (v : get_space_by_name(sn)) ;
-      }
-    */
     
-    /// get existing or create new symbol -- this can cause bad alloc
-    /// snd may side-effect the creation of a space and a symbol+vector within it
+    /////////////////////////////////////////////////////////
+    /// get an existing (or create new) symbol.
+    ///
+    /// N.B. can cause memory outage and may side-effect
+    /// the creation of a space and a symbol+vector within it
     
-    boost::optional<const bool> database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
+    database::status_t database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
+      // may create a space
       auto space = ensure_space_by_name(sn);
+      if (!space) return ERROR;
+      
       auto sym = space->get_symbol_by_name(vn);
-      if (sym) return true; // found
+      if (sym) return OLD; // found
   
-      // try and create symbol
       else try {
-        // UC... need a random list of indexes
-        //std::vector<std::size_t> fp = irand.shuffle();
+        // use insert to create a new symbol with elemental "fingerprint"
         database::space::inserted_t p = space->insert(vn, irand.shuffle());
+        
         if (p.second) {
-          //const database::space::symbol& s = *(p.first);
-          //
-          return false;
-        } else return boost::none;
+          // insert successful:
+          // N.B. the returned symbol reference is to an *immutable* entry in the index
+          // i.e. const database::space::symbol& s = *(p.first);
+          return NEW; // created
+          
+        } else return OPFAIL; // something in the index stopped us inserting!
         
       } catch (boost::interprocess::bad_alloc& e) {
-        return boost::none;
+        // XXX: here is where we can try and grow the heap
+        return MEMOUT; // 'cos we ran out of memory!
       }
     }
     
     
     // operations
     
-    void database::superpose(const std::string& ts, const std::string& tn,
-                             const std::string& ss, const std::string& sn) noexcept {
+    ////////////////////////////////////////////////////////////
+    /// superpose target vector with source
+    ///
+    /// may side effect creation of spaces and symbols as a convenience
+    /// for realtime training
+    
+    database::status_t database::superpose(const std::string& ts, const std::string& tn,
+                                           const std::string& ss, const std::string& sn) noexcept {
       
-      // create spaces if required
-      auto tsp = ensure_space_by_name(ts);
-      auto ssp = ensure_space_by_name(ss);
+      //
+      auto target_sp = ensure_space_by_name(ts);
+      if (!target_sp) return ERROR;
       
-      // if not found insert and retry!
-      boost::optional<space::vector&> v = tsp->get_vector_by_name(tn);
+      auto source_sp = ensure_space_by_name(ss);
+      if (!source_sp) return ERROR;
+      
+      // get target vector
+      boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
       if (!v) {
-        tsp->insert(tn);
-        v = tsp->get_vector_by_name(tn);
-        assert(v);
+        target_sp->insert(tn, irand.shuffle());
+        v = target_sp->get_vector_by_name(tn);
+        if (!v) return OPFAIL;
       }
       
-      // if not found insert and retry!
-      boost::optional<space::vector&> u = ssp->get_vector_by_name(sn);
-      if (!u) {
-        ssp->insert(tn);
-        u = tsp->get_vector_by_name(tn);
-        assert(u);
+      // get source symbol
+      boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
+      if (!s) {
+        source_sp->insert(tn, irand.shuffle());
+        s = source_sp->get_symbol_by_name(tn);
+        if (!s) return OPFAIL;
       }
-  
-      v->superpose(*u);
+      
+      // not quite what it seems
+      v->whitebits(s->basis());
+      return NEW;
     }
     
         
@@ -182,7 +197,8 @@ namespace molemind {
       auto it = spaces.find(name);
       
       if (it == spaces.end()) {
-        // delegate find_or_construct to symbol_space
+        // delegate find_or_construct to symbol_space...
+        // and create a runtime cache entry
         space* sp = new space(name, heap);
         spaces[name] = sp;
         return sp;

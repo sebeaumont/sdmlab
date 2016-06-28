@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(rts_load_vectors) {
   while(std::getline(ins, fline)) {
     boost::trim(fline);
     auto s = rts.ensure_symbol(test_space1, fline);
-    if (s) loaded++;
+    if (!rts.is_error(s)) loaded++;
   }
   
   // get cardinality of space

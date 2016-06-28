@@ -73,12 +73,12 @@ namespace molemind { namespace sdm {
 
 
       /////////////////////////////////////////////////////////////////////
-      // symbol - named vector with laziy computed elemental fingerprint
+      // symbol - named vector with lazily computed elemental fingerprint
       //
-      // indexed by: name hash, r&b tree for prefix of name, random access 
+      // indexed by: name hash, rb tree for prefix of name, random access
 
       struct symbol final {
-        // symbol_t state
+
         shared_string_t _name;
         
       private:
@@ -86,16 +86,23 @@ namespace molemind { namespace sdm {
 
       public:
 
-        // constructor
+        // constructor with fingerprint
         symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
         
+        // constructor without fingerprint
         symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
         
         
         inline const std::string name(void) const {
           return std::string(_name.begin(), _name.end());
         }
+        
+        typedef elemental_vector_t basis_vector_t;
 
+        inline const basis_vector_t& basis(void) const {
+          return _basis;
+        }
+        
         // printer
         friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
           os << s._name;
@@ -300,6 +307,35 @@ namespace molemind { namespace sdm {
         }
 
 
+        // set bits from basic vector
+        inline void whitebits(const typename symbol::basis_vector_t& v) {
+          size_t h = v.size() / 2;
+          // clear
+          for (auto it = v.begin(); it < v.begin() + h; ++it) {
+              std::size_t r = *it;
+              std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+              std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+              (*this)[i] &= ~(ONE << b);
+          }
+          // set
+          for (auto it = v.begin() + h; it < v.end(); ++it) {
+            std::size_t r = *it;
+            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+
+
+        // set bits from basic vector
+        inline void setbits(const typename symbol::basis_vector_t& v) {
+          for (std::size_t r: v) {
+            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
+            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+        
         
         // set a list of bits
         inline void setbits(const std::vector<std::size_t>::iterator& start,

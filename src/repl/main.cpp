@@ -179,9 +179,9 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        boost::optional<const bool> s = rts.ensure_symbol(default_spacename, cv[1]);
+        database::status_t s = rts.ensure_symbol(default_spacename, cv[1]);
 
-        // lookup the inserted symbol
+        // now lookup the inserted symbol
         if (auto sym = get_symbol(rts, default_spacename, cv[1]))
           std::cout << "[" << s << "] " << sym->name() << std::endl;
         else
@@ -219,11 +219,11 @@ int main(int argc, const char** argv) {
         std::cout << v->count() << std::endl; 
 
       } else if (boost::iequals(cv[0], "+")) {
-        //rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
+        rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
         boost::optional<database::space::vector&> v = get_vector(rts, default_spacename, cv[1]);
-        boost::optional<database::space::vector&> u = get_vector(rts, default_spacename, cv[2]);
+        //boost::optional<database::space::vector&> u = get_vector(rts, default_spacename, cv[2]);
         // optional guards? tee hee
-        v->superpose(*u);
+        //v->superpose(*u);
         std::cout << v->count() << std::endl;
         
       } else if (boost::iequals(cv[0], "?")) {

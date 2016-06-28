@@ -1,3 +1,5 @@
+// Copyright (c) 2016 Simon Beaumont - All Rights Reserved.
+
 #pragma once
 
 #include <boost/interprocess/allocators/allocator.hpp>
