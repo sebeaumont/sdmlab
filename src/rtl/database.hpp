@@ -8,7 +8,6 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
-//#include "runtime_exceptions.hpp"
 
 #include <iostream>
 
@@ -56,23 +55,26 @@ namespace molemind { namespace sdm {
     const database& operator=(const database&) = delete;
     const database& operator=(database&&) = delete;
 
-    /// destructor will tidy up sanely - fear not
+    /// destructor will cautiously ensure all pages are flushed
     
     ~database();
     
-    /// create new symbol
-    /// return tristate: failed, false->existed, true->added (be careful unwrapping) see:
-    /// http://www.boost.org/doc/libs/1_60_0/libs/optional/doc/html/boost_optional/a_note_about_optional_bool_.html
+    /// UC return status type
+    
+    typedef enum { OLD=1, NEW=2, MEMOUT=-3, OPFAIL=-2, ERROR=-1 } status_t;
 
-    boost::optional<const bool> ensure_vector(const std::string& space_name, const std::string& symbol_name) noexcept;
+    /// error guard
+    inline const bool is_error(status_t s) const { return (s<0); }
+
+    /// create new symbol
+    
+    status_t ensure_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
 
     /// search for symbols starting with prefix
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    boost::optional<symbol_list> search_symbols(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
     
-    
-  
     
     /////////////////////////
     /// vector properties ///
@@ -87,16 +89,16 @@ namespace molemind { namespace sdm {
     /////////////////////////////////////////////////////
     
     /// add or superpose
-    void superpose(const std::string& ts, const std::string& tn,
-                   const std::string& ss, const std::string& sn) noexcept;
+    status_t superpose(const std::string& ts, const std::string& tn,
+                       const std::string& ss, const std::string& sn) noexcept;
   
     /// subtract
-    void subtract(const std::string& ts, const std::string& tn,
-                  const std::string& ss, const std::string& sn) noexcept;
+    status_t subtract(const std::string& ts, const std::string& tn,
+                      const std::string& ss, const std::string& sn) noexcept;
     
     /// multiply
-    void multiply(const std::string& ts, const std::string& tn,
-                  const std::string& ss, const std::string& sn) noexcept;
+    status_t multiply(const std::string& ts, const std::string& tn,
+                      const std::string& ss, const std::string& sn) noexcept;
     
     /// TODO exponents
     
@@ -137,14 +139,7 @@ namespace molemind { namespace sdm {
     std::vector<std::string> get_named_spaces() noexcept;
     
     boost::optional<std::size_t> get_space_cardinality(const std::string&) noexcept;
-    
-    /// test
-    inline boost::optional<bool> test_if(int n) {
-      if (n==0)return false;
-      else if (n==1) return true;
-      else return boost::none;
-    }
-
+   
   
     //////////////////////
     /// heap utilities ///
