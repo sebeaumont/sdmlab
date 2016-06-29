@@ -6,3 +6,5 @@ include_directories (${Boost_INCLUDE_DIR})
 
 add_executable (sdmt main.cpp)
 target_link_libraries(sdmt ${Boost_LIBRARIES} sdm)
+
+install (TARGETS sdmt RUNTIME DESTINATION bin)

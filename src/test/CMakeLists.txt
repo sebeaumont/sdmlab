@@ -30,6 +30,10 @@ add_test(NAME csdm_unit_tests COMMAND csdm_unit_tests --log_level=all)
 
 
 # c++ frametrain utility
+# todo move this to own tools module
+
 find_package(Boost REQUIRED COMPONENTS program_options)
 add_executable (frametrainer frametrain.cpp)
 target_link_libraries (frametrainer sdm ${Boost_LIBRARIES})
+
+install (TARGETS frametrainer RUNTIME DESTINATION bin)
