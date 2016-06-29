@@ -2,29 +2,32 @@ SDMLAB - Sparse Distributed Memory Lab Project
 ==============================================
 
 This project is the Sparse Distributed Memory Research and Development
-Hub.  The main artefact is the sdm runtime library and database
-targeted for a number of platforms.
+Hub.  The main artefact is the sdm runtime library which offers a high
+performance database targeted at a number of platforms.
 
 We now fully support iOS 9.3 and OSX/Linux/BSD x86_64 using the
-following tools.
+following tools:
 
-- clang++ on Darwin based systems, gcc on Linux based systems
+- clang on Darwin based systems, gcc on Linux based systems
 - Swift on iOS
 - boost
 
 The application is high performance associative memory to further
-research and development of the capabilities of a fully general model
-of sparse encoding and hyper-dimensional sparse space.
+research and development of the capabilities of a general model
+of hyper-dimensional sparse space.
 
-We are also developing a DSL for ML based on SDM using the following
+We are also developing a DSL and compiler for ML based on SDM using the following
 toolchain and libraries:
 
 - ghc
 - idris (dependant type language)
+- llvm
 
 There is an additional ios framework (sdmi) which wraps the c++
 implementation with an objective c++ API suitable for importing into
-Swift. These are currently being replaced by a common c library.
+Swift. 
+
+There is a common c library under construction.
 
 
 Project contact: [Simon Beaumont](mailto:s@molemind.net) 
