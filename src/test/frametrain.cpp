@@ -17,8 +17,11 @@
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
 
-// we are really testing this
+// we are really testing
+
 #include "../rtl/database.hpp"
+
+// and timing
 
 using namespace std;
 
@@ -79,7 +82,7 @@ int main(int argc, const char** argv) {
   using namespace molemind::sdm;
   
   //
-  string banner = "SDM frametrainer - copyright (c) 2016 simon beaumont - all rights reserved";
+  string banner = "SDM frametrainer - Copyright (c) 2016 Simon Beaumont - All Rights Reserved. See LICENCE for terms and conditions.";
   
   // command line options
   //bool reflexive = true; // TODO
@@ -104,10 +107,13 @@ int main(int argc, const char** argv) {
    "heap image name (should be a valid path)");
   
   po::variables_map opts;
+  
+  // XXX try...catch
   po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), opts);
   po::notify(opts);
   
   if (opts.count("help")) {
+    cout << banner << endl;
     cout << desc <<  endl;
     return 1;
   }
@@ -122,6 +128,7 @@ int main(int argc, const char** argv) {
   string spacename(opts["space"].as<string>());
 
   cout << banner << endl;
+  cout << "=============================" << endl;
   cout << "database:   " << heapfile << endl;
   cout << "trainspace: " << spacename << endl;
   cout << "size:       " << initial_size << endl;
