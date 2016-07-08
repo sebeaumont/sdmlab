@@ -66,6 +66,7 @@ namespace molemind { namespace sdm {
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
 
+      
       // XXX UC
       typedef elemental_vector<std::size_t, segment_manager_t> elemental_vector_t;
       //typedef elemental_vector::index_t sparse_index_t;
@@ -78,7 +79,9 @@ namespace molemind { namespace sdm {
       // indexed by: name hash, rb tree for prefix of name, random access
 
       struct symbol final {
-
+        // see if this is useful... updating the node could be expensive.
+        enum state_t { NEW, USED, OLD, FREE };
+        state_t _state;
         shared_string_t _name;
         
       private:
@@ -87,10 +90,10 @@ namespace molemind { namespace sdm {
       public:
 
         // constructor with fingerprint
-        symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
+        symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
         
         // constructor without fingerprint
-        symbol(const char* s, const void_allocator_t& void_alloc) : _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
+        symbol(const char* s, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
         
         
         inline const std::string name(void) const {
