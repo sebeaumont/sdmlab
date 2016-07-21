@@ -1,7 +1,7 @@
 /***************************************************************************
  * frametrain - simple online training via. stdin
  *
- * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
+ * Copyright (c) Simon Beaumont 2012-2016 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.
  ***************************************************************************/
 
@@ -85,7 +85,7 @@ int main(int argc, const char** argv) {
   string banner = "SDM frametrainer - Copyright (c) 2016 Simon Beaumont - All Rights Reserved. See LICENCE for terms and conditions.";
   
   // command line options
-  bool symmetric = true; // TODO
+  bool symmetric = false; // TODO
   
   size_t initial_size;
   size_t maximum_size;
