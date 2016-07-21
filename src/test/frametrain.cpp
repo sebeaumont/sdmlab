@@ -139,13 +139,13 @@ int main(int argc, const char** argv) {
   string spacename(opts["termspace"].as<string>());
 
   cout << banner << endl;
-  cout << "=============================" << endl;
+  cout << "=============================================" << endl;
   cout << "database:   " << heapfile << endl;
   cout << "trainspace: " << spacename << endl;
-  cout << "framespace: " << (reverse_index ? framespace : "None");
+  cout << "framespace: " << (reverse_index ? framespace : "None") << endl;
   cout << "size:       " << initial_size << endl;
   cout << "maxsize:    " << maximum_size << endl;
-  
+  cout << "=============================================" << endl;
 
   // create database with requirement
   database db(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile);
@@ -153,7 +153,7 @@ int main(int argc, const char** argv) {
   // print out all the existing spaces and cardinalities
   vector<string> spaces = db.get_named_spaces();
   
-  cout << "found spaces:" << endl;
+  cout << "existing spaces:" << endl;
   
   for (unsigned i = 0; i < spaces.size(); ++i) {
     cout << "\t" << spaces[i];
@@ -162,7 +162,7 @@ int main(int argc, const char** argv) {
     cout << "[" << spp->entries() << "]" << endl;
   }
   
-  cout << "read from stdin..." << endl;
+  cout << "reading data frames from stdin..." << endl;
   // accumualated stats...
   u_int frames = 0;
 
