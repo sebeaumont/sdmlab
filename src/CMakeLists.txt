@@ -8,7 +8,7 @@ enable_testing()
 # project version
 
 set (SDM_VERSION_MAJOR 7)
-set (SDM_VERSION_MINOR 1)
+set (SDM_VERSION_MINOR 2)
 
 # install paths
 

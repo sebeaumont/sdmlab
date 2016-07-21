@@ -109,7 +109,9 @@ namespace molemind {
     database::status_t database::superpose(const std::string& ts, const std::string& tn,
                                            const std::string& ss, const std::string& sn) noexcept {
       
-      //
+      // assume all symbols are present
+      status_t state = OLD;
+      
       auto target_sp = ensure_space_by_name(ts);
       if (!target_sp) return ERROR;
       
@@ -122,19 +124,21 @@ namespace molemind {
         target_sp->insert(tn, irand.shuffle());
         v = target_sp->get_vector_by_name(tn);
         if (!v) return OPFAIL;
+        else state = NEW;
       }
       
       // get source symbol
       boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
       if (!s) {
-        source_sp->insert(tn, irand.shuffle());
-        s = source_sp->get_symbol_by_name(tn);
+        source_sp->insert(sn, irand.shuffle());
+        s = source_sp->get_symbol_by_name(sn);
         if (!s) return OPFAIL;
+        else state = NEW;
       }
       
       // not quite what it seems
       v->whitebits(s->basis());
-      return NEW;
+      return state;
     }
     
         
