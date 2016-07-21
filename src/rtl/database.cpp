@@ -127,8 +127,8 @@ namespace molemind {
       // get source symbol
       boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
       if (!s) {
-        source_sp->insert(tn, irand.shuffle());
-        s = source_sp->get_symbol_by_name(tn);
+        source_sp->insert(sn, irand.shuffle());
+        s = source_sp->get_symbol_by_name(sn);
         if (!s) return OPFAIL;
       }
       
