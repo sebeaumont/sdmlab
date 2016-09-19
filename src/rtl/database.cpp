@@ -157,11 +157,14 @@ namespace molemind {
                                                                        const std::string& ss, const std::string& sv,
                                                                        double p, double d, std::size_t n) noexcept {
       // all parts must exist
-      auto s = get_space_by_name(ss);
-      if (s) {
-        boost::optional<space::vector&> v = s->get_vector_by_name(sv);
-        if (v) return s->neighbourhood(*v, p, d, n);
-        else return boost::none;
+      auto t = get_space_by_name(ts);
+      if (t) {
+        auto s = get_space_by_name(ss);
+        if (s) {
+          boost::optional<space::vector&> v = s->get_vector_by_name(sv);
+          if (v) return t->neighbourhood(*v, p, d, n);
+          else return boost::none;
+        } else return boost::none;
       } else return boost::none;
     }
     

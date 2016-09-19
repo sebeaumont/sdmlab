@@ -108,26 +108,26 @@ int main(int argc, const char** argv) {
   po::notify(opts);
   
   if (opts.count("help")) {
-    cout << banner << endl;
-    cout << desc <<  endl;
+    cerr << banner << endl;
+    cerr << desc <<  endl;
     return 1;
   }
   
   if (!opts.count("image")) {
-    cout << "heap image name is required parameter!" << endl;
-    cout << desc <<  endl;
+    cerr << "heap image name is required parameter!" << endl;
+    cerr << desc <<  endl;
     return 3;
   }
   
   
   string heapfile(opts["image"].as<string>());
   
-  cout << banner << endl;
-  cout << "=============================================" << endl;
-  cout << "database:   " << heapfile << endl;
-  cout << "size:       " << initial_size << endl;
-  cout << "maxsize:    " << maximum_size << endl;
-  cout << "=============================================" << endl;
+  cerr << banner << endl;
+  cerr << "=============================================" << endl;
+  cerr << "database:   " << heapfile << endl;
+  cerr << "size:       " << initial_size << endl;
+  cerr << "maxsize:    " << maximum_size << endl;
+  cerr << "=============================================" << endl;
   
   // create database with requirement
   database db(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile);
@@ -135,19 +135,18 @@ int main(int argc, const char** argv) {
   // print out all the existing spaces and cardinalities
   vector<string> spaces = db.get_named_spaces();
   
-  cout << "existing spaces:" << endl;
+  cerr << "existing spaces:" << endl;
   
   for (unsigned i = 0; i < spaces.size(); ++i) {
-    cout << "\t" << spaces[i];
+    cerr << "\t" << spaces[i];
     // now actually get the pointers and cards
     auto spp = db.get_space_by_name(spaces[i]);
-    cout << "[" << spp->entries() << "]" << endl;
+    cerr << "[" << spp->entries() << "]" << endl;
   }
   
-  cout << "reading topology requests from stdin..." << endl;
+  cerr << "reading topology requests from stdin..." << endl;
   // accumualated stats...
   u_int requests = 0;
-  //u_int bad = 0;
 
   // main i/o loop binds these
   string tgt_space;
@@ -164,13 +163,19 @@ int main(int argc, const char** argv) {
     // toplogy of n nearest neighbours satisfying p, d constraints
     boost::optional<database::space::topology> t = db.neighbourhood(tgt_space, src_space, src_name,
                                                                     p_lower, r_upper, max_card);
-    
+    // printer
+    if (t) for (auto p : *t) {
+      cout << p << '\n';
+    } else {
+      cout << endl;
+    }
+    cout << endl;
   }
   
   
   // goodbye from me and goodbye from him...
-  cout << requests << endl;
-  cout << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
+  cerr << "[" << requests << "]" << endl;
+  cerr << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
   
   return 0;
 }
