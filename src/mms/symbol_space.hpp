@@ -544,7 +544,7 @@ namespace molemind { namespace sdm {
          3. allocate smallest set of scores and sort in main thread 
       */
       
-      /// point
+      /// point sets/vectors etc. are result value tuples
       
       struct point {
     
@@ -570,7 +570,7 @@ namespace molemind { namespace sdm {
         }
 
         friend std::ostream& operator<<(std::ostream& os, point& p) {
-          os <<  p.name << ":" << p.similarity << ":" << p.density;
+          os <<  p.name << "\t" << p.similarity << "\t" << p.density;
           return os;
         }  
 

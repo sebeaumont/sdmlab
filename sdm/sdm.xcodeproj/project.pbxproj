@@ -10,6 +10,9 @@
 		960FF2B81D1A85CF001F75A2 /* frametrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 960FF2B71D1A85CF001F75A2 /* frametrain.cpp */; };
 		960FF2BB1D1A8911001F75A2 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
 		960FF2BC1D1A8A28001F75A2 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
+		961D95281D901FFF00A1C84A /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
+		961D95291D901FFF00A1C84A /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
+		961D95301D90203000A1C84A /* topology.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 961D952F1D90203000A1C84A /* topology.cpp */; };
 		963A949E1CAD7E8B00A321C8 /* post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963A949D1CAD7E8B00A321C8 /* post.swift */; };
 		963BB6991CF4CF0B00EDC116 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		963BB6A71CF5E80600EDC116 /* libcsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96E16FF91CEA257B001AD72F /* libcsdm.dylib */; };
@@ -94,6 +97,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		961D952A1D901FFF00A1C84A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		963BB69C1CF5E73900EDC116 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +140,8 @@
 /* Begin PBXFileReference section */
 		960FF2B01D1A8556001F75A2 /* frametrainer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = frametrainer; sourceTree = BUILT_PRODUCTS_DIR; };
 		960FF2B71D1A85CF001F75A2 /* frametrain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = frametrain.cpp; path = ../src/test/frametrain.cpp; sourceTree = "<group>"; };
+		961D952E1D901FFF00A1C84A /* topology */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = topology; sourceTree = BUILT_PRODUCTS_DIR; };
+		961D952F1D90203000A1C84A /* topology.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = topology.cpp; path = ../src/test/topology.cpp; sourceTree = "<group>"; };
 		963A949D1CAD7E8B00A321C8 /* post.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = post.swift; sourceTree = "<group>"; };
 		963BB69E1CF5E73900EDC116 /* csdmunit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = csdmunit; sourceTree = BUILT_PRODUCTS_DIR; };
 		963BB6A51CF5E7D700EDC116 /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../src/test/test.cpp; sourceTree = "<group>"; };
@@ -175,6 +189,15 @@
 			files = (
 				960FF2BC1D1A8A28001F75A2 /* libsdm.dylib in Frameworks */,
 				960FF2BB1D1A8911001F75A2 /* libboost_program_options.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		961D95271D901FFF00A1C84A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				961D95281D901FFF00A1C84A /* libsdm.dylib in Frameworks */,
+				961D95291D901FFF00A1C84A /* libboost_program_options.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +290,7 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
+				961D952F1D90203000A1C84A /* topology.cpp */,
 				960FF2B71D1A85CF001F75A2 /* frametrain.cpp */,
 				963BB6A81CF8EF6800EDC116 /* ctest.c */,
 				963BB6A51CF5E7D700EDC116 /* test.cpp */,
@@ -300,6 +324,7 @@
 				96E16FF91CEA257B001AD72F /* libcsdm.dylib */,
 				963BB69E1CF5E73900EDC116 /* csdmunit */,
 				960FF2B01D1A8556001F75A2 /* frametrainer */,
+				961D952E1D901FFF00A1C84A /* topology */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -414,6 +439,23 @@
 			name = frametrainer;
 			productName = frametrainer;
 			productReference = 960FF2B01D1A8556001F75A2 /* frametrainer */;
+			productType = "com.apple.product-type.tool";
+		};
+		961D95241D901FFF00A1C84A /* topology */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 961D952B1D901FFF00A1C84A /* Build configuration list for PBXNativeTarget "topology" */;
+			buildPhases = (
+				961D95251D901FFF00A1C84A /* Sources */,
+				961D95271D901FFF00A1C84A /* Frameworks */,
+				961D952A1D901FFF00A1C84A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = topology;
+			productName = frametrainer;
+			productReference = 961D952E1D901FFF00A1C84A /* topology */;
 			productType = "com.apple.product-type.tool";
 		};
 		963BB69D1CF5E73900EDC116 /* csdmunit */ = {
@@ -645,6 +687,7 @@
 				96E16FF81CEA257B001AD72F /* csdm */,
 				963BB69D1CF5E73900EDC116 /* csdmunit */,
 				960FF2AF1D1A8556001F75A2 /* frametrainer */,
+				961D95241D901FFF00A1C84A /* topology */,
 			);
 		};
 /* End PBXProject section */
@@ -696,6 +739,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				960FF2B81D1A85CF001F75A2 /* frametrain.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		961D95251D901FFF00A1C84A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				961D95301D90203000A1C84A /* topology.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,6 +892,26 @@
 			name = Debug;
 		};
 		960FF2B51D1A8556001F75A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		961D952C1D901FFF00A1C84A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		961D952D1D901FFF00A1C84A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1201,6 +1272,16 @@
 				960FF2B51D1A8556001F75A2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		961D952B1D901FFF00A1C84A /* Build configuration list for PBXNativeTarget "topology" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				961D952C1D901FFF00A1C84A /* Debug */,
+				961D952D1D901FFF00A1C84A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		963BB6A21CF5E73900EDC116 /* Build configuration list for PBXNativeTarget "csdmunit" */ = {
 			isa = XCConfigurationList;
