@@ -37,3 +37,13 @@ add_executable (frametrainer frametrain.cpp)
 target_link_libraries (frametrainer sdm ${Boost_LIBRARIES})
 
 install (TARGETS frametrainer RUNTIME DESTINATION bin)
+
+
+# c++ topology utility
+# todo move this to own tools module
+
+find_package(Boost REQUIRED COMPONENTS program_options)
+add_executable (topology topology.cpp)
+target_link_libraries (topology sdm ${Boost_LIBRARIES})
+
+install (TARGETS topology RUNTIME DESTINATION bin)
