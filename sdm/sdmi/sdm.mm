@@ -60,8 +60,8 @@ NSString* errorDomain = @"net.molemind.dig.error";
                      error: (NSError**) error {
   
   // the semantics of ensure_symbol will ensure the space and add name to it
-  database::status_t v = _sdm->ensure_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
-                                             [name cStringUsingEncoding:NSUTF8StringEncoding]);
+  molemind::sdm::database::status_t v = _sdm->ensure_symbol([space cStringUsingEncoding:NSUTF8StringEncoding],
+                                                            [name cStringUsingEncoding:NSUTF8StringEncoding]);
   
   // true->added, false->existed, nil->fail
   // TODO better errors now we have codes.

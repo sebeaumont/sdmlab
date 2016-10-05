@@ -23,7 +23,7 @@ class FirstViewController: UIViewController {
   }
 
   
-  @IBAction func testAction(sender: AnyObject) {
+  @IBAction func testAction(_ sender: AnyObject) {
     postRun()
   }
 
