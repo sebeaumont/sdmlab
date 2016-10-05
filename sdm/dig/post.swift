@@ -20,39 +20,40 @@ import sdmi
 
 // helper functions
 
-func getDocumentsURL() -> NSURL {
-  let documentsURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0]
+func getDocumentsURL() -> URL {
+  let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
   return documentsURL
 }
 
 
-func fileInDocumentsDirectory(filename: String) -> String {
-  let fileURL = getDocumentsURL().URLByAppendingPathComponent(filename)
-  return fileURL.path!
+func fileInDocumentsDirectory(_ filename: String) -> String {
+  let fileURL = getDocumentsURL().appendingPathComponent(filename)
+  return fileURL.path
 }
 
-func statFile(filename: String) -> [String : AnyObject]? {
+
+func statFile(_ filename: String) -> [FileAttributeKey: Any]? {
   let filepath = fileInDocumentsDirectory(filename)
-  return try? NSFileManager.defaultManager().attributesOfItemAtPath(filepath)
+  return try? FileManager.default.attributesOfItem(atPath: filepath)
 }
 
 
 // sdm helpers
 
-func createSDMDatabase(filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase? {
+func createSDMDatabase(_ filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase? {
   let Mb : UInt = 1024 * 1024
   // create sd
   return SDMDatabase(name: fileInDocumentsDirectory(filename), initialSize: sizeMb*Mb, maxSize: maxMb*Mb)
 }
 
 
-func destroySDMDatabase(filename: String) -> Void {
-  let manager = NSFileManager.defaultManager()
+func destroySDMDatabase(_ filename: String) -> Void {
+  let manager = FileManager.default
   let filepath = fileInDocumentsDirectory(filename)
   
-  if manager.fileExistsAtPath(filepath) {
+  if manager.fileExists(atPath: filepath) {
     do {
-      try manager.removeItemAtPath(filepath)
+      try manager.removeItem(atPath: filepath)
       NSLog("removed database: %@", filepath)
     } catch {
       // more specific please!
@@ -106,7 +107,7 @@ func postRun() -> Void {
 
 // insert symbols into test space
 
-func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
+func probeSymbolCardinality(_ db: SDMDatabase, testspace: String) -> UInt {
   let start = db.getSpaceCard(testspace)
   // TODO get current cardianality of space and add
   //let card = db.getSpaceCardinality(testspace)
@@ -115,7 +116,7 @@ func probeSymbolCardinality(db: SDMDatabase, testspace: String) -> UInt {
   
   while true {
     
-    if let _ = try? db.addSymbolWithName("symbol-\(card)", inSpace: testspace) {
+    if let _ = try? db.addSymbol(withName: "symbol-\(card)", inSpace: testspace) {
       card += 1
       if card % 10000 == 0 {
         let free = db.getFreeHeap()
