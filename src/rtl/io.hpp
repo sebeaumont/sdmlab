@@ -1,8 +1,6 @@
 #pragma once
 // transport
 #include "zmq.hpp"
-// protobuf generated
-#include "search_request.pb.h"
 
 // define an io loop that dispatches messages and replies for simple rpc
 // based on zmq req/rep
@@ -11,31 +9,30 @@ namespace molemind { namespace sdm { namespace io {
   using namespace molemind;
 
   
+  // low level zmq string io
   // TODO: avoid message copying
   
   inline void send_reply(const std::string& rep, zmq::socket_t& sock, const bool tracing=false) {
-    //
     if (tracing) std::cerr << rep << std::endl;
-    //
     std::size_t replen = rep.size();
     zmq::message_t reply(replen);
     memcpy(static_cast<void*>(reply.data()), rep.c_str(), replen);
     sock.send(reply);
   }
   
-  // TODO template on search_request
+
+  // generic message handlers
   
-  int inline receive_request(const zmq::message_t& request, search_request& search) {
+  template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer) {
     std::string msg_str(static_cast<const char*>(request.data()), request.size());
-    return search.ParseFromString(msg_str);
+    return buffer.ParseFromString(msg_str);
   }
   
   
-  
-  inline int request_reply(const std::string& endpoint) {
+  template <typename T> int inline message_rpc_server(const std::string& endpoint, const sdm::database& db, unsigned n_threads=4) {
     
     // set number of i/o threads
-    zmq::context_t context(4);
+    zmq::context_t context(n_threads);
     
     // setup endpoints
     zmq::socket_t receiver(context, ZMQ_REP);
@@ -52,9 +49,20 @@ namespace molemind { namespace sdm { namespace io {
       try {
         
         receiver.recv(&request);
+        T buffer;
         
+        if (parse_request<T>(request, buffer)) {
+          /*
+          boost::optional<database::space::topology> t = db.neighbourhood(tgt_space, src_space, src_name,
+                                                                          p_lower, r_upper, max_card);
+          */
+      
         // do summat wi message like dispatch it!
-        reply = "good";
+          reply = "good";
+        } else {
+          reply = "bad";
+        }
+        
         // } catch (application exception) {
         
         
@@ -83,17 +91,6 @@ namespace molemind { namespace sdm { namespace io {
     
   }
 
-  struct message {
-    // one function we provide which is to dispatch messages to a single database instance
-    int virtual message_loop(const std::string& endpoint, const sdm::database& db) = 0;
-    
-  };
-
-  struct search_message : message {
-    int inline message_loop(const std::string& endpoint, const sdm::database& db) {
-      return request_reply(endpoint);
-    }
-  };
   
   
  

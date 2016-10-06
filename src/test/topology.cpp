@@ -22,6 +22,9 @@
 #include "../rtl/database.hpp"
 #include "../rtl/io.hpp" // UC
 
+// protobuf generated
+#include "../rtl/search_request.pb.h"
+
 // and timing
 
 using namespace std;
@@ -145,37 +148,11 @@ int main(int argc, const char** argv) {
     cerr << "[" << spp->entries() << "]" << endl;
   }
   
-  cerr << "reading topology requests from stdin..." << endl;
-  // accumualated stats...
-  u_int requests = 0;
+  cerr << "starting topology µservice..." << endl;
 
-  // main i/o loop binds these
-  string tgt_space;
-  string src_space;
-  string src_name;
-  double p_lower;
-  double r_upper;
-  std::size_t max_card;
-  
-  // simpleline processor
-  while (cin >> tgt_space >> src_space >> src_name >> p_lower >> r_upper >> max_card) {
-    requests++;
-    
-    // toplogy of n nearest neighbours satisfying p, d constraints
-    boost::optional<database::space::topology> t = db.neighbourhood(tgt_space, src_space, src_name,
-                                                                    p_lower, r_upper, max_card);
-    // printer
-    if (t) for (auto p : *t) {
-      cout << p << '\n';
-    } else {
-      cout << endl;
-    }
-    cout << endl;
-  }
-  
+  io::message_rpc_server<io::search_request>("tcp://*:5555", db);
   
   // goodbye from me and goodbye from him...
-  cerr << "[" << requests << "]" << endl;
   cerr << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
   
   return 0;
