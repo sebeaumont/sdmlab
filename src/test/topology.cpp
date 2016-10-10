@@ -23,7 +23,7 @@
 #include "../rtl/io.hpp" // UC
 
 // protobuf generated
-#include "../rtl/search_request.pb.h"
+#include "../rtl/topology_request.pb.h"
 
 // and timing
 
@@ -150,7 +150,7 @@ int main(int argc, const char** argv) {
   
   cerr << "starting topology µservice..." << endl;
 
-  io::message_rpc_server<io::search_request>("tcp://*:5555", db);
+  io::message_rpc_server<molemind::sdm::io::topoolgy_request>("tcp://*:5555", db);
   
   // goodbye from me and goodbye from him...
   cerr << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
