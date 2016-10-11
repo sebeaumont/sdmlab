@@ -6,27 +6,40 @@
 //  Copyright © 2016 Simon Beaumont. All rights reserved.
 //
 #import <Foundation/Foundation.h>
-//#include "database.hpp"
+
+NS_ASSUME_NONNULL_BEGIN
 
 
+//! 
+//! SDM Topology wrapper for Swift/ObjectiveC/C API
 
-//! SDM Database wrapper for Swift/ObjectiveC/C API on OSX derived systems
+@interface SDMTopology : NSObject
+- (NSUInteger) card;
+@end
+
+
+//! SDM Database wrapper for Swift/ObjectiveC/C API
 
 @interface SDMDatabase : NSObject
 
-NS_ASSUME_NONNULL_BEGIN
+
 
 - (nullable instancetype) initWithName: (NSString*) name
                            initialSize: (NSUInteger) size
                                maxSize: (NSUInteger) max;
 
-- (BOOL) addSymbolWithName: (NSString*) name
-                   inSpace: (NSString*) space
-                     error: (NSError**) error;
+- (NSInteger) addSymbolWithName: (NSString*) name
+                        inSpace: (NSString*) space;
 
 
 - (NSUInteger) getSpaceCard: (NSString*) name;
 
+- (nullable SDMTopology*) neighbourhoodOf: (NSString*) symbol
+                                fromSpace: (NSString*) space
+                                  inSpace: (NSString*) target
+                           aboveThreshold: (double) plower
+                         withDensityBelow: (double) rupper
+                       withMaxCardinality: (NSUInteger) card;
 
 
 

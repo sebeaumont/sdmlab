@@ -25,11 +25,11 @@ namespace molemind { namespace sdm { namespace io {
   
   template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer) {
     std::string msg_str(static_cast<const char*>(request.data()), request.size());
-    return buffer.ParseFromString(msg_str);
+    return buffer.parseFromString(msg_str);
   }
   
   
-  template <typename T> int inline message_rpc_server(const std::string& endpoint, const sdm::database& db, unsigned n_threads=4) {
+  template <typename T> int inline message_rpc_server(const std::string& endpoint, sdm::database& db, unsigned n_threads=4) {
     
     // set number of i/o threads
     zmq::context_t context(n_threads);
@@ -42,7 +42,7 @@ namespace molemind { namespace sdm { namespace io {
     std::string reply;
     
     
-    // single thread io loop uses select like semantics to check which socket has data
+    // single thread/endpoint io loop
     
     while (true) {
       
@@ -52,15 +52,14 @@ namespace molemind { namespace sdm { namespace io {
         T buffer;
         
         if (parse_request<T>(request, buffer)) {
-          /*
-          boost::optional<database::space::topology> t = db.neighbourhood(tgt_space, src_space, src_name,
-                                                                          p_lower, r_upper, max_card);
-          */
-      
+        
+          reply = buffer.dispatch(db);
+          // echo server!
+          //reply = buffer.toString();
+          
         // do summat wi message like dispatch it!
-          reply = "good";
         } else {
-          reply = "bad";
+          reply = "bad message";
         }
         
         // } catch (application exception) {

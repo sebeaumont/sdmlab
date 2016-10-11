@@ -22,8 +22,8 @@
 #include "../rtl/database.hpp"
 #include "../rtl/io.hpp" // UC
 
-// protobuf generated
-#include "../rtl/topology_request.pb.h"
+//
+#include "../rtl/topology_request.h"
 
 // and timing
 
@@ -147,11 +147,13 @@ int main(int argc, const char** argv) {
     auto spp = db.get_space_by_name(spaces[i]);
     cerr << "[" << spp->entries() << "]" << endl;
   }
-  
+
+  cerr << "=============================================" << endl;
   cerr << "starting topology µservice..." << endl;
 
-  io::message_rpc_server<molemind::sdm::io::topoolgy_request>("tcp://*:5555", db);
-  
+  // only exit if shutdown...
+  io::message_rpc_server<molemind::sdm::io::topology_request>("tcp://*:5555", db);
+
   // goodbye from me and goodbye from him...
   cerr << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
   

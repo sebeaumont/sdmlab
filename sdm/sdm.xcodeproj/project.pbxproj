@@ -21,9 +21,7 @@
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
 		968254181CF4A5FE0093597F /* csdm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968254171CF4A5FE0093597F /* csdm.cpp */; };
-		969D2B9B1DAB9621007AE572 /* topology_request.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 969D2B9A1DAB9621007AE572 /* topology_request.pb.cc */; };
 		96D778491DA716BC00FF0086 /* libzmq.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D778481DA716BC00FF0086 /* libzmq.dylib */; };
-		96D7784B1DA716E500FF0086 /* libprotobuf.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D7784A1DA716E500FF0086 /* libprotobuf.dylib */; };
 		96DC4EBE1C9C2ED400687D47 /* database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4EBD1C9C2ED400687D47 /* database.cpp */; };
 		96DC4EC01C9C2F1300687D47 /* database.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 96DC4EBF1C9C2F1300687D47 /* database.hpp */; };
 		96FAEE111CA0A4B100EA6AD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FAEE101CA0A4B100EA6AD3 /* AppDelegate.swift */; };
@@ -158,7 +156,6 @@
 		966893A21C85EF3800C72187 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/repl/main.cpp; sourceTree = "<group>"; };
 		966893A71C85F27A00C72187 /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = ../../../../../usr/local/lib/libboost_program_options.dylib; sourceTree = "<group>"; };
 		968254171CF4A5FE0093597F /* csdm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = csdm.cpp; path = ../src/rtl/csdm.cpp; sourceTree = "<group>"; };
-		969D2B9A1DAB9621007AE572 /* topology_request.pb.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = topology_request.pb.cc; path = ../src/rtl/topology_request.pb.cc; sourceTree = "<group>"; };
 		96D778481DA716BC00FF0086 /* libzmq.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzmq.dylib; path = ../../../../../usr/local/lib/libzmq.dylib; sourceTree = "<group>"; };
 		96D7784A1DA716E500FF0086 /* libprotobuf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libprotobuf.dylib; path = ../../../../../usr/local/lib/libprotobuf.dylib; sourceTree = "<group>"; };
 		96DC4EBD1C9C2ED400687D47 /* database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = database.cpp; path = ../src/rtl/database.cpp; sourceTree = "<group>"; };
@@ -202,7 +199,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96D7784B1DA716E500FF0086 /* libprotobuf.dylib in Frameworks */,
 				961D95281D901FFF00A1C84A /* libsdm.dylib in Frameworks */,
 				961D95291D901FFF00A1C84A /* libboost_program_options.dylib in Frameworks */,
 				96D778491DA716BC00FF0086 /* libzmq.dylib in Frameworks */,
@@ -298,7 +294,6 @@
 		9668935E1C85E9E900C72187 = {
 			isa = PBXGroup;
 			children = (
-				969D2B9A1DAB9621007AE572 /* topology_request.pb.cc */,
 				961D952F1D90203000A1C84A /* topology.cpp */,
 				960FF2B71D1A85CF001F75A2 /* frametrain.cpp */,
 				963BB6A81CF8EF6800EDC116 /* ctest.c */,
@@ -784,7 +779,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				961D95301D90203000A1C84A /* topology.cpp in Sources */,
-				969D2B9B1DAB9621007AE572 /* topology_request.pb.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
