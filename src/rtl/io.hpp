@@ -23,9 +23,9 @@ namespace molemind { namespace sdm { namespace io {
 
   // generic message handlers
   
-  template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer) {
+  template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer, const bool tracing=false) {
     std::string msg_str(static_cast<const char*>(request.data()), request.size());
-    std::cerr << "RX:" << msg_str << std::endl;
+    if (tracing) std::cerr << msg_str << std::endl;
     return buffer.parseFromString(msg_str);
   }
   
@@ -69,18 +69,18 @@ namespace molemind { namespace sdm { namespace io {
       } catch (zmq::error_t const& z) {
         std::cerr << "zmq error:" << z.what() << std::endl;
         //rep = utl::format_string(z.what(), "exception");
-        send_reply(z.what(), receiver, false);
+        send_reply(z.what(), receiver, true);
         break;
         
       } catch (std::exception const& t) {
         std::cerr << "exception:" << t.what() << std::endl;
         //rep = utl::format_string(t.what(), "exception");
-        send_reply(t.what(), receiver, false);
+        send_reply(t.what(), receiver, true);
         break;
       }
       
       // XXX always send a reply message
-      send_reply(reply, receiver, true);
+      send_reply(reply, receiver);
       
     } // mainloop
     
