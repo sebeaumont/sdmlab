@@ -3,6 +3,7 @@
 # copyright (c) 2016 Simon Beaumont. All Rights Reserved.
 
 import zmq
+import json
 
 class Topology:
 
@@ -34,3 +35,7 @@ class Topology:
             return(data)
         except Exception as e:
             return []
+
+    def tojson(self, data):
+        return json.dumps({'topology': [dict(zip(['term','p','d'],t)) for t in data]})
+        
