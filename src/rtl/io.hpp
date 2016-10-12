@@ -25,6 +25,7 @@ namespace molemind { namespace sdm { namespace io {
   
   template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer) {
     std::string msg_str(static_cast<const char*>(request.data()), request.size());
+    std::cerr << "RX:" << msg_str << std::endl;
     return buffer.parseFromString(msg_str);
   }
   
