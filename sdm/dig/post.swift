@@ -40,11 +40,12 @@ func statFile(_ filename: String) -> [FileAttributeKey: Any]? {
 
 // sdm helpers
 
-func createSDMDatabase(_ filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase? {
+func openSDMDatabase(_ filename: String, sizeMb: UInt, maxMb: UInt) -> SDMDatabase? {
   let Mb : UInt = 1024 * 1024
   // create sd
   return SDMDatabase(name: fileInDocumentsDirectory(filename), initialSize: sizeMb*Mb, maxSize: maxMb*Mb)
 }
+
 
 
 func destroySDMDatabase(_ filename: String) -> Void {
@@ -76,7 +77,7 @@ func postRun() -> Void {
   
   let filename = ".POST"
   let testspace = "Test"
-  let iniSizeMb : UInt = 500
+  let iniSizeMb : UInt = 20
   let maxSizeMb : UInt = 700
   
   // stat file
@@ -85,16 +86,14 @@ func postRun() -> Void {
     destroySDMDatabase(filename)
   }
   
-  if let db = createSDMDatabase(filename, sizeMb: iniSizeMb, maxMb: maxSizeMb) {
+  if let db = openSDMDatabase(filename, sizeMb: iniSizeMb, maxMb: maxSizeMb) {
+    
     NSLog("created database: %@ %d/%d", db, iniSizeMb, maxSizeMb)
     let card = probeSymbolCardinality(db, testspace: testspace)
     // testing, testing, 1, 2, 3...
     NSLog("testspace: %@:%d", testspace, card)
     
-    /*
-    if let foo = try? db.giveMeSomethingWithLabel(testspace) {
-      print("foo: \(foo)", foo)
-    }*/
+    probeNeighbourhood(db, symbol: "symbol-1", testspace: testspace)
     
   } else {
     NSLog("failed database: %@ %d/%d", filename, iniSizeMb, maxSizeMb)
@@ -105,18 +104,26 @@ func postRun() -> Void {
 }
 
 
+func probeNeighbourhood(_ db: SDMDatabase, symbol: String, testspace: String) -> Void {
+  if let topo = db.neighbourhood(of: symbol, fromSpace: testspace, inSpace: testspace, aboveThreshold: 0.0, withDensityBelow: 1.0, withMaxCardinality: 21) {
+    NSLog("topology#: %ul", topo.card());
+  } else {
+    NSLog("no such neighbourhood: \(testspace):\(symbol)");
+  }
+}
+
 // insert symbols into test space
 
 func probeSymbolCardinality(_ db: SDMDatabase, testspace: String) -> UInt {
   let start = db.getSpaceCard(testspace)
-  // TODO get current cardianality of space and add
-  //let card = db.getSpaceCardinality(testspace)
   NSLog("starting load: %@ [%d]", testspace, start)
+  
   var card: UInt = start
   
   while true {
     
-    if let _ = try? db.addSymbol(withName: "symbol-\(card)", inSpace: testspace) {
+    let status  = db.addSymbol(withName: "symbol-\(card)", inSpace: testspace)
+    if status > 0 {
       card += 1
       if card % 10000 == 0 {
         let free = db.getFreeHeap()
@@ -127,7 +134,7 @@ func probeSymbolCardinality(_ db: SDMDatabase, testspace: String) -> UInt {
     } else {
       let free = db.getFreeHeap()
       let heap = db.getHeapSize()
-      NSLog("failed: \(card) heap: \(heap) free: \(free)")
+      NSLog("limit: \(card) heap: \(heap) free: \(free)")
       return card
     }
   }

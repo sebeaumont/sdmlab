@@ -21,6 +21,7 @@
 		966893A41C85EF6B00C72187 /* libsdm.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893891C85EC5500C72187 /* libsdm.dylib */; };
 		966893A81C85F27A00C72187 /* libboost_program_options.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 966893A71C85F27A00C72187 /* libboost_program_options.dylib */; };
 		968254181CF4A5FE0093597F /* csdm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968254171CF4A5FE0093597F /* csdm.cpp */; };
+		96D778491DA716BC00FF0086 /* libzmq.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D778481DA716BC00FF0086 /* libzmq.dylib */; };
 		96DC4EBE1C9C2ED400687D47 /* database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4EBD1C9C2ED400687D47 /* database.cpp */; };
 		96DC4EC01C9C2F1300687D47 /* database.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 96DC4EBF1C9C2F1300687D47 /* database.hpp */; };
 		96FAEE111CA0A4B100EA6AD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FAEE101CA0A4B100EA6AD3 /* AppDelegate.swift */; };
@@ -155,6 +156,8 @@
 		966893A21C85EF3800C72187 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/repl/main.cpp; sourceTree = "<group>"; };
 		966893A71C85F27A00C72187 /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = ../../../../../usr/local/lib/libboost_program_options.dylib; sourceTree = "<group>"; };
 		968254171CF4A5FE0093597F /* csdm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = csdm.cpp; path = ../src/rtl/csdm.cpp; sourceTree = "<group>"; };
+		96D778481DA716BC00FF0086 /* libzmq.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzmq.dylib; path = ../../../../../usr/local/lib/libzmq.dylib; sourceTree = "<group>"; };
+		96D7784A1DA716E500FF0086 /* libprotobuf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libprotobuf.dylib; path = ../../../../../usr/local/lib/libprotobuf.dylib; sourceTree = "<group>"; };
 		96DC4EBD1C9C2ED400687D47 /* database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = database.cpp; path = ../src/rtl/database.cpp; sourceTree = "<group>"; };
 		96DC4EBF1C9C2F1300687D47 /* database.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = database.hpp; path = ../src/rtl/database.hpp; sourceTree = "<group>"; };
 		96E16FF91CEA257B001AD72F /* libcsdm.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcsdm.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -198,6 +201,7 @@
 			files = (
 				961D95281D901FFF00A1C84A /* libsdm.dylib in Frameworks */,
 				961D95291D901FFF00A1C84A /* libboost_program_options.dylib in Frameworks */,
+				96D778491DA716BC00FF0086 /* libzmq.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +312,7 @@
 				963BB69F1CF5E73900EDC116 /* csdmunit */,
 				960FF2B11D1A8556001F75A2 /* frametrainer */,
 				966893681C85E9E900C72187 /* Products */,
+				96D778471DA716BC00FF0086 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -338,6 +343,15 @@
 				966893751C85EA6D00C72187 /* test */,
 			);
 			path = sdm;
+			sourceTree = "<group>";
+		};
+		96D778471DA716BC00FF0086 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				96D7784A1DA716E500FF0086 /* libprotobuf.dylib */,
+				96D778481DA716BC00FF0086 /* libzmq.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		96FAEE0F1CA0A4B100EA6AD3 /* dig */ = {

@@ -43,7 +43,12 @@ install (TARGETS frametrainer RUNTIME DESTINATION bin)
 # todo move this to own tools module
 
 find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(ZeroMQ REQUIRED)
+
 add_executable (topology topology.cpp)
-target_link_libraries (topology sdm ${Boost_LIBRARIES})
+target_link_libraries (topology
+  sdm
+  ${Boost_LIBRARIES}
+  ${ZeroMQ_LIBRARIES})
 
 install (TARGETS topology RUNTIME DESTINATION bin)

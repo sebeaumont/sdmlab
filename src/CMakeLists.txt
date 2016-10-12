@@ -10,6 +10,7 @@ enable_testing()
 set (SDM_VERSION_MAJOR 7)
 set (SDM_VERSION_MINOR 2)
 
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
 # install paths
 
 set (CMAKE_INSTALL_PREFIX "/opt/molemind")
