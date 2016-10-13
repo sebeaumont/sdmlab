@@ -7,7 +7,7 @@ import json
 
 class Topology:
 
-    def __init__(self, endpoint="tcp://localhost:5555"):
+    def __init__(self, endpoint="tcp://localhost:48621"):
 
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.REQ)

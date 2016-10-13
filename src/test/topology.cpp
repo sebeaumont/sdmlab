@@ -103,7 +103,9 @@ int main(int argc, const char** argv) {
   ("maxsize", po::value<size_t>(&maximum_size)->default_value(700),
    "maximum size of heap in MB")
   ("image", po::value<string>(),
-   "database image file (should be a valid path)");
+   "database image file (should be a valid path)")
+  ("endpoint", po::value<string>()->default_value("tcp://127.0.0.1:48621"),
+   "zmq rpc endpoint");
   
   po::variables_map opts;
   
@@ -123,8 +125,11 @@ int main(int argc, const char** argv) {
     return 3;
   }
   
-  
+  // image file
   string heapfile(opts["image"].as<string>());
+  
+  // zmq endpoint
+  string endpoint(opts["endpoint"].as<string>());
   
   cerr << banner << endl;
   cerr << "=============================================" << endl;
@@ -149,10 +154,10 @@ int main(int argc, const char** argv) {
   }
 
   cerr << "=============================================" << endl;
-  cerr << "starting topology µservice..." << endl;
+  cerr << "starting topology µservice on: " << endpoint << endl;
 
   // only exit if shutdown...
-  io::message_rpc_server<molemind::sdm::io::topology_request>("tcp://*:5555", db);
+  io::message_rpc_server<molemind::sdm::io::topology_request>(endpoint, db);
 
   // goodbye from me and goodbye from him...
   cerr << (db.check_heap_sanity() ? ":-)" : ":-(") << " free: " << B2MB(db.free_heap()) << endl;
