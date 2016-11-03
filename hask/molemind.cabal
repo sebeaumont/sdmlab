@@ -21,7 +21,7 @@ library
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10
                      , bytestring
-                     , msgpack
+                     , msgpack >= 1.0.0
                      , text
                      , zeromq4-haskell
   hs-source-dirs:      src

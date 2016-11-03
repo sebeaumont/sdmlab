@@ -19,7 +19,7 @@ to the function.
 
 -}
 
-module Database.SDM (Subspace, example1) where 
+module Database.SDM (Query, neighbours, example1) where 
 
 import Data.Text (Text)
 import Data.ByteString (ByteString)
@@ -27,56 +27,94 @@ import Data.MessagePack (MessagePack, Object, toObject, fromObject, pack, unpack
 
 -- ok bottom up lets create a record type thats like something we need
 -- to get neighbours
+-- data Query = Match | FK  
 
-data Subspace = Subspace { srcSpace :: Text
-                         , srcName :: Text
-                         , tgtSpace :: Text
-                         , similarityLB :: Double
-                         , densityUB :: Double
-                         , maxCard :: Int
-                         } deriving (Show, Read)
+{--
 
-data Neighbour = Neighbour { name :: Text
-                           , similarity :: Double
-                           , density :: Double
-                           } deriving (Show, Read)
+type Space = Text
+data Point = Point { name :: Text }
+data Subspace = Subspace { space :: Space, points :: [Point] }
 
-data Neighbourhood =  Neighbourhood { neighbours :: [Neighbour] }
+type Measure = Subspace -> Double
+type Metric = Point -> Point -> Double
+
+--}
+  
+data Query = Measure { srcSpace :: !Text
+                     , srcName :: !Text
+                     -- space to measure
+                     , tgtSpace :: !Text
+                     -- metric over tgtSpace
+                     , similarityLB :: !Double
+                     -- filter
+                     , densityUB :: !Double
+                     -- constrain
+                     , maxCard :: !Int
+                     }
+             
+           -- watch this space
+           | Foobar { f1 :: !Text}
+           
+  deriving (Show, Read)
+
+
+-- result data
+
+data Result =  PointSet { points :: [Point] }
+
+data Point = Point { name :: !Text
+                   , similarity :: !Double
+                   , density :: !Double
+                   } deriving (Show, Read)
+
+
+
+
 
 data Failed = Fail { message :: Text }
 
 
--- | 
-measure :: Subspace -> Either Failed Neighbourhood
-measure Subspace{..} = Right (Neighbourhood [Neighbour "foo" 0.5 0.4])
+-- | a function to compute the results of a query 
+
+neighbours :: Query -> Either Failed Result
+neighbours Measure{..} = Right (PointSet [Point "foo" 0.5 0.4])
   --[srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
-measure _ = Left (Fail "Not implemented")
+-- neighbours _ = Left (Fail "Not implemented")
 
--- is this record a tuple? no bah...  so we need to invent a typeclass
--- to implement the MessagePack protocol
 
-instance MessagePack Subspace where
+-- to implement the MessagePack protocol for the out bound messsage
 
-  toObject :: Subspace -> Object
+instance MessagePack Query where
+
+  toObject :: Query -> Object
   -- turns out we can wrap tuples
-  toObject Subspace{..} = toObject (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
+  toObject Measure{..} = toObject (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
   
-  fromObject :: Object -> Maybe Subspace
-  fromObject _ = Nothing  -- todo Just Subspace {}
+  fromObject :: Object -> Maybe Query
+  fromObject _ = Nothing  -- todo Just Query {}
 
+
+instance MessagePack Result where
+  -- dont' need this as is a response
+  toObject :: Result -> Object
+  --toObject Result{..} = toObject points
+  toObject = undefined
+  
+  fromObject :: Object -> Maybe Result
+  fromObject = undefined
   
 -- {-# INLINE #-}
 
-totuple :: Subspace -> (Text, Text, Text, Double, Double, Int)
-totuple Subspace{..} = (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
+totuple :: Query -> (Text, Text, Text, Double, Double, Int)
+totuple Measure{..} = (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
 
 
-example1 :: Subspace
-example1 = Subspace { srcSpace = "words"
-                    , srcName = "Football"
-                    , tgtSpace = "words"
-                    , similarityLB = 0.7
-                    , densityUB = 0.4
-                    , maxCard = 20
-                    }
+example1 :: Query
+example1 = Measure { srcSpace = "words"
+                   , srcName = "Football"
+                   , tgtSpace = "words"
+                   , similarityLB = 0.7
+                   , densityUB = 0.4
+                   , maxCard = 20
+                   }
 
