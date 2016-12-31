@@ -20,10 +20,9 @@
 // runtime library
 
 #include "../rtl/database.hpp"
-#include "../rtl/io.hpp" // UC
+#include "../rtl/io.hpp"
+#include "../rtl/topology_messages.hpp"
 
-//
-#include "../rtl/topology_request.h"
 
 // and timing
 
@@ -97,7 +96,7 @@ int main(int argc, const char** argv) {
   p.add("image", -1);
   
   desc.add_options()
-  ("help", "SDM topology")
+  ("help", "SDM topology service")
   ("size", po::value<size_t>(&initial_size)->default_value(700),
    "initial size of heap in MB")
   ("maxsize", po::value<size_t>(&maximum_size)->default_value(700),

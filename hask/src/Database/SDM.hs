@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveGeneric #-}
+--{-# LANGUAGE DeriveAnyClass #-}
 
--- Copyright (C) Simon Beaumont - All Rights Reserved
+-- Copyright (C) 2016 Simon Beaumont - All Rights Reserved
 
 {-|
 --------------------------------------------------------------------
@@ -19,102 +22,37 @@ to the function.
 
 -}
 
-module Database.SDM (Query, neighbours, example1) where 
+module Database.SDM (neighbours, example1) where 
 
-import Data.Text (Text)
-import Data.ByteString (ByteString)
-import Data.MessagePack (MessagePack, Object, toObject, fromObject, pack, unpack)
+import Database.SDM.Encoding
+import Database.SDM.Transport
+import Database.SDM.Messages
 
--- ok bottom up lets create a record type thats like something we need
--- to get neighbours
--- data Query = Match | FK  
+-- | define functions in the api
 
-{--
+-- n.b. Request is too generic for strong typing of the i/f
 
-type Space = Text
-data Point = Point { name :: Text }
-data Subspace = Subspace { space :: Space, points :: [Point] }
-
-type Measure = Subspace -> Double
-type Metric = Point -> Point -> Double
-
---}
-  
-data Query = Measure { srcSpace :: !Text
-                     , srcName :: !Text
-                     -- space to measure
-                     , tgtSpace :: !Text
-                     -- metric over tgtSpace
-                     , similarityLB :: !Double
-                     -- filter
-                     , densityUB :: !Double
-                     -- constrain
-                     , maxCard :: !Int
-                     }
-             
-           -- watch this space
-           | Foobar { f1 :: !Text}
-           
-  deriving (Show, Read)
+neighbours :: RPCPort -> Request -> IO (Maybe Reply)
+neighbours p r = rpc p (toMsgPck r) >>= (return . fromMsgPck)
 
 
--- result data
+-- | a sample request
 
-data Result =  PointSet { points :: [Point] }
-
-data Point = Point { name :: !Text
-                   , similarity :: !Double
-                   , density :: !Double
-                   } deriving (Show, Read)
+example1 :: Request
+example1 = Neighbours { srcSpace = "words"
+                      , srcName = "Football"
+                      , tgtSpace = "words"
+                      , similarityLB = 0.7
+                      , densityUB = 0.4
+                      , maxCard = 20
+                      }
 
 
 
+-- | test function to compute the results of a query 
 
-
-data Failed = Fail { message :: Text }
-
-
--- | a function to compute the results of a query 
-
-neighbours :: Query -> Either Failed Result
-neighbours Measure{..} = Right (PointSet [Point "foo" 0.5 0.4])
+neighbours1 :: Request -> Reply
+neighbours1 Neighbours{..} = PointSet tgtSpace [Point "foo" 0.5 0.4]
   --[srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
--- neighbours _ = Left (Fail "Not implemented")
-
-
--- to implement the MessagePack protocol for the out bound messsage
-
-instance MessagePack Query where
-
-  toObject :: Query -> Object
-  -- turns out we can wrap tuples
-  toObject Measure{..} = toObject (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
-  
-  fromObject :: Object -> Maybe Query
-  fromObject _ = Nothing  -- todo Just Query {}
-
-
-instance MessagePack Result where
-  -- dont' need this as is a response
-  toObject :: Result -> Object
-  --toObject Result{..} = toObject points
-  toObject = undefined
-  
-  fromObject :: Object -> Maybe Result
-  fromObject = undefined
-  
--- {-# INLINE #-}
-
-totuple :: Query -> (Text, Text, Text, Double, Double, Int)
-totuple Measure{..} = (srcSpace, srcName, tgtSpace, similarityLB, densityUB, maxCard)
-
-
-example1 :: Query
-example1 = Measure { srcSpace = "words"
-                   , srcName = "Football"
-                   , tgtSpace = "words"
-                   , similarityLB = 0.7
-                   , densityUB = 0.4
-                   , maxCard = 20
-                   }
+neighbours1 _ = Fail "Not implemented"
 

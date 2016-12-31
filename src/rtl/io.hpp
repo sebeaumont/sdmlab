@@ -4,6 +4,7 @@
 
 // define an io loop that dispatches messages and replies for simple rpc
 // based on zmq req/rep
+
 namespace molemind { namespace sdm { namespace io {
 
   using namespace molemind;
@@ -58,7 +59,6 @@ namespace molemind { namespace sdm { namespace io {
           // echo server!
           //reply = buffer.toString();
           
-        // do summat wi message like dispatch it!
         } else {
           reply = "bad message";
         }
@@ -90,8 +90,6 @@ namespace molemind { namespace sdm { namespace io {
     return(1);
     
   }
-
-  
   
  
  }}}
