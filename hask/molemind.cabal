@@ -18,7 +18,10 @@ cabal-version:       >=1.10
                
 library
   exposed-modules:     Database.SDM
-  -- other-modules:       
+  other-modules:       Database.SDM.Encoding
+                     , Database.SDM.Messages
+                     , Database.SDM.Transport
+
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10
                      , bytestring
