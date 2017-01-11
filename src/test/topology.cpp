@@ -131,11 +131,9 @@ int main(int argc, const char** argv) {
   string endpoint(opts["endpoint"].as<string>());
   
   cerr << banner << endl;
-  cerr << "=============================================" << endl;
   cerr << "database:   " << heapfile << endl;
   cerr << "size:       " << initial_size << endl;
   cerr << "maxsize:    " << maximum_size << endl;
-  cerr << "=============================================" << endl;
   
   // create database with requirement
   database db(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile);
@@ -152,8 +150,7 @@ int main(int argc, const char** argv) {
     cerr << "[" << spp->entries() << "]" << endl;
   }
 
-  cerr << "=============================================" << endl;
-  cerr << "starting topology µservice on: " << endpoint << endl;
+  cerr << "SDM topology µservice endpoint: " << endpoint << endl;
 
   // only exit if shutdown...
   io::message_rpc_server<molemind::sdm::io::topology_request>(endpoint, db);

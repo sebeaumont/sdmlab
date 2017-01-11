@@ -29,14 +29,15 @@ import Data.Aeson (FromJSON, ToJSON, encode, decode)
 import Data.MessagePack (MessagePack, pack, unpack)
   
 
-
 -- to implement the MessagePack encoding for the RPC messsages
+
 instance MessagePack Request
 instance MessagePack Point
 instance MessagePack Reply
 
 
 -- to implement the JSON encoding for the RPC messages
+
 instance FromJSON Request
 instance FromJSON Point
 instance FromJSON Reply

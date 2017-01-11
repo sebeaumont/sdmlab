@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 // transport
 #include "zmq.hpp"
 
@@ -25,9 +25,8 @@ namespace molemind { namespace sdm { namespace io {
   // generic message handlers
   
   template <typename T> int inline parse_request(const zmq::message_t& request, T& buffer, const bool tracing=false) {
-    std::string msg_str(static_cast<const char*>(request.data()), request.size());
-    if (tracing) std::cerr << msg_str << std::endl;
-    return buffer.parseFromString(msg_str);
+    //if (tracing) std::cerr << msg_str << std::endl;
+    return buffer.parseFromMessage(request);
   }
   
   
@@ -56,11 +55,9 @@ namespace molemind { namespace sdm { namespace io {
         if (parse_request<T>(request, buffer)) {
         
           reply = buffer.dispatch(db);
-          // echo server!
-          //reply = buffer.toString();
           
         } else {
-          reply = "bad message";
+          reply = "bad message"; // XXX
         }
         
         // } catch (application exception) {

@@ -8,6 +8,7 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
+//#include "../rtl/topology.hpp"
 
 #include <iostream>
 
@@ -119,12 +120,12 @@ namespace molemind { namespace sdm {
 
     
     /// toplogy of n nearest neighbours satisfying p, d constraints
-    boost::optional<database::space::topology> neighbourhood(const std::string& target_space,
-                                                             const std::string& source_space,
-                                                             const std::string& source_name,
-                                                             double similarity_lower_bound,
-                                                             double density_upper_bound,
-                                                             std::size_t cardinality_upper_bound) noexcept;
+    boost::optional<topology> neighbourhood(const std::string& target_space,
+                                            const std::string& source_space,
+                                            const std::string& source_name,
+                                            double similarity_lower_bound,
+                                            double density_upper_bound,
+                                            std::size_t cardinality_upper_bound) noexcept;
     /// TODO negation
     
     /// TODO query algebra

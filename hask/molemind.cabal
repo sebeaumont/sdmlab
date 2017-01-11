@@ -25,7 +25,7 @@ library
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10
                      , bytestring
-                     , data-msgpack
+                     , data-msgpack >= 0.0.9
                      , aeson
                      , text
                      , zeromq4-haskell
