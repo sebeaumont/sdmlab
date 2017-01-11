@@ -1,18 +1,12 @@
-#include <msgpack.hpp>
-
 namespace molemind { namespace sdm {
-  /// point sets/vectors etc. are result value tuples
+  
+  // point sets
   
   struct point {
     
     std::string name;
     double similarity;
     double density;
-    
-    //
-    MSGPACK_DEFINE(name, similarity, density);
-
-    point();
     
     point(const std::string& v, const double s, const double d) : name(v), similarity(s), density(d) {}
     

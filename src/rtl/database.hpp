@@ -25,6 +25,8 @@ namespace molemind { namespace sdm {
    ** where it should be handled by the caller, this is mainly concerned 
    ** with symbol lookups but memory outages can occur in a number of 
    ** functions... <tbc>
+   **
+   ** TODO: deprecate boost optional and return status codes
    ***********************************************************************/
   
   class database {
