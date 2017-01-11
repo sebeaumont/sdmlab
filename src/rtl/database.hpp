@@ -8,7 +8,7 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
-//#include "../rtl/topology.hpp"
+#include "../rtl/topology.hpp"
 
 #include <iostream>
 

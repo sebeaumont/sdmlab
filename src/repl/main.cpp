@@ -1,5 +1,5 @@
 /***************************************************************************
- * main.cpp symbol table test utility - part of the environment.
+ * sdmq main routine
  *
  * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.

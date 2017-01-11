@@ -1,3 +1,5 @@
+#pragma once
+
 namespace molemind { namespace sdm {
   
   // point sets
