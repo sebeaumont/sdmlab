@@ -1,5 +1,5 @@
 /***************************************************************************
- * main.cpp symbol table test utility - part of the Gecko qdsm environment.
+ * main.cpp symbol table test utility - part of the environment.
  *
  * Copyright (c) Simon Beaumont 2012-2014 - All Rights Reserved.
  * See: LICENSE for conditions under which this software is published.
@@ -249,7 +249,7 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], "%")) {
         // topo
         //boost::optional<database::space::vector&> v = get_vector(rts, default_spacename, cv[1]);
-        boost::optional<database::space::topology> t = rts.neighbourhood(default_spacename, default_spacename, cv[1], 0, 1, 20);
+        boost::optional<sdm::topology> t = rts.neighbourhood(default_spacename, default_spacename, cv[1], 0, 1, 20);
         if (t) for (auto p : *t)
           std::cout << p << std::endl;
 

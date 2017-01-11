@@ -10,7 +10,11 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
+// implementation
 #include "elemental_vector.hpp"
+
+// interface types
+#include "../rtl/topology.hpp"
 
 
 #ifdef HAVE_DISPATCH
@@ -544,47 +548,14 @@ namespace molemind { namespace sdm {
          3. allocate smallest set of scores and sort in main thread 
       */
       
-      /// point sets/vectors etc. are result value tuples
-      
-      struct point {
-    
-        std::string name;
-        double similarity;
-        double density;
-        
-        //
-        explicit point(const std::string& v, const double s, const double d)
-          : name(v), similarity(s), density(d) {}
-
-        /// similarity is 1-d
-        /// comparison for descending similarity
-        bool operator< (const point& s) const {
-          return similarity > s.similarity;
-        }
-
-        bool operator==(const point& s) const {
-          return name == s.name && similarity == s.similarity;
-        }
-        bool operator!=(const point& s) const {
-          return name != s.name || similarity != s.similarity;
-        }
-
-        friend std::ostream& operator<<(std::ostream& os, point& p) {
-          os <<  p.name << "\t" << p.similarity << "\t" << p.density;
-          return os;
-        }  
-
-      };
-      
       //////////////////////
       /// computed topology
       
-      typedef std::vector<point> topology;
 
       ///////////////////////////////////////
       /// compute neighbourhood of a vector
       
-      inline const topology neighbourhood(const vector& u,
+      inline const molemind::sdm::topology neighbourhood(const vector& u,
                                           const double p,
                                           const double d,
                                           const std::size_t n) {
@@ -611,7 +582,7 @@ namespace molemind { namespace sdm {
         #endif
         //// end parallel block ////
       
-        std::vector<point> topo;
+        std::vector<molemind::sdm::point> topo;
         topo.reserve(m); // ??? hmm is there a statistic here?
         
         // filter work array

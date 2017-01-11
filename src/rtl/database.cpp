@@ -153,16 +153,16 @@ namespace molemind {
 
     
     // neighbourhood
-    boost::optional<database::space::topology> database::neighbourhood(const::std::string& ts,
-                                                                       const std::string& ss, const std::string& sv,
-                                                                       double p, double d, std::size_t n) noexcept {
+    boost::optional<sdm::topology> database::neighbourhood(const::std::string& ts,
+                                                           const std::string& ss, const std::string& sv,
+                                                           double p, double d, std::size_t n) noexcept {
       // all parts must exist
       auto t = get_space_by_name(ts);
       if (t) {
         auto s = get_space_by_name(ss);
         if (s) {
           boost::optional<space::vector&> v = s->get_vector_by_name(sv);
-          if (v) return t->neighbourhood(*v, p, d, n);
+          if (v) return t->neighbourhood(*v, p, d, n); // should be no optionals at space level?
           else return boost::none;
         } else return boost::none;
       } else return boost::none;
@@ -282,16 +282,15 @@ namespace molemind {
         // remap
         heap = segment_t(bip::open_only, heapimage.c_str());
         std::cout << "free: " << free_heap() << " max: " << maxheap << " init:" << inisize << " heap:" << heap_size() << std::endl;
-        if (check_heap_sanity())
-        return true;
-        }
-        return false;
-        }
+        if (check_heap_sanity()) return true;
+      }
+      return false;
+    }
         
-        bool database::compactify_heap() noexcept {
-          // mapped_file shrink_to_fit -- compact
-          return heap.shrink_to_fit(heapimage.c_str());
-        }
+    bool database::compactify_heap() noexcept {
+      // mapped_file shrink_to_fit -- compact
+      return heap.shrink_to_fit(heapimage.c_str());
+    }
 
     
   }

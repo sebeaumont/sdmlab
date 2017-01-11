@@ -21,3 +21,5 @@ a.out
 *.bc
 *.hi
 doc
+.stack-work
+

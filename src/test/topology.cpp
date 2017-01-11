@@ -20,10 +20,9 @@
 // runtime library
 
 #include "../rtl/database.hpp"
-#include "../rtl/io.hpp" // UC
+#include "../rtl/io.hpp"
+#include "../rtl/topology_messages.hpp"
 
-//
-#include "../rtl/topology_request.h"
 
 // and timing
 
@@ -97,7 +96,7 @@ int main(int argc, const char** argv) {
   p.add("image", -1);
   
   desc.add_options()
-  ("help", "SDM topology")
+  ("help", "SDM topology service")
   ("size", po::value<size_t>(&initial_size)->default_value(700),
    "initial size of heap in MB")
   ("maxsize", po::value<size_t>(&maximum_size)->default_value(700),
@@ -132,11 +131,9 @@ int main(int argc, const char** argv) {
   string endpoint(opts["endpoint"].as<string>());
   
   cerr << banner << endl;
-  cerr << "=============================================" << endl;
   cerr << "database:   " << heapfile << endl;
   cerr << "size:       " << initial_size << endl;
   cerr << "maxsize:    " << maximum_size << endl;
-  cerr << "=============================================" << endl;
   
   // create database with requirement
   database db(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile);
@@ -153,8 +150,7 @@ int main(int argc, const char** argv) {
     cerr << "[" << spp->entries() << "]" << endl;
   }
 
-  cerr << "=============================================" << endl;
-  cerr << "starting topology µservice on: " << endpoint << endl;
+  cerr << "SDM topology µservice endpoint: " << endpoint << endl;
 
   // only exit if shutdown...
   io::message_rpc_server<molemind::sdm::io::topology_request>(endpoint, db);
