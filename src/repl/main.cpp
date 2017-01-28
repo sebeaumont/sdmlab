@@ -19,6 +19,8 @@
 
 // we are really testing this 
 #include "../rtl/database.hpp"
+#include "parser.hpp"
+
 
 // wall clock timer
 
@@ -108,7 +110,9 @@ int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
   using namespace molemind::sdm;
-
+  //
+  vml::test_parse();
+  
   // command line options
     
   std::size_t initial_size;
@@ -141,7 +145,7 @@ int main(int argc, const char** argv) {
 
   std::string heapfile(opts["heap"].as<std::string>());
 
-
+  
   // create database with requirement
   database rts(initial_size * 1024 * 1024, maximum_size * 1024 * 1024, heapfile); 
 

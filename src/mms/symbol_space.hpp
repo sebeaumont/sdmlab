@@ -10,8 +10,11 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-// implementation
+// defintion of elemental vectors
 #include "elemental_vector.hpp"
+
+// temporary vectors
+#include "ephemeral_vector.hpp"
 
 // interface types
 #include "../rtl/topology.hpp"
@@ -56,27 +59,22 @@ namespace molemind { namespace sdm {
 
     template <typename VectorElementType, std::size_t VArraySize, std::size_t ElementalBits, class SegmentClass>
 
-    /*
-     * for a symbol_space
-     */
+    // for a symbol_space
     
     class symbol_space final {
 
+      // stored objects have to use this segment type for heap allocators
       typedef SegmentClass segment_t;
       
-      // Heap allocators derived from segment
-      
+      // allocators derived from segment type
       typedef typename segment_t::segment_manager segment_manager_t;
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
-
       
-      // XXX UC
+      // sparse stored (immutable) fingerprint
       typedef elemental_vector<std::size_t, segment_manager_t> elemental_vector_t;
-      //typedef elemental_vector::index_t sparse_index_t;
-      //typedef std::vector<std::size_t> sparse_index_t;
 
-
+     
       /////////////////////////////////////////////////////////////////////
       // symbol - named vector with lazily computed elemental fingerprint
       //
@@ -103,6 +101,9 @@ namespace molemind { namespace sdm {
         inline const std::string name(void) const {
           return std::string(_name.begin(), _name.end());
         }
+
+        // regular heap/stack allocated (ephemeral) vector
+        typedef VectorElementType ephemeral_vector[VArraySize];
         
         typedef elemental_vector_t basis_vector_t;
 
@@ -155,6 +156,7 @@ namespace molemind { namespace sdm {
       };
 
 
+      ////////////////////////////////////////////////////////////////////
       // shared memory mapped multi index container type with it's indexes
       
       typedef multi_index_container<
@@ -167,18 +169,18 @@ namespace molemind { namespace sdm {
         > symbol_table_t;
 
 
-      
-      ////////////////////////////////////////////////////
-      /// vector_space implemented as a vector of vectors
-      
+      /// vectors are arrays/std::vectors of these
       typedef VectorElementType element_t;
       
+      
+      ////////////////////////////////
+      /// the stored mmap vector type
+
       typedef bip::allocator<element_t, segment_manager_t> element_allocator_t;
       
       typedef bip::vector<element_t, element_allocator_t> vector_t;
       
-      
-      /// the vector type
+
     public:
       struct vector final : public vector_t {
 
@@ -193,11 +195,7 @@ namespace molemind { namespace sdm {
         /// dimensions of this vector
         static const std::size_t dimensions =  VArraySize * sizeof(element_t) * CHAR_BITS;
 
-        //friend std::ostream& operator<<(std::ostream& os, const vector& v) {
-        //  os << v.something const; 
-        //  return os;
-        //}
-
+        /// in place vector modification
                 
         /* set all bits */
 
@@ -303,7 +301,7 @@ namespace molemind { namespace sdm {
         // basic operations on vectors //
         /////////////////////////////////
 
-        /* add or superpose */
+        /* superpose another vector v */
 
         inline void superpose(const vector& v) {
         #pragma unroll
@@ -374,9 +372,10 @@ namespace molemind { namespace sdm {
           }
         }
         
-      };
+      }; // end of vector
 
     private:
+      
       // vector allocators
       
       typedef bip::allocator<vector, segment_manager_t> vector_allocator_t;
@@ -402,6 +401,10 @@ namespace molemind { namespace sdm {
       
       typedef vector_space vector_space_t;
 
+      // temporary/ephmemeral vectors
+      typedef ephemeral_vector<VectorElementType, VArraySize, vector> ephemeral_vector_t;
+      
+
       
       ///////////////////////////////////
       // symbol_space public interface //
@@ -414,7 +417,7 @@ namespace molemind { namespace sdm {
       symbol_space(const std::string& s, const::size_t n, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
         // create vector_space
-        std::string vs_name = "__" + name;
+        std::string vs_name = "__" + name; // XXXX what hack is this?
         vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(n, allocator);
         // ensure multi_index container is constructed: this is the symbol space
         index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
@@ -548,6 +551,14 @@ namespace molemind { namespace sdm {
          3. allocate smallest set of scores and sort in main thread 
       */
       
+      inline const topology neighbourhood(const ephemeral_vector_t& u,
+                                          const double p,
+                                          const double d,
+                                          const std::size_t n) {
+        topology t;
+        return t;
+      }
+      
       //////////////////////
       /// computed topology
       
@@ -582,7 +593,7 @@ namespace molemind { namespace sdm {
         #endif
         //// end parallel block ////
       
-        std::vector<molemind::sdm::point> topo;
+        topology topo;
         topo.reserve(m); // ??? hmm is there a statistic here?
         
         // filter work array
@@ -620,8 +631,6 @@ namespace molemind { namespace sdm {
       inline const size_t entries() { return index->size(); }
       inline const std::string spacename() const { return name; }
 
-      
-      // TODO: shrink_to_fit, grow
       
     private:    
 

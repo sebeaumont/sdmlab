@@ -19,14 +19,6 @@ namespace molemind { namespace sdm {
   
   /***********************************************************************
    ** Database type provides the API for the SDM implementation
-   **
-   ** The failure model says that no exceptions (except system failure)
-   ** should leak out of here. We use boost optional to indicate failure 
-   ** where it should be handled by the caller, this is mainly concerned 
-   ** with symbol lookups but memory outages can occur in a number of 
-   ** functions... <tbc>
-   **
-   ** TODO: deprecate boost optional and return status codes
    ***********************************************************************/
   
   class database {
@@ -164,7 +156,6 @@ namespace molemind { namespace sdm {
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
-    // xxx no doubt these will go away once efficient portable serialisaions have been wrought.
     
     /// get named symbol
     boost::optional<const space::symbol&> get_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
@@ -172,7 +163,8 @@ namespace molemind { namespace sdm {
     /// get named vector
     boost::optional<space::vector&> get_vector(const std::string& space_name, const std::string& vector_name) noexcept;
 
-
+    /// TODO add a list of vectors
+    
     /// randomise a vector
     void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
 
