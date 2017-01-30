@@ -17,8 +17,12 @@
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
 
-// we are really testing this 
+// we are really developing this
 #include "../rtl/database.hpp"
+// and this temporary vectors
+#include "../mms/ephemeral_vector.hpp"
+
+
 #include "parser.hpp"
 
 
@@ -85,7 +89,9 @@ using namespace molemind::sdm;
 // how to subvert our encapsulation with leaky abstractions... ;-)
 // and test the evolving API...
 
-static inline boost::optional<database::space::vector&> get_vector(database& db, const std::string& space_name, const std::string& name) {
+static inline boost::optional<database::space::vector&> get_vector(database& db,
+                                                                   const std::string& space_name,
+                                                                   const std::string& name) {
   auto space = db.get_space_by_name(space_name);
   if (space)
     return space->get_vector_by_name(name);
@@ -93,7 +99,9 @@ static inline boost::optional<database::space::vector&> get_vector(database& db,
     return boost::none;
 }
 
-static inline boost::optional<const database::space::symbol&> get_symbol(database& db, const std::string& space_name, const std::string& name) {
+static inline boost::optional<const database::space::symbol&> get_symbol(database& db,
+                                                                         const std::string& space_name,
+                                                                         const std::string& name) {
   auto space = db.get_space_by_name(space_name);
   if (space)
     return space->get_symbol_by_name(name);
@@ -112,6 +120,9 @@ int main(int argc, const char** argv) {
   using namespace molemind::sdm;
   //
   vml::test_parse();
+  
+  // what should this interface be called really?
+  database::space::ephemeral_vector_t myvector;
   
   // command line options
     

@@ -13,10 +13,10 @@
 // symbols
 #include "symbol.hpp"
 
-//#include "avector.hpp"
+// runtime vector type
 
-// temporary vectors
 #include "ephemeral_vector.hpp"
+//#include "avector.hpp"
 
 // interface types
 #include "../rtl/topology.hpp"
@@ -136,11 +136,12 @@ namespace molemind { namespace sdm {
       typedef bip::vector<element_t, element_allocator_t> vector_base_t;
       
       
-      ////////////////////
-      /// the vector type
-      ////////////////////
+      ///
+      /// the vector type represents the symbol state in space memory i.e. in database mapped heap
+      ///
       
     public:
+      
       struct vector final : public vector_base_t {
         
         /// construct fully
@@ -152,27 +153,11 @@ namespace molemind { namespace sdm {
         }
         
         
-        /// SDM dimensions bits
+        /// SDM dimensions i.e. bits
         static constexpr std::size_t dimensions =  VectorElems * sizeof(VectorElementType) * CHAR_BITS;
         
-        /* set all bits */
         
-        inline void ones(void) {
-          for (std::size_t i=0; i < VectorElems; ++i) {
-            (*this)[i] = -1;
-          }
-        }
-        
-        /* clear all bits */
-        
-        inline void zeros(void) {
-          for (std::size_t i=0; i < VectorElems; ++i) {
-            (*this)[i] = 0;
-          }
-        }
-        
-        
-        // vector properties
+        /// SDM vector properties
         
         inline const std::size_t count() {
           std::size_t count = 0;
@@ -192,7 +177,7 @@ namespace molemind { namespace sdm {
         }
         
         
-        // vector measurements
+        // vector measurement functions
         
         inline const std::size_t distance(const vector& v) {
           std::size_t distance = 0;
@@ -248,11 +233,28 @@ namespace molemind { namespace sdm {
         }
         
         
+        ///////////////////////////////////////
+        /// in place transactions on vectors //
+        ///////////////////////////////////////
+
         
-        /////////////////////////////////
-        // basic operations on vectors //
-        /////////////////////////////////
+        /* set all bits */
         
+        inline void ones(void) {
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            (*this)[i] = -1;
+          }
+        }
+        
+        /* clear all bits */
+        
+        inline void zeros(void) {
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            (*this)[i] = 0;
+          }
+        }
+        
+  
         /* add or superpose */
         
         inline void superpose(const vector& v) {
@@ -262,9 +264,6 @@ namespace molemind { namespace sdm {
             (*this)[i] |= v[i];
           }
         }
-        
-        
-        
         
         
         /* subtract v from u */
@@ -326,8 +325,6 @@ namespace molemind { namespace sdm {
           }
         }
         
-
-
       }; // end vector
 
       
@@ -356,10 +353,6 @@ namespace molemind { namespace sdm {
 
       
       typedef vector_space vector_space_t;
-
-      // temporary/ephmemeral vectors
-      typedef ephemeral_vector<VectorElementType, VectorElems, vector> ephemeral_vector_t;
-      
 
       
       ///////////////////////////////////
@@ -498,8 +491,12 @@ namespace molemind { namespace sdm {
         return ((index->template project<2>(nit)) - (index->template get<2>().begin()));
       }
 
-
-      ///
+      /*********************************************************************************/
+      // basic query engine
+      
+      // temporary/ephmemeral vectors
+      typedef ephemeral_vector<VectorElementType, VectorElems, vector> ephemeral_vector_t;
+      
       /* 
          WIP: parallelised SIMD operations on entire vectorspace
          1. distribute by segments (n_cores) on cpu (treat as separate arrays on gpu?) 
@@ -507,12 +504,12 @@ namespace molemind { namespace sdm {
          3. allocate smallest set of scores and sort in main thread 
       */
       
-      inline const topology neighbourhood(const ephemeral_vector_t& u,
+      inline const topology neighbourhood(const vector& u,
                                           const double p,
                                           const double d,
                                           const std::size_t n) {
-        topology t;
-        return t;
+        // no copy for simple case?
+        return neighbourhood(ephemeral_vector_t(u), p, d, n);
       }
       
       //////////////////////
@@ -522,7 +519,7 @@ namespace molemind { namespace sdm {
       ///////////////////////////////////////
       /// compute neighbourhood of a vector
       
-      inline const molemind::sdm::topology neighbourhood(const vector& u,
+      inline const topology neighbourhood(const ephemeral_vector_t& u,
                                           const double p,
                                           const double d,
                                           const std::size_t n) {
@@ -536,7 +533,7 @@ namespace molemind { namespace sdm {
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         dispatch_apply(m, queue, ^(std::size_t i) {
             work[i*2] = (*vectors)[i].density();
-            work[i*2+1] = (*vectors)[i].similarity(u);
+          work[i*2+1] = u.similarity((*vectors)[i]);
           });
         // XXXX ARC forbids release XXXXX dispatch_release(queue);
         
@@ -544,7 +541,7 @@ namespace molemind { namespace sdm {
         #pragma omp parallel for 
         for (std::size_t i=0; i < m; ++i) {
           work[i*2] = (*vectors)[i].density();
-          work[i*2+1] = (*vectors)[i].similarity(u);
+          work[i*2+1] = u.similarity((*vectors)[i]);
         }
         #endif
         //// end parallel block ////
