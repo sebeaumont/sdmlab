@@ -18,6 +18,7 @@ namespace molemind {
 
     namespace mms {
 
+      // what to call this really now we have it?
       
       template <typename T, std::size_t L, typename I>
       struct ephemeral_vector {
@@ -57,7 +58,7 @@ namespace molemind {
         
         // vector measurement functions
         
-        inline const std::size_t distance(const ephemeral_vector& v) {
+        inline const std::size_t distance(ephemeral_vector& v) {
           std::size_t distance = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
@@ -89,7 +90,7 @@ namespace molemind {
         }
         
         
-        inline const std::size_t inner(const ephemeral_vector& v) {
+        inline const std::size_t inner(ephemeral_vector& v) {
           std::size_t count = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
@@ -105,7 +106,7 @@ namespace molemind {
         }
         
         
-        inline std::size_t countsum(const ephemeral_vector& v) {
+        inline std::size_t countsum(ephemeral_vector& v) {
           std::size_t count = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
@@ -122,13 +123,13 @@ namespace molemind {
         
                                         
         /// Similarity of vectors
-        inline double similarity(const ephemeral_vector& v) {
+        inline double similarity(ephemeral_vector& v) {
           // inverse of the normalized distance
           return 1.0 - (double) distance(v)/dimensions;
         }
                                         
         /// Similarity of vectors
-        inline double similarity(I& v) const {
+        inline double similarity(const I& v) const {
           // inverse of the normalized distance
           return 1.0 - (double) distance(v)/dimensions;
         }

@@ -121,8 +121,6 @@ int main(int argc, const char** argv) {
   //
   vml::test_parse();
   
-  // what should this interface be called really?
-  database::space::ephemeral_vector_t myvector;
   
   // command line options
     
@@ -173,6 +171,9 @@ int main(int argc, const char** argv) {
   }
   
   // main command loop
+
+  // what should this interface be called really?
+  database::space::ephemeral_vector_t local_vector;
   
   std::string prompt("Ψ> ");
   std::string input;
@@ -231,8 +232,12 @@ int main(int argc, const char** argv) {
       } else if (boost::iequals(cv[0], "/")) {
         // array access to space
         boost::optional<database::space::vector&> v = get_vector(rts, default_spacename, cv[1]);
-        std::cout << v->count() << std::endl; 
-
+        // xxx
+        if (v) {
+          database::space::ephemeral_vector_t myvector(*v);
+          
+          std::cout << v->count() << " " << myvector.distance(*v) << std::endl;
+        }
       } else if (boost::iequals(cv[0], "+")) {
         rts.superpose(default_spacename, cv[1], default_spacename, cv[2]);
         boost::optional<database::space::vector&> v = get_vector(rts, default_spacename, cv[1]);

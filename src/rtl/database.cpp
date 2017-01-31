@@ -34,7 +34,7 @@ namespace molemind {
       if (check_heap_sanity()) heap.flush();
     }
     
-    
+
     
     ////////////////////
     /// named vectors // 

@@ -10,15 +10,13 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-// symbols
+// symbol type
 #include "symbol.hpp"
 
 // runtime vector type
-
 #include "ephemeral_vector.hpp"
-//#include "avector.hpp"
 
-// interface types
+// result (POD) types
 #include "../rtl/topology.hpp"
 
 
@@ -48,7 +46,7 @@ namespace molemind { namespace sdm {
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
 
-    /* 
+    /** 
      * this class template can be instantiated in runtime library
      * source or inlined in application code; the important
      * implementation details are the types and sizes of the vectors
@@ -129,6 +127,7 @@ namespace molemind { namespace sdm {
 
       
       /// vectors are arrays/std::vectors of these
+      
       typedef VectorElementType element_t;
       
       typedef bip::allocator<element_t, segment_manager_t> element_allocator_t;
