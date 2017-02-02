@@ -68,7 +68,8 @@ namespace molemind { namespace sdm {
     /// search for symbols starting with prefix
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    boost::optional<symbol_list> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> prefix_search(const std::string& space_name,
+                                               const std::string& symbol_prefix) noexcept;
     
     
     /////////////////////////
