@@ -70,7 +70,7 @@ namespace molemind {
     ///
     /// N.B. can cause memory outage and may side-effect
     /// the creation of a space and a symbol+vector within it
-    
+
     database::status_t database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
       // may create a space
       auto space = ensure_space_by_name(sn);
@@ -96,6 +96,8 @@ namespace molemind {
         return MEMOUT; // 'cos we ran out of memory!
       }
     }
+
+    
     
     
     // operations
@@ -190,7 +192,6 @@ namespace molemind {
     }
     
     
-    /* END API */
     
     //////////////////////
     /// space management
@@ -199,7 +200,7 @@ namespace molemind {
     // create and manage named symbols by name -- space constructor does find_or_construct on segment
     // database memoizes pointers to spaces to speed up symbol resolution
     
-    inline database::space* database::ensure_space_by_name(const std::string& name) {
+    database::space* database::ensure_space_by_name(const std::string& name) {
       // lookup in cache
       auto it = spaces.find(name);
       

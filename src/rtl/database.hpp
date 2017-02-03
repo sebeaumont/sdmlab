@@ -8,7 +8,9 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
-#include "../rtl/topology.hpp"
+
+#include "topology.hpp"
+#include "sdmconfig.h"
 
 #include <iostream>
 
@@ -35,7 +37,7 @@ namespace molemind { namespace sdm {
     /// type of space implementation determines the type and number of elements and sparsity
     // XXX all of which can be portably calculated or re-templated from more abstract notions
     
-    typedef mms::symbol_space<unsigned long long, 265, 16, segment_t> space;
+    typedef mms::symbol_space<SDM_VECTOR_ELEMENT_TYPE, SDM_VECTOR_ELEMS, SDM_VECTOR_FINGERPRINT_BITS, segment_t> space;
     
     
     /// constructor to initialize file mapped heap
@@ -53,13 +55,14 @@ namespace molemind { namespace sdm {
     /// destructor will cautiously ensure all pages are flushed
     
     ~database();
-    
-    /// UC return status type
+
+        /// UC return status type
     
     typedef enum { OLD=1, NEW=2, MEMOUT=-3, OPFAIL=-2, ERROR=-1 } status_t;
 
     /// error guard
     inline const bool is_error(status_t s) const { return (s<0); }
+
 
     /// create new symbol
     
@@ -152,11 +155,6 @@ namespace molemind { namespace sdm {
     inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
     inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
     
-
-    //protected:
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
     
     /// get named symbol
     boost::optional<const space::symbol&> get_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
