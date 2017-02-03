@@ -11,6 +11,7 @@
 
 #include "topology.hpp"
 #include "sdmconfig.h"
+#include "sdmstatus.h"
 
 #include <iostream>
 
@@ -55,14 +56,6 @@ namespace molemind { namespace sdm {
     /// destructor will cautiously ensure all pages are flushed
     
     ~database();
-
-        /// UC return status type
-    
-    typedef enum { OLD=1, NEW=2, MEMOUT=-3, OPFAIL=-2, ERROR=-1 } status_t;
-
-    /// error guard
-    inline const bool is_error(status_t s) const { return (s<0); }
-
 
     /// create new symbol
     

@@ -15,10 +15,4 @@ set_target_properties(sdm PROPERTIES
 
 # install lib and headers
 install (TARGETS sdm LIBRARY DESTINATION lib)
-
-
-
-
-
-
-
+install (FILES sdmlib.h sdmconfig.h sdmstatus.h DESTINATION include)

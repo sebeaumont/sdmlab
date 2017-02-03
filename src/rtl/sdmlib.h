@@ -1,27 +1,21 @@
 #pragma once
 
 #include <stdlib.h>
+#include "sdmconfig.h"
+#include "sdmstatus.h"
 
 /**
  * dual purpose header for c library
  */
 
-/* return type of all fns in this api */
-
-typedef enum {
-  EOK = 0,
-  ESPACE = (-1<<1),
-  ESYMBOL = (-1<<2),
-  EMEMORY = (-1<<4),
-  ERUNTIME = (-1<<5)
-} status_t;  
 
 typedef void* database_t;
 typedef void* space_t;
 typedef void* vector_t;
 typedef void* symbol_t;
 typedef void* topology_t;
-typedef void* vectordata_t; // make this fixed array?
+typedef SDM_VECTOR_ELEMENT_TYPE vectordata_t[SDM_VECTOR_ELEMS];
+//typedef void* vectordata_t; // make this fixed array?
 
 #ifdef __cplusplus
 extern "C" {
