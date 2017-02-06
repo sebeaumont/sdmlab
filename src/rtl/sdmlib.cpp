@@ -38,7 +38,8 @@ const status_t sdm_ensure_space(const database_t db, const char* spacename, spac
   }
 }
 
-/* refactor database...
+// TODO
+/*
 const status_t sdm_ensure_symbol(const database_t db, const char* spacename, const char* symbolname, symbol_t* sym) {
 
 }
@@ -51,3 +52,22 @@ const status_t sdm_get_vector(const space_t space, const char* symbolname, vecto
   *vec = &(*vector); // boost optional
   return AOK;
 }
+
+
+const status_t sdm_read_vector(const vector_t v, vectordata_t* vdata) {
+  auto vector = static_cast<database::database::space::vector*>(v);
+  // XXX TODO XXX elide this extra copy with some direct method in space::vector
+  vector->copy_me(*vdata);
+  /*
+  database::database::space::ephemeral_vector_t u(*vector);
+  #pragma unroll
+  for (std::size_t i = 0; i < SDM_VECTOR_ELEMS; ++i)
+    *vdata[i] = u[i];
+    */
+  return AOK;
+}
+
+//const status_t sdm_write_vector(const vector_t, vectordata_t vdata);
+
+// coming soon
+//const status_t sdm_get_topology(const space_t, const vectordata_t, topology_t* topo);

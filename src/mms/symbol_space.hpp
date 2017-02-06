@@ -154,7 +154,15 @@ namespace molemind { namespace sdm {
         
         /// SDM dimensions i.e. bits
         static constexpr std::size_t dimensions =  VectorElems * sizeof(VectorElementType) * CHAR_BITS;
-        
+
+        /// XXX NEW XXX
+        void copy_me(element_t* here) {
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            here[i] = (*this)[i];
+          }
+        }
         
         /// SDM vector properties
         

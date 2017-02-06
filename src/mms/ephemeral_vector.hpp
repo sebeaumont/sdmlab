@@ -31,6 +31,10 @@ namespace molemind {
             _elem[i] = v[i];
           }
         }
+
+        T operator[](const std::size_t i) {
+          return _elem[i];
+        }
         
         /// SDM dimensions i.e. bits
         static constexpr std::size_t dimensions =  L * sizeof(T) * CHAR_BITS;
