@@ -8,7 +8,8 @@ const status_t sdm_open_database(const char* filename, size_t size, size_t maxsi
   try {
     *db = new database::database(size, maxsize, std::string(filename));
     return AOK;
-  } catch (...) {
+  } catch (const std::exception& e) {
+    fprintf(stderr, "RUNTIME EXCEPTION: %s\n", e.what());
     return ERUNTIME;
   }
 }
@@ -19,7 +20,8 @@ const status_t sdm_close_database(const database_t db) {
 }
 
 const status_t sdm_get_space(const database_t db, const char* spacename, space_t* space) {
-  database::space* sp = static_cast<database::database*>(db)->get_space_by_name(std::string(spacename));
+  database::space* sp = static_cast<database::database*>(db)->
+    get_space_by_name(std::string(spacename));
   if (sp == nullptr) return ESPACE;
   *space = sp;
   return AOK;
@@ -27,7 +29,8 @@ const status_t sdm_get_space(const database_t db, const char* spacename, space_t
 
 const status_t sdm_ensure_space(const database_t db, const char* spacename, space_t* space) {
   try {
-    database::space* sp = static_cast<database::database*>(db)->ensure_space_by_name(std::string(spacename));
+    database::space* sp = static_cast<database::database*>(db)->
+      ensure_space_by_name(std::string(spacename));
     if (sp == nullptr) return ERUNTIME; //?
     *space = sp;
     return AOK;
@@ -38,36 +41,69 @@ const status_t sdm_ensure_space(const database_t db, const char* spacename, spac
   }
 }
 
-// TODO
-/*
-const status_t sdm_ensure_symbol(const database_t db, const char* spacename, const char* symbolname, symbol_t* sym) {
 
+const status_t sdm_ensure_space_symbol(const database_t db,
+                                       const char* spacename,
+                                       const char* symbolname,
+                                       symbol_t* sym) {
+  return EUNIMPLEMENTED;
 }
-*/
 
 
-const status_t sdm_get_vector(const space_t space, const char* symbolname, vector_t* vec) {
-  auto vector = static_cast<database::database::space*>(space)->get_vector_by_name(std::string(symbolname));
-  if (!vector) return ESYMBOL;
-  *vec = &(*vector); // boost optional
+const status_t sdm_ensure_symbol(const database_t db,
+                                 const space_t space,
+                                 const char* symbolname,
+                                 symbol_t* sym) {
+  // TODO...
+  return EUNIMPLEMENTED;
+}
+
+
+
+const status_t sdm_get_vector(const space_t space,
+                              const char* symbolname,
+                              vector_t* vec) {
+  auto maybe_vector = static_cast<database::database::space*>(space)->
+    get_vector_by_name(std::string(symbolname));
+  if (!maybe_vector) return ESYMBOL;
+  *vec = &(*maybe_vector); // vector is boost optional
   return AOK;
 }
 
 
-const status_t sdm_read_vector(const vector_t v, vectordata_t* vdata) {
+const status_t sdm_get_symbol(const space_t* space,
+                              const char* symbolname,
+                              symbol_t* sym) {
+  return EUNIMPLEMENTED;
+}
+
+
+const status_t sdm_get_symbols(const space_t space,
+                               const char* prefix,
+                               const char** names) {
+  return EUNIMPLEMENTED;
+}
+
+
+const status_t sdm_get_basis(const symbol_t symbol,
+                             basis_t* basis) {
+  return EUNIMPLEMENTED;
+}
+
+const status_t sdm_get_topology(const space_t s, const vectordata_t, topology_t* topo) {
+  return EUNIMPLEMENTED;
+}
+  
+
+const status_t sdm_load_vector(const vector_t v,
+                               vectordata_t* vdata) {
   auto vector = static_cast<database::database::space::vector*>(v);
-  // XXX TODO XXX elide this extra copy with some direct method in space::vector
-  vector->copy_me(*vdata);
-  /*
-  database::database::space::ephemeral_vector_t u(*vector);
-  #pragma unroll
-  for (std::size_t i = 0; i < SDM_VECTOR_ELEMS; ++i)
-    *vdata[i] = u[i];
-    */
+  vector->copy_me(vdata);
   return AOK;
 }
 
-//const status_t sdm_write_vector(const vector_t, vectordata_t vdata);
 
-// coming soon
-//const status_t sdm_get_topology(const space_t, const vectordata_t, topology_t* topo);
+const status_t sdm_store_vector(const vector_t v, vectordata_t vdata) {
+  return EUNIMPLEMENTED;
+}
+

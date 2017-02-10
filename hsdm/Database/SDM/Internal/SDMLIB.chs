@@ -1,8 +1,11 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
--- DSM library bindings
-module Database.SDM.Internal.CSDM where
+#include <sdmlib.h>
+
+{#context lib = "sdm" #}
+
+module Database.SDM.Internal.SDMLIB where
 
 import Foreign
 import Foreign.Ptr
@@ -11,8 +14,13 @@ import Foreign.C
 import Foreign.C.Types
 import Foreign.C.String
 
--- could auto dealloc this
-newtype SDMDatabase = SDMDatabase (Ptr SDMDatabase) deriving (Storable)
+type SDMStatus = {#type status_t #}
+
+-- really just a test function
+vectordataSize :: Int
+vectordataSize  = {#sizeof vectordata_t #}
+
+newtype SDMDatabase = SDMDatabase (Ptr SDMDatabase) deriving (Storable, Show)
 
 
 foreign import ccall unsafe "dsmlib.h sdm_open_database"
@@ -38,7 +46,7 @@ sdm_close_db db = c_sdm_close_db db >> return ()
 --
 -- space the final frontier
 --
-newtype SDMSpace = SDMSpace (Ptr SDMSpace) deriving (Storable)
+newtype SDMSpace = SDMSpace (Ptr SDMSpace) deriving (Storable, Show)
 
 foreign import ccall unsafe "dsmlib.h sdm_ensure_space"
   c_sdm_ensure_space :: SDMDatabase -> CString -> Ptr SDMSpace -> IO CInt
@@ -57,24 +65,30 @@ foreign import ccall unsafe "dsmlib.h sdm_get_space"
 {- TBC -}
 
 --
--- vector in space
---
-newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable)
--- now we need to define a vector type to receive actual vector data, n.b. the
--- vector_t in the c api is just an apaque pointer to the vector object. 
+-- symbols
+-- 
+newtype SDMSymbol = SDMSymbol (Ptr SDMSymbol) deriving (Storable, Show)
 
 foreign import ccall unsafe "dsmlib.h sdm_ensure_symbol"
-  c_sdm_ensure_symbol :: SDMSpace -> CString -> Ptr SDMVector -> IO CInt
+  c_sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> CString -> Ptr SDMSymbol -> IO CInt
 
-sdm_ensure_symbol :: SDMSpace -> String -> IO (SDMVector, Integer)
-sdm_ensure_symbol space symbolname =
+sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> String -> IO (SDMSymbol, Integer)
+sdm_ensure_symbol db space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
-    i <- c_sdm_ensure_symbol space str ptr
-    s <- peek ptr
-    return (s, toInteger i)
+       i <- c_sdm_ensure_symbol db space str ptr
+       s <- peek ptr
+       return (s, toInteger i)
+
+--
+-- vector in space
+--
+newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable, Show)
+-- now we need to define a vector type to receive actual vector data, n.b. the
+-- vector_t in the c api is just an apaque pointer to the vector object. 
 
 
 -- data SDMVectordata = SDMVectordata [a]
 
 -- sdm_get_vectordata ::  
+

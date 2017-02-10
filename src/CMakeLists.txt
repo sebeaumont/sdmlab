@@ -29,7 +29,7 @@ set(SDM_ALL_FLAGS "-Wall -O3 -march=native")
 set(SDM_CXX_FLAGS "-std=c++14")
 
 # c only
-set(SDM_C_FLAGS "-std=c11")
+set(SDM_C_FLAGS "-std=c90")
 
 
 # is future namespace wizardy allowed?

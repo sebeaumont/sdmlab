@@ -16,12 +16,14 @@ extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Database.SDM.Internal.CSDM
-  -- other-modules:       
+  exposed-modules:     Database.SDM.Internal.SDMLIB   
+  --other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10
   -- hs-source-dirs:      
   default-language:    Haskell2010
+  build-tools:         c2hs
   include-dirs:        /opt/molemind/include
   extra-lib-dirs:      /opt/molemind/lib
   extra-libraries:     sdm
+  --ghc-options:         -threaded

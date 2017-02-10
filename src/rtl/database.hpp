@@ -38,7 +38,7 @@ namespace molemind { namespace sdm {
     /// type of space implementation determines the type and number of elements and sparsity
     // XXX all of which can be portably calculated or re-templated from more abstract notions
     
-    typedef mms::symbol_space<SDM_VECTOR_ELEMENT_TYPE, SDM_VECTOR_ELEMS, SDM_VECTOR_FINGERPRINT_BITS, segment_t> space;
+    typedef mms::symbol_space<SDM_VECTOR_ELEMENT_TYPE, SDM_VECTOR_ELEMS, SDM_VECTOR_BASIS_SIZE, segment_t> space;
     
     
     /// constructor to initialize file mapped heap
