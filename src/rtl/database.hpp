@@ -172,6 +172,8 @@ namespace molemind { namespace sdm {
     /// database memoizes pointers to named spaces to optimize symbol resolution 
     space* ensure_space_by_name(const std::string&); 
     
+    // get randomizer for fun and profit...
+    inline random::index_randomizer& randomidx(void) { return irand; }
 
     
   private:    

@@ -46,16 +46,79 @@ const status_t sdm_ensure_space_symbol(const database_t db,
                                        const char* spacename,
                                        const char* symbolname,
                                        symbol_t* sym) {
-  return EUNIMPLEMENTED;
+  auto dp = static_cast<database::database*>(db);
+    // may create a space
+  auto space = dp->ensure_space_by_name(spacename);
+  if (!space) return ERUNTIME;
+  // already exists?
+  auto res = space->get_symbol_by_name(symbolname);
+
+  if (res) {
+    *sym = &(*res);
+    return AOLD; // existing
+  }
+  // else
+  try {
+    // use insert to create a new symbol with elemental "fingerprint"
+    database::space::inserted_t p = space->insert(symbolname, dp->randomidx().shuffle());
+    
+    if (p.second) {
+      // insert successful:
+      // N.B. the returned symbol reference is to an *immutable* entry in the index
+      // i.e. const database::space::symbol& s = *(p.first);
+      *sym = &(*(p.first));
+      return ANEW; // created
+      // do we need a new error for this?
+    } else return ERUNTIME; // something in the index stopped us inserting! 
+    
+  } catch (boost::interprocess::bad_alloc& e) {
+    // XXX: here is where we can try and grow the heap
+    return EMEMORY; // 'cos we ran out of memory!
+  } catch (const std::exception& e) {
+    fprintf(stderr, "RUNTIME EXCEPTION: %s\n", e.what());
+    return ERUNTIME;
+  }
 }
+
+
 
 
 const status_t sdm_ensure_symbol(const database_t db,
                                  const space_t space,
                                  const char* symbolname,
                                  symbol_t* sym) {
-  // TODO...
-  return EUNIMPLEMENTED;
+
+  auto dp = static_cast<database::database*>(db);
+  auto sp = static_cast<database::database::space*>(space);
+    
+  // already exists?
+  auto res = sp->get_symbol_by_name(symbolname);
+
+  if (res) {
+    *sym = &(*res);
+    return AOLD; // existing
+  }
+  // else
+  try {
+    // use insert to create a new symbol with elemental "fingerprint"
+    database::space::inserted_t p = sp->insert(symbolname, dp->randomidx().shuffle());
+    
+    if (p.second) {
+      // insert successful:
+      // N.B. the returned symbol reference is to an *immutable* entry in the index
+      // i.e. const database::space::symbol& s = *(p.first);
+      *sym = &(*(p.first));
+      return ANEW; // created
+      // do we need a new error for this?
+    } else return ERUNTIME; // something in the index stopped us inserting! 
+    
+  } catch (boost::interprocess::bad_alloc& e) {
+    // XXX: here is where we can try and grow the heap
+    return EMEMORY; // 'cos we ran out of memory!
+  } catch (const std::exception& e) {
+    fprintf(stderr, "RUNTIME EXCEPTION: %s\n", e.what());
+    return ERUNTIME;
+  }
 }
 
 

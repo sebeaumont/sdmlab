@@ -22,7 +22,7 @@ typedef unsigned long size_t;
 typedef void* database_t;
 typedef void* space_t;
 typedef void* vector_t;
-typedef void* symbol_t;
+typedef void const * symbol_t;
 
 // concrete types that are marshalled into caller space
 typedef void* topology_t; // TODO

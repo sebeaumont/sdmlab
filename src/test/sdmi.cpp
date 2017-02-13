@@ -23,9 +23,6 @@
 #include "../mms/ephemeral_vector.hpp"
 
 
-#include "parser.hpp"
-
-
 // wall clock timer
 
 class timer {
@@ -118,9 +115,6 @@ int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
   using namespace molemind::sdm;
-  //
-  vml::test_parse();
-  
   
   // command line options
     
@@ -195,7 +189,7 @@ int main(int argc, const char** argv) {
       if (boost::iequals(cv[0], "=")) {
 
         // 
-        database::status_t s = rts.ensure_symbol(default_spacename, cv[1]);
+        status_t s = rts.ensure_symbol(default_spacename, cv[1]);
 
         // now lookup the inserted symbol
         if (auto sym = get_symbol(rts, default_spacename, cv[1]))
