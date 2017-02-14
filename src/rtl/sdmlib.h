@@ -1,18 +1,15 @@
 #pragma once
 
-//#include <stdlib.h> c-language cant grok modern c!
-//
+/**
+ * dual purpose c/"c in c++" header for sdmlib library C API
+ * TODO make this c99/language-c friendly!
+ */
 
-#ifndef size_t
-typedef unsigned long size_t;
-#endif
+
+// to define this here... usually 64bits on most 64bit os... YMMV
 
 #include "sdmconfig.h"
 #include "sdmstatus.h"
-
-/**
- * dual purpose header for c library
- */
 
 // caveat: these pointer types are opaque to the capi so as not to
 // provide a dependency on complex c++ classes in the implmentation:

@@ -81,8 +81,10 @@ const status_t sdm_ensure_space_symbol(const database_t db,
 }
 
 
-
-
+//
+// ensure a symbol exists in space - may therefore entail creation and
+// insertion of a new symbol
+// 
 const status_t sdm_ensure_symbol(const database_t db,
                                  const space_t space,
                                  const char* symbolname,
@@ -91,9 +93,9 @@ const status_t sdm_ensure_symbol(const database_t db,
   auto dp = static_cast<database::database*>(db);
   auto sp = static_cast<database::database::space*>(space);
     
-  // already exists?
-  auto res = sp->get_symbol_by_name(symbolname);
 
+  auto res = sp->get_symbol_by_name(symbolname);
+  // see if symbolname already exists
   if (res) {
     *sym = &(*res);
     return AOLD; // existing
@@ -121,33 +123,48 @@ const status_t sdm_ensure_symbol(const database_t db,
   }
 }
 
-
-
+//
+// retreive a vector reference from space
+//
 const status_t sdm_get_vector(const space_t space,
                               const char* symbolname,
                               vector_t* vec) {
+  
   auto maybe_vector = static_cast<database::database::space*>(space)->
     get_vector_by_name(std::string(symbolname));
   if (!maybe_vector) return ESYMBOL;
-  *vec = &(*maybe_vector); // vector is boost optional
+  *vec = &(*maybe_vector); // deref boost optional
   return AOK;
 }
 
-
-const status_t sdm_get_symbol(const space_t* space,
+//
+// retrieve a symbol reference from space
+//
+const status_t sdm_get_symbol(const space_t space,
                               const char* symbolname,
                               symbol_t* sym) {
-  return EUNIMPLEMENTED;
+  // lost in space...
+  auto sp = static_cast<database::database::space*>(space);
+    
+  // already exists?
+  auto maybe_symbol = sp->get_symbol_by_name(symbolname);
+
+  if (maybe_symbol) {
+    *sym = &(*maybe_symbol);
+    return AOLD; 
+  } else {
+    return ESYMBOL;
+  }
 }
 
-
+// TODO
 const status_t sdm_get_symbols(const space_t space,
                                const char* prefix,
                                const char** names) {
   return EUNIMPLEMENTED;
 }
 
-
+// TODO xxx next xxx
 const status_t sdm_get_basis(const symbol_t symbol,
                              basis_t* basis) {
   return EUNIMPLEMENTED;
@@ -157,7 +174,7 @@ const status_t sdm_get_topology(const space_t s, const vectordata_t, topology_t*
   return EUNIMPLEMENTED;
 }
   
-
+// xxx UC xxx
 const status_t sdm_load_vector(const vector_t v,
                                vectordata_t* vdata) {
   auto vector = static_cast<database::database::space::vector*>(v);
