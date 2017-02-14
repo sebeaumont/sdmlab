@@ -166,10 +166,11 @@ const status_t sdm_get_symbols(const space_t space,
 
 // TODO xxx next xxx
 const status_t sdm_get_basis(const symbol_t symbol,
-                             basis_t const ** basis) {
+                             basis_t* basis) {
   // get underlying array data from symbol
   auto sp = static_cast<const database::space::symbol*>(symbol);
-  *basis = sp->basis().data();
+  // todo this data is c++ side it wont get
+  std::copy(sp->basis().begin(), sp->basis().end(), basis);
   return AOK;
 }
 

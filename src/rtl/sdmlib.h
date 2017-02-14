@@ -88,7 +88,7 @@ extern "C" {
    */
 
   const status_t sdm_get_basis(const symbol_t symbol,
-                               basis_t const ** basis);
+                               basis_t* basis);
   
   // neighbourhoods/clusters etc.
   const status_t sdm_get_topology(const space_t s,
