@@ -166,8 +166,11 @@ const status_t sdm_get_symbols(const space_t space,
 
 // TODO xxx next xxx
 const status_t sdm_get_basis(const symbol_t symbol,
-                             basis_t* basis) {
-  return EUNIMPLEMENTED;
+                             basis_t const ** basis) {
+  // get underlying array data from symbol
+  auto sp = static_cast<const database::space::symbol*>(symbol);
+  *basis = sp->basis().data();
+  return AOK;
 }
 
 const status_t sdm_get_topology(const space_t s, const vectordata_t, topology_t* topo) {

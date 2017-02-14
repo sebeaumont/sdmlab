@@ -24,7 +24,7 @@ typedef void const * symbol_t;
 // concrete types that are marshalled into caller space
 typedef void* topology_t; // TODO
 typedef SDM_VECTOR_ELEMENT_TYPE vectordata_t;
-typedef size_t basis_t[SDM_VECTOR_BASIS_SIZE];
+typedef size_t basis_t; //XXX rename 
 
 
 #ifdef __cplusplus
@@ -88,7 +88,7 @@ extern "C" {
    */
 
   const status_t sdm_get_basis(const symbol_t symbol,
-                               basis_t* basis);
+                               basis_t const ** basis);
   
   // neighbourhoods/clusters etc.
   const status_t sdm_get_topology(const space_t s,

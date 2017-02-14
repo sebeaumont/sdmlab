@@ -98,6 +98,7 @@ sdm_get_symbol space symbolname =
        s <- peek ptr
        return (s, toInteger i)
 
+
 --
 -- vector in space
 --
@@ -121,15 +122,35 @@ sdm_get_vector space symbolname =
 -- we allocate Haskell managed memory for vectordata
 --
 
-type SDMVecElem = {#type vectordata_t #}
+type SDMDataWord = {#type vectordata_t #}
 
 foreign import ccall unsafe "dsmlib.h sdm_load_vector"
-  c_sdm_load_vector :: SDMVector -> Ptr SDMVecElem -> IO SDMStatus
+  c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
 
-sdm_load_vector :: SDMVector -> IO ([SDMVecElem], Integer)
+sdm_load_vector :: SDMVector -> IO ([SDMDataWord], Integer)
 sdm_load_vector v = do
-  aptr <- mallocForeignPtrArray0 {#const SDM_VECTOR_ELEMS#} :: IO (ForeignPtr SDMVecElem)
+  aptr <- mallocForeignPtrArray0 {#const SDM_VECTOR_ELEMS#} :: IO (ForeignPtr SDMDataWord)
   withForeignPtr aptr $ \ptr -> do
     i <- c_sdm_load_vector v ptr
     a <- peekArray {#const SDM_VECTOR_ELEMS#} ptr
     return (a, toInteger i)
+
+
+
+-- todo: store_vector
+
+-- retrieve basic type for sparse index
+
+type SDMVectorIdx = {#type basis_t #}
+
+foreign import ccall unsafe "dsmlib.h sdm_get_basis"
+  c_sdm_get_basis :: SDMSymbol -> Ptr SDMVectorIdx -> IO SDMStatus
+
+sdm_symbol_get_basis :: SDMSymbol -> IO ([SDMVectorIdx], Integer)
+sdm_symbol_get_basis sym = do
+  aptr <- mallocForeignPtrArray {#const SDM_VECTOR_BASIS_SIZE#} :: IO (ForeignPtr SDMVectorIdx)
+  withForeignPtr aptr $ \ptr -> do
+    i <- c_sdm_get_basis sym ptr
+    a <- peekArray {#const SDM_VECTOR_BASIS_SIZE#} ptr
+    return (a, toInteger i)
+    

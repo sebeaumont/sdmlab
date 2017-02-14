@@ -27,10 +27,19 @@ namespace molemind { namespace sdm { namespace mms {
   public:
   
     // constructor with fingerprint
-    symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
-  
+    symbol(const char* s,
+           const std::vector<size_t>& fp,
+           const void_allocator_t& void_alloc)
+      : _state(NEW),
+        _name(s, void_alloc),
+        _basis(fp, ElementalBits, void_alloc) {}
+    
     // constructor without fingerprint
-    symbol(const char* s, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
+    symbol(const char* s,
+           const void_allocator_t& void_alloc)
+      : _state(NEW),
+        _name(s, void_alloc),
+        _basis(ElementalBits, void_alloc) {}
   
   
     inline const std::string name(void) const {
