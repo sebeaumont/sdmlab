@@ -1,7 +1,8 @@
-#pragma once
+#ifndef __SDMSTATUS_H__
+#define __SDMSTATUS_H__
 
-typedef enum {
-  
+enum sdm_status {
+
   // sucess sometimes with info 
 
   AOK = 0,
@@ -16,7 +17,11 @@ typedef enum {
   ERUNTIME = -16, 
   EUNIMPLEMENTED = -32
 
-} status_t;  
+};  
+
+typedef enum sdm_status status_t;
 
 // check what c-language will accept here is bool ansi c?
 inline int sdm_error(status_t s) { return (s<0); }
+
+#endif

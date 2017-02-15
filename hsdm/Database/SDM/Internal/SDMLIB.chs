@@ -7,12 +7,17 @@
 
 module Database.SDM.Internal.SDMLIB where
 
+import System.IO.Unsafe (unsafeDupablePerformIO)
 import Foreign
 import Foreign.Ptr
 import Foreign.ForeignPtr
 import Foreign.C
 import Foreign.C.Types
 import Foreign.C.String
+
+
+-- not sure this is worth the hassle
+-- {#enum AOK as SDMCode {underscoreToCase} deriving (Ord, Eq, Show) #}
 
 --
 -- All functions in the sdm c api return a status_t and an opaque reference via
@@ -37,13 +42,13 @@ foreign import ccall unsafe "dsmlib.h sdm_close_database"
 
 -- SDMDatabase factory requires a filename and some size bounds
 --
-sdm_open_db :: String -> Int -> Int -> IO (SDMDatabase, Integer)
+sdm_open_db :: String -> Int -> Int -> IO (SDMDatabase, SDMStatus)
 sdm_open_db file size maxsize =
   withCString file $ \str -> 
                        alloca $ \dbptr -> do
     i <- c_sdm_open_db str (fromIntegral size) (fromIntegral maxsize) dbptr
     d <- peek dbptr
-    return (d, toInteger i)
+    return (d,  i)
     
 -- this could be managed by finalser
 sdm_close_db :: SDMDatabase -> IO ()
@@ -57,13 +62,13 @@ newtype SDMSpace = SDMSpace (Ptr SDMSpace) deriving (Storable, Show)
 foreign import ccall unsafe "dsmlib.h sdm_ensure_space"
   c_sdm_ensure_space :: SDMDatabase -> CString -> Ptr SDMSpace -> IO SDMStatus
 
-sdm_ensure_space :: SDMDatabase -> String -> IO (SDMSpace, Integer)
+sdm_ensure_space :: SDMDatabase -> String -> IO (SDMSpace, SDMStatus)
 sdm_ensure_space db spacename =
   withCString spacename $ \str -> 
                             alloca $ \ptr -> do
     i <- c_sdm_ensure_space db str ptr
     s <- peek ptr
-    return (s, toInteger i)
+    return (s,  i)
 
 foreign import ccall unsafe "dsmlib.h sdm_get_space"
   c_sdm_get_space :: SDMDatabase -> CString -> Ptr SDMSpace -> IO SDMStatus
@@ -78,25 +83,25 @@ newtype SDMSymbol = SDMSymbol (Ptr SDMSymbol) deriving (Storable, Show)
 foreign import ccall unsafe "dsmlib.h sdm_ensure_symbol"
   c_sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> CString -> Ptr SDMSymbol -> IO SDMStatus
 
-sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> String -> IO (SDMSymbol, Integer)
+sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
 sdm_ensure_symbol db space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_ensure_symbol db space str ptr
        s <- peek ptr
-       return (s, toInteger i)
+       return (s, i)
 
 
 foreign import ccall unsafe "dsmlib.h sdm_get_symbol"
   c_sdm_get_symbol :: SDMSpace -> CString -> Ptr SDMSymbol -> IO SDMStatus
 
-sdm_get_symbol :: SDMSpace -> String -> IO (SDMSymbol, Integer)
+sdm_get_symbol :: SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
 sdm_get_symbol space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_get_symbol space str ptr
        s <- peek ptr
-       return (s, toInteger i)
+       return (s, i)
 
 
 --
@@ -110,13 +115,13 @@ newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable, Show)
 foreign import ccall unsafe "dsmlib.h sdm_get_vector"
   c_sdm_get_vector :: SDMSpace -> CString -> Ptr SDMVector -> IO SDMStatus
 
-sdm_get_vector :: SDMSpace -> String -> IO (SDMVector, Integer)
+sdm_get_vector :: SDMSpace -> String -> IO (SDMVector, SDMStatus)
 sdm_get_vector space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_get_vector space str ptr
        s <- peek ptr
-       return (s, toInteger i)
+       return (s, i)
 
 --
 -- we allocate Haskell managed memory for vectordata
@@ -127,30 +132,32 @@ type SDMDataWord = {#type vectordata_t #}
 foreign import ccall unsafe "dsmlib.h sdm_load_vector"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
 
-sdm_load_vector :: SDMVector -> IO ([SDMDataWord], Integer)
+sdm_load_vector :: SDMVector -> IO ([SDMDataWord], SDMStatus)
 sdm_load_vector v = do
-  aptr <- mallocForeignPtrArray0 {#const SDM_VECTOR_ELEMS#} :: IO (ForeignPtr SDMDataWord)
+  aptr <- mallocForeignPtrArray {#const SDM_VECTOR_ELEMS#} :: IO (ForeignPtr SDMDataWord)
   withForeignPtr aptr $ \ptr -> do
     i <- c_sdm_load_vector v ptr
     a <- peekArray {#const SDM_VECTOR_ELEMS#} ptr
-    return (a, toInteger i)
-
-
+    return (a, i)
 
 -- todo: store_vector
 
--- retrieve basic type for sparse index
 
+-- retrieve basic type for sparse index
 type SDMVectorIdx = {#type basis_t #}
 
 foreign import ccall unsafe "dsmlib.h sdm_get_basis"
   c_sdm_get_basis :: SDMSymbol -> Ptr SDMVectorIdx -> IO SDMStatus
 
-sdm_symbol_get_basis :: SDMSymbol -> IO ([SDMVectorIdx], Integer)
-sdm_symbol_get_basis sym = do
+-- this is pure for a given symbol
+sdm_symbol_get_basis :: SDMSymbol -> [SDMVectorIdx]
+sdm_symbol_get_basis sym =
+  unsafeDupablePerformIO $ do
   aptr <- mallocForeignPtrArray {#const SDM_VECTOR_BASIS_SIZE#} :: IO (ForeignPtr SDMVectorIdx)
   withForeignPtr aptr $ \ptr -> do
-    i <- c_sdm_get_basis sym ptr
-    a <- peekArray {#const SDM_VECTOR_BASIS_SIZE#} ptr
-    return (a, toInteger i)
+     i <- c_sdm_get_basis sym ptr
+     a <- peekArray {#const SDM_VECTOR_BASIS_SIZE#} ptr
+     return a
     
+-- might try Data.Vector.Storable.unsafeFromForeignPtr0 aptr {#const SDM_VECTOR_BASIS_SIZE#} :: (ForeignPtr SDMVectorIdx)
+

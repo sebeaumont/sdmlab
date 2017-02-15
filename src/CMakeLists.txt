@@ -7,8 +7,8 @@ enable_testing()
 
 # project version
 
-set (SDM_VERSION_MAJOR 7)
-set (SDM_VERSION_MINOR 2)
+set (SDM_VERSION_MAJOR 8)
+set (SDM_VERSION_MINOR 0)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
 # install paths
@@ -28,7 +28,7 @@ set(SDM_ALL_FLAGS "-Wall -O3 -march=native")
 # c++ only
 set(SDM_CXX_FLAGS "-std=c++14")
 
-# c only
+# for max compatability c lib
 set(SDM_C_FLAGS "-std=c90")
 
 
