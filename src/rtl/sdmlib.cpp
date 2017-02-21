@@ -4,7 +4,7 @@
 
 using namespace molemind::sdm;
 
-const status_t sdm_open_database(const char* filename, size_t size, size_t maxsize, database_t* db) {
+const status_t sdm_database(const char* filename, size_t size, size_t maxsize, database_t* db) {
   try {
     *db = new database::database(size, maxsize, std::string(filename));
     return AOK;
@@ -14,12 +14,12 @@ const status_t sdm_open_database(const char* filename, size_t size, size_t maxsi
   }
 }
 
-const status_t sdm_close_database(const database_t db) {
+const status_t sdm_database_close(const database_t db) {
   delete static_cast<database::database*>(db);
   return AOK;
 }
 
-const status_t sdm_get_space(const database_t db, const char* spacename, space_t* space) {
+const status_t sdm_database_get_space(const database_t db, const char* spacename, space_t* space) {
   database::space* sp = static_cast<database::database*>(db)->
     get_space_by_name(std::string(spacename));
   if (sp == nullptr) return ESPACE;
@@ -27,7 +27,7 @@ const status_t sdm_get_space(const database_t db, const char* spacename, space_t
   return AOK;
 }
 
-const status_t sdm_ensure_space(const database_t db, const char* spacename, space_t* space) {
+const status_t sdm_database_ensure_space(const database_t db, const char* spacename, space_t* space) {
   try {
     database::space* sp = static_cast<database::database*>(db)->
       ensure_space_by_name(std::string(spacename));
@@ -42,10 +42,10 @@ const status_t sdm_ensure_space(const database_t db, const char* spacename, spac
 }
 
 
-const status_t sdm_ensure_space_symbol(const database_t db,
-                                       const char* spacename,
-                                       const char* symbolname,
-                                       symbol_t* sym) {
+const status_t sdm_database_ensure_space_symbol(const database_t db,
+                                                const char* spacename,
+                                                const char* symbolname,
+                                                symbol_t* sym) {
   auto dp = static_cast<database::database*>(db);
     // may create a space
   auto space = dp->ensure_space_by_name(spacename);
@@ -85,10 +85,10 @@ const status_t sdm_ensure_space_symbol(const database_t db,
 // ensure a symbol exists in space - may therefore entail creation and
 // insertion of a new symbol
 // 
-const status_t sdm_ensure_symbol(const database_t db,
-                                 const space_t space,
-                                 const char* symbolname,
-                                 symbol_t* sym) {
+const status_t sdm_database_ensure_symbol(const database_t db,
+                                          const space_t space,
+                                          const char* symbolname,
+                                          symbol_t* sym) {
 
   auto dp = static_cast<database::database*>(db);
   auto sp = static_cast<database::database::space*>(space);
@@ -126,9 +126,9 @@ const status_t sdm_ensure_symbol(const database_t db,
 //
 // retreive a vector reference from space
 //
-const status_t sdm_get_vector(const space_t space,
-                              const char* symbolname,
-                              vector_t* vec) {
+const status_t sdm_space_get_vector(const space_t space,
+                                    const char* symbolname,
+                                    vector_t* vec) {
   
   auto maybe_vector = static_cast<database::database::space*>(space)->
     get_vector_by_name(std::string(symbolname));
@@ -140,9 +140,9 @@ const status_t sdm_get_vector(const space_t space,
 //
 // retrieve a symbol reference from space
 //
-const status_t sdm_get_symbol(const space_t space,
-                              const char* symbolname,
-                              symbol_t* sym) {
+const status_t sdm_space_get_symbol(const space_t space,
+                                    const char* symbolname,
+                                    symbol_t* sym) {
   // lost in space...
   auto sp = static_cast<database::database::space*>(space);
     
@@ -158,28 +158,47 @@ const status_t sdm_get_symbol(const space_t space,
 }
 
 // TODO
-const status_t sdm_get_symbols(const space_t space,
-                               const char* prefix,
-                               const char** names) {
+const status_t sdm_space_get_symbols(const space_t space,
+                                     const char* prefix,
+                                     const char** names) {
   return EUNIMPLEMENTED;
 }
 
-// TODO xxx next xxx
-const status_t sdm_get_basis(const symbol_t symbol,
-                             basis_t* basis) {
+const card_t sdm_space_get_topology(const space_t s,
+                                    const vectordata_t* v,
+                                    const double metric_lb,
+                                    const double density_ub,
+                                    const unsigned card_ub,
+                                    point_t* t) {
+  // 
+  auto sp = static_cast<database::space*>(s);
+  // init query vector
+  database::space::ephemeral_vector_t vec(v);
+  card_t k = 0;
+
+  auto topo = sp->neighbourhood(vec, metric_lb, density_ub, card_ub);
+  // TODO speedup by passing t directly to neighbourhood fn
+  
+  for (auto i = topo.begin(); i != topo.end(); ++i, ++t) {
+    ++k;
+    t->symbol = i->name.c_str(); // ?maybe return actual symbol_t symbol? 
+    t->metric = i->similarity;
+    t->density = i->density;
+  }
+  return k; 
+}
+
+
+const status_t sdm_symbol_get_basis(const symbol_t symbol,
+                                    basis_t* basis) {
   // get underlying array data from symbol
   auto sp = static_cast<const database::space::symbol*>(symbol);
-  // todo this data is c++ side it wont get
   std::copy(sp->basis().begin(), sp->basis().end(), basis);
   return AOK;
 }
 
-const status_t sdm_get_topology(const space_t s, const vectordata_t, topology_t* topo) {
-  return EUNIMPLEMENTED;
-}
-  
-// xxx UC xxx
-const status_t sdm_load_vector(const vector_t v,
+
+const status_t sdm_vector_load(const vector_t v,
                                vectordata_t* vdata) {
   auto vector = static_cast<database::database::space::vector*>(v);
   vector->copy_me(vdata);
@@ -187,7 +206,9 @@ const status_t sdm_load_vector(const vector_t v,
 }
 
 
-const status_t sdm_store_vector(const vector_t v, vectordata_t vdata) {
+// TODO
+const status_t sdm_vector_store(const vector_t v,
+                                vectordata_t vdata) {
   return EUNIMPLEMENTED;
 }
 

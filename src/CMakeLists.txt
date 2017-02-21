@@ -28,7 +28,7 @@ set(SDM_ALL_FLAGS "-Wall -O3 -march=native")
 # c++ only
 set(SDM_CXX_FLAGS "-std=c++14")
 
-# for max compatability c lib
+# for max bcompatability c lib
 set(SDM_C_FLAGS "-std=c90")
 
 

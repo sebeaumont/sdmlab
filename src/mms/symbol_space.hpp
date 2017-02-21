@@ -311,7 +311,7 @@ namespace molemind { namespace sdm {
           }
         }
         
-        
+          
         // set bits from basic vector
         inline void setbits(const fingerprint_t& v) {
           for (std::size_t r: v) {
@@ -562,6 +562,7 @@ namespace molemind { namespace sdm {
           double sim = work[i*2+1];
           // apply p-d-filter
           if (rho <= d && sim >= p) {
+            // XXX... avoid string copy here return symbol ref?
             topo.push_back(point((*this)[i].name(), sim, rho));
           }
         }

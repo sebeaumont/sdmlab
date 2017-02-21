@@ -25,9 +25,19 @@ namespace molemind {
         
         ephemeral_vector() {
         }
+
+        ephemeral_vector(const T* v) {
+          // XXX input not bounds checked
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < L; ++i, ++v) {
+            _elem[i] = *v;
+          }
+        }
+  
         
         ephemeral_vector(const I& v) {
-          for (std::size_t i = 0; i < L; i++) {
+          for (std::size_t i = 0; i < L; ++i) {
             _elem[i] = v[i];
           }
         }

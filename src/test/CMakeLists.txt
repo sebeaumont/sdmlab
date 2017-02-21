@@ -27,3 +27,7 @@ add_test(NAME rtl_load_space COMMAND rtl_load_space --log_level=all)
 
 add_executable (sdmi sdmi.cpp)
 target_link_libraries(sdmi ${Boost_LIBRARIES} sdm)
+
+add_executable (frametrain frametrain.cpp)
+target_link_libraries(frametrain ${Boost_LIBRARIES} sdm)
+

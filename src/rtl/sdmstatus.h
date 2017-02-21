@@ -2,7 +2,8 @@
 #define __SDMSTATUS_H__
 
 enum sdm_status {
-
+  // 
+  SZERO = 0,
   // sucess sometimes with info 
 
   AOK = 0,
