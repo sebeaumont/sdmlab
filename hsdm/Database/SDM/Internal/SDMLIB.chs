@@ -133,12 +133,16 @@ sdm_get_vector space symbolname =
 -- vectorpayload
 --
 
+
 type SDMDataWord = {#type vectordata_t #}
+
+-- we just wrap the native type array
+newtype  SDMBitVector =  SDMBitVector { toList :: [SDMDataWord] }
 
 foreign import ccall unsafe "sdm_vector_load"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
 
-sdm_load_vector :: SDMVector -> IO ([SDMDataWord], SDMStatus)
+sdm_load_vector :: SDMVector -> IO (SDMBitVector, SDMStatus)
 sdm_load_vector v = do
   -- here allocate Haskell managed memory (ForeignPtr) with default
   -- finalisers (free) for vector data to be written
@@ -146,9 +150,7 @@ sdm_load_vector v = do
   withForeignPtr aptr $ \ptr -> do
     i <- c_sdm_load_vector v ptr
     a <- peekArray {#const SDM_VECTOR_ELEMS#} ptr
-    return (a, i)
-
--- todo: store_vector...
+    return (SDMBitVector a, i)
 
 
 
@@ -169,13 +171,13 @@ sdm_symbol_get_basis sym =
      return a
 
 
-
 -- Defintion of a point marshalled from C point_t
 
 data SDMPoint = SDMPoint { symbol :: String,
-                           metric :: CDouble,
-                           density :: CDouble
+                           metric :: Double,
+                           density :: Double
                          } deriving (Show)
+
 
 instance Storable SDMPoint where
   sizeOf _ = {#sizeof point_t#}
@@ -183,44 +185,17 @@ instance Storable SDMPoint where
   peek ptr = do
     s <- {#get point_t.symbol#} ptr >>= peekCString
     -- s <- peekCString c
-    m <- {#get point_t.metric#} ptr
-    d <- {#get point_t.density#} ptr
+    m <- {#get point_t.metric#} ptr >>= return . realToFrac
+    d <- {#get point_t.density#} ptr >>= return . realToFrac
     return $ SDMPoint s m d
   poke ptr (SDMPoint s m d) = undefined
 
 
+--
+-- the shape of things to come
+--
+
 type SDMCard = {#type card_t#}
-
-{-
-foreign import ccall unsafe "sdm_space_get_topology"
-  c_sdm_space_get_topology :: SDMSpace
-                           -> Ptr SDMVectorIdx
-                           -> CUInt
-                           -> CDouble
-                           -> CDouble
-                           -> CUInt
-                           -> Ptr SDMPoint
-                           -> IO SDMCard
-
-toInt = fromInteger . toInteger
-
-sdm_space_get_topology :: SDMSpace
-                       -> [SDMVectorIdx]
-                       -> Double
-                       -> Double
-                       -> Int
-                       -> IO ([SDMPoint], SDMCard)
-sdm_space_get_topology s v m d n = do
-  -- max card allocation (n) may be wasteful in some highly constrained cases.
-  withArrayLen v $ \l vp -> do
-    aptr <- mallocForeignPtrArray n :: IO (ForeignPtr SDMPoint)
-    withForeignPtr aptr $ \ptr -> do
-      i <- c_sdm_space_get_topology s vp (fromIntegral l) (realToFrac m) (realToFrac d) (fromIntegral n) ptr
-      a <- peekArray (toInt i) ptr
-      return (a, i)
-
--}
-
 
 foreign import ccall unsafe "sdm_space_get_topology"
   c_sdm_space_get_topology :: SDMSpace
@@ -237,11 +212,11 @@ sdm_space_get_topology :: SDMSpace
                        -> Double
                        -> Double
                        -> Int
-                       -> [SDMDataWord]
+                       -> SDMBitVector
                        -> IO ([SDMPoint], SDMCard)
 sdm_space_get_topology s m d n v = do
   -- max card allocation (n) may be wasteful in some highly constrained cases.
-  withArray v $ \vp -> do
+  withArray (toList v) $ \vp -> do
     aptr <- mallocForeignPtrArray n :: IO (ForeignPtr SDMPoint)
     withForeignPtr aptr $ \ptr -> do
       i <- c_sdm_space_get_topology s vp (realToFrac m) (realToFrac d) (fromIntegral n) ptr
