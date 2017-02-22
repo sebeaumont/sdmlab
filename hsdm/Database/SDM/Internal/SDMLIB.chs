@@ -147,8 +147,8 @@ sdm_space_get_vector space symbolname =
 
 type SDMDataWord = {#type vectordata_t #}
 
--- we just wrap the native type array
-newtype  SDMBitVector =  SDMBitVector { toList :: [SDMDataWord] }
+-- we just wrap the native type array so we can reuse
+newtype  SDMBitVector =  SDMBitVector { toArray :: [SDMDataWord] }
 
 foreign import ccall unsafe "sdm_vector_load"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
@@ -218,15 +218,17 @@ foreign import ccall unsafe "sdm_space_get_topology"
 
 toInt = fromInteger . toInteger
 
+
+-- | get list of nearest points from a space based on:
 sdm_space_get_topology :: SDMSpace
-                       -> Double
-                       -> Double
-                       -> Int
-                       -> SDMBitVector
+                       -> Double -- ^ lower bound of similarity
+                       -> Double -- ^ upper bound of density
+                       -> Int    -- ^ upper bound of cardinality of computed point set
+                       -> SDMBitVector -- ^ search vector
                        -> IO ([SDMPoint], SDMCard)
 sdm_space_get_topology s m d n v = do
   -- max card allocation (n) may be wasteful in some highly constrained cases.
-  withArray (toList v) $ \vp -> do
+  withArray (toArray v) $ \vp -> do
     aptr <- mallocForeignPtrArray n :: IO (ForeignPtr SDMPoint)
     withForeignPtr aptr $ \ptr -> do
       i <- c_sdm_space_get_topology s vp (realToFrac m) (realToFrac d) (fromIntegral n) ptr
