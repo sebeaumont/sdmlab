@@ -14,17 +14,28 @@ import Foreign.ForeignPtr
 import Foreign.C
 import Foreign.C.Types
 import Foreign.C.String
+import Data.ByteString
+import Data.Text
+import Data.Text.Encoding
 
--- import Data.Vector.Storable.Mutable (unsafeFromForeignPtr0)
 
+-- CString utf-8 Text utils 
 
--- not sure this is worth the hassle
--- {#enum AOK as SDMCode {underscoreToCase} deriving (Ord, Eq, Show) #}
+decode :: CString -> IO Text
+decode cstr = do
+  bytestr <- packCString cstr
+  return (decodeUtf8 bytestr)
 
+encode :: Text -> (CString -> IO a) -> IO a
+encode text cont =
+  useAsCString (encodeUtf8 text) cont
+  
+
+-- 
+-- Generally functions in the sdm c api return a status_t and return objects
+-- via opaque typed pointers.
 --
--- All functions in the sdm c api return a status_t and an opaque reference via
--- an output argument pointer.
---
+
 type SDMStatus = {#type status_t #}
 
 is_error :: SDMStatus -> Bool
@@ -44,8 +55,8 @@ foreign import ccall unsafe "sdm_database_close"
 
 -- SDMDatabase factory requires a filename and some size bounds
 --
-sdm_open_db :: String -> Int -> Int -> IO (SDMDatabase, SDMStatus)
-sdm_open_db file size maxsize =
+sdm_database :: String -> Int -> Int -> IO (SDMDatabase, SDMStatus)
+sdm_database file size maxsize =
   withCString file $ \str -> 
                        alloca $ \dbptr -> do
     i <- c_sdm_open_db str (fromIntegral size) (fromIntegral maxsize) dbptr
@@ -53,8 +64,8 @@ sdm_open_db file size maxsize =
     return (d,  i)
     
 -- this could be managed by finalser
-sdm_close_db :: SDMDatabase -> IO ()
-sdm_close_db db = c_sdm_close_db db >> return ()  
+sdm_database_close :: SDMDatabase -> IO ()
+sdm_database_close db = c_sdm_close_db db >> return ()  
 
 --
 -- space the final frontier
@@ -64,8 +75,8 @@ newtype SDMSpace = SDMSpace (Ptr SDMSpace) deriving (Storable, Show)
 foreign import ccall unsafe "sdm_database_ensure_space"
   c_sdm_ensure_space :: SDMDatabase -> CString -> Ptr SDMSpace -> IO SDMStatus
 
-sdm_ensure_space :: SDMDatabase -> String -> IO (SDMSpace, SDMStatus)
-sdm_ensure_space db spacename =
+sdm_database_ensure_space :: SDMDatabase -> String -> IO (SDMSpace, SDMStatus)
+sdm_database_ensure_space db spacename =
   withCString spacename $ \str -> 
                             alloca $ \ptr -> do
     i <- c_sdm_ensure_space db str ptr
@@ -85,8 +96,8 @@ newtype SDMSymbol = SDMSymbol (Ptr SDMSymbol) deriving (Storable, Show)
 foreign import ccall unsafe "sdm_database_ensure_symbol"
   c_sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> CString -> Ptr SDMSymbol -> IO SDMStatus
 
-sdm_ensure_symbol :: SDMDatabase -> SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
-sdm_ensure_symbol db space symbolname =
+sdm_database_ensure_symbol :: SDMDatabase -> SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
+sdm_database_ensure_symbol db space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_ensure_symbol db space str ptr
@@ -97,8 +108,8 @@ sdm_ensure_symbol db space symbolname =
 foreign import ccall unsafe "sdm_space_get_symbol"
   c_sdm_get_symbol :: SDMSpace -> CString -> Ptr SDMSymbol -> IO SDMStatus
 
-sdm_get_symbol :: SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
-sdm_get_symbol space symbolname =
+sdm_space_get_symbol :: SDMSpace -> String -> IO (SDMSymbol, SDMStatus)
+sdm_space_get_symbol space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_get_symbol space str ptr
@@ -120,8 +131,8 @@ newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable, Show)
 foreign import ccall unsafe "sdm_space_get_vector"
   c_sdm_get_vector :: SDMSpace -> CString -> Ptr SDMVector -> IO SDMStatus
 
-sdm_get_vector :: SDMSpace -> String -> IO (SDMVector, SDMStatus)
-sdm_get_vector space symbolname =
+sdm_space_get_vector :: SDMSpace -> String -> IO (SDMVector, SDMStatus)
+sdm_space_get_vector space symbolname =
   withCString symbolname $ \str ->
                              alloca $ \ptr -> do
        i <- c_sdm_get_vector space str ptr
@@ -142,8 +153,8 @@ newtype  SDMBitVector =  SDMBitVector { toList :: [SDMDataWord] }
 foreign import ccall unsafe "sdm_vector_load"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
 
-sdm_load_vector :: SDMVector -> IO (SDMBitVector, SDMStatus)
-sdm_load_vector v = do
+sdm_vector_load :: SDMVector -> IO (SDMBitVector, SDMStatus)
+sdm_vector_load v = do
   -- here allocate Haskell managed memory (ForeignPtr) with default
   -- finalisers (free) for vector data to be written
   aptr <- mallocForeignPtrArray {#const SDM_VECTOR_ELEMS#} :: IO (ForeignPtr SDMDataWord)
@@ -173,17 +184,16 @@ sdm_symbol_get_basis sym =
 
 -- Defintion of a point marshalled from C point_t
 
-data SDMPoint = SDMPoint { symbol :: String,
+data SDMPoint = SDMPoint { symbol :: Text,
                            metric :: Double,
                            density :: Double
                          } deriving (Show)
-
 
 instance Storable SDMPoint where
   sizeOf _ = {#sizeof point_t#}
   alignment _ = {#alignof point_t#}
   peek ptr = do
-    s <- {#get point_t.symbol#} ptr >>= peekCString
+    s <- {#get point_t.symbol#} ptr >>= decode
     -- s <- peekCString c
     m <- {#get point_t.metric#} ptr >>= return . realToFrac
     d <- {#get point_t.density#} ptr >>= return . realToFrac
@@ -223,3 +233,6 @@ sdm_space_get_topology s m d n v = do
       a <- peekArray (toInt i) ptr
       return (a, i)
 
+
+-- TODO prefix search
+-- sdm_space_get_symbols :: SDMSpace -> Text -> IO ([Text], SDMStatus)
