@@ -126,7 +126,10 @@ namespace molemind {
       // get source symbol
       boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
       if (!s) {
+        // TODO guard: if p.second else ...
         space::inserted_t p = source_sp->insert(sn, irand.shuffle());
+        if (!p.second) return ERUNTIME;
+        // what about p.first then? instead of this
         s = source_sp->get_symbol_by_name(sn);
         if (!s) return ERUNTIME;
         else state = ANEW;
@@ -135,18 +138,20 @@ namespace molemind {
       // get target vector
       
       //////////////////////////////////////////////////////////////////////
-      // CAVEAT: this must follow any isertions in the space
+      // CAVEAT: this must follow any insertions in the space
       // as any insert to index WILL invalidate vector or symbol pointers...
+      // in whcih case is s still safe? hmmm something fishy here
       
       boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
       if (!v) {
+        // TODO guard: if p.second else ...
         space::inserted_t p = target_sp->insert(tn, irand.shuffle());
+        if (!p.second) return ERUNTIME;
         v = target_sp->get_vector_by_name(tn);
         if (!v) return ERUNTIME;
         else state = ANEW;
       }
 
-      // superpose
       v->whitebits(s->basis());
       return state;
     }

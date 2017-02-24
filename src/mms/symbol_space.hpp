@@ -146,7 +146,7 @@ namespace molemind { namespace sdm {
         /// construct fully
         vector(const void_allocator_t& a) : vector_base_t(a) {
           this->reserve(VectorElems);
-          //#pragma unroll
+          #pragma unroll
           //#pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i = 0; i < VectorElems; ++i) this->push_back(0);
         }
@@ -438,11 +438,14 @@ namespace molemind { namespace sdm {
       }
       */
       inserted_t insert(const std::string& k, const std::vector<std::size_t>& fp) {
-        inserted_t p = index->insert(symbol(k.c_str(), fp, allocator));
+        // could use vectors.size() to have symbol memoize index vector 
+        inserted_t p = index->insert(symbol(k.c_str(), vectors->size(), fp, allocator));
         if (p.second) {
           // inserted: string iterator maps to index
           // call vector allocator
+          // XXX this is where we hook the vector array to the symbols
           vectors->push_back(vector(allocator));
+          // from its own index
           //assert (vectors->size()-1 == n2i(p.first));
         }
         return p;
@@ -471,7 +474,7 @@ namespace molemind { namespace sdm {
         else return *i;
       }
 
-      /// xxx under construction: expose vectors directly
+      /// !!! experimental expose vectors directly !!!
       
       inline boost::optional<vector&> get_vector_by_name(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
@@ -498,6 +501,11 @@ namespace molemind { namespace sdm {
         return ((index->template project<2>(nit)) - (index->template get<2>().begin()));
       }
 
+      /// !!! experimental !!!
+      inline vector& get_symbol_vector(const symbol& s) {
+        return (*vectors)[s._id];
+      }
+      
       /*********************************************************************************/
       // basic query engine
       

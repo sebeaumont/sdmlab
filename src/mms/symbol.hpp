@@ -17,8 +17,8 @@ namespace molemind { namespace sdm { namespace mms {
     typedef Allocator void_allocator_t;
   
     // see if this is useful... updating the node could be expensive.
-    enum state_t { NEW, USED, OLD, FREE };
-    state_t _state;
+    //enum state_t { NEW, USED, OLD, FREE };
+    std::size_t _id;
     shared_string_t _name;
   
   private:
@@ -28,9 +28,10 @@ namespace molemind { namespace sdm { namespace mms {
   
     // constructor with fingerprint
     symbol(const char* s,
+           const std::size_t i,
            const std::vector<size_t>& fp,
            const void_allocator_t& void_alloc)
-      : _state(NEW),
+      : _id(i),
         _name(s, void_alloc),
         _basis(fp, ElementalBits, void_alloc) {}
     
