@@ -82,7 +82,7 @@ namespace molemind { namespace sdm {
     
     /// add or superpose
     status_t superpose(const std::string& ts, const std::string& tn,
-                       const std::string& ss, const std::string& sn) noexcept;
+                       const std::string& ss, const std::string& sn);
   
     /// subtract
     status_t subtract(const std::string& ts, const std::string& tn,

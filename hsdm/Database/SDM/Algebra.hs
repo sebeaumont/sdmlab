@@ -2,24 +2,24 @@
 This is the module documentation for the Algebra
 -}
 
-module Database.SDM.Algebra where
+module Database.SDM.Algebra where 
 
 import Database.SDM.Internal.SDMLIB (SDMBitVector(SDMBitVector, toArray))
 import qualified Data.Bits as B
 
---type Vec = SDMBitVector
+type SVec = SDMBitVector
 
 -- appl Data.Bits operations over Vector
 
-xorv :: SDMBitVector -> SDMBitVector -> SDMBitVector
+xorv :: SVec -> SVec -> SVec
 xorv a b = SDMBitVector $ zipWith B.xor (toArray a) (toArray b)
 
-andv :: SDMBitVector -> SDMBitVector -> SDMBitVector
+andv :: SVec -> SVec -> SVec
 andv a b = SDMBitVector $ zipWith (B..&.) (toArray a) (toArray b)
 
-orv :: SDMBitVector -> SDMBitVector -> SDMBitVector
+orv :: SVec -> SVec -> SVec
 orv a b = SDMBitVector $ zipWith (B..|.) (toArray a) (toArray b)
 
-popv :: SDMBitVector -> Int
+popv :: SVec -> Int
 popv a = sum [B.popCount i | i <- toArray a] 
 

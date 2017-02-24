@@ -35,12 +35,13 @@ namespace molemind { namespace sdm { namespace mms {
         _basis(fp, ElementalBits, void_alloc) {}
     
     // constructor without fingerprint
+    /*
     symbol(const char* s,
            const void_allocator_t& void_alloc)
       : _state(NEW),
         _name(s, void_alloc),
         _basis(ElementalBits, void_alloc) {}
-  
+    */
   
     inline const std::string name(void) const {
       return std::string(_name.begin(), _name.end());

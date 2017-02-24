@@ -146,8 +146,8 @@ namespace molemind { namespace sdm {
         /// construct fully
         vector(const void_allocator_t& a) : vector_base_t(a) {
           this->reserve(VectorElems);
-          #pragma unroll
-          #pragma clang loop vectorize(enable) interleave(enable)
+          //#pragma unroll
+          //#pragma clang loop vectorize(enable) interleave(enable)
           for (std::size_t i = 0; i < VectorElems; ++i) this->push_back(0);
         }
         
@@ -292,15 +292,15 @@ namespace molemind { namespace sdm {
         }
         
         
-        // set bits from basic vector
+        // set bits from elemental vector
         inline void whitebits(const fingerprint_t& v) {
-          size_t h = v.size() / 2;
+          std::size_t h = v.size() / 2;
           // clear
           for (auto it = v.begin(); it < v.begin() + h; ++it) {
             std::size_t r = *it;
             std::size_t i = r / (sizeof(VectorElementType) * CHAR_BITS);
             std::size_t b = r % (sizeof(VectorElementType) * CHAR_BITS);
-            (*this)[i] &= ~(ONE << b);
+            (*this)[i] &= ~(ONE << b); //XXX
           }
           // set
           for (auto it = v.begin() + h; it < v.end(); ++it) {
@@ -425,7 +425,7 @@ namespace molemind { namespace sdm {
       typedef std::pair<typename symbol_table_t::iterator, bool> inserted_t;
       
       /// insert
-
+      /*
       inserted_t insert(const std::string& k) {
         inserted_t p = index->insert(symbol(k.c_str(), allocator));
         if (p.second) {
@@ -436,7 +436,7 @@ namespace molemind { namespace sdm {
         }
         return p;
       }
-
+      */
       inserted_t insert(const std::string& k, const std::vector<std::size_t>& fp) {
         inserted_t p = index->insert(symbol(k.c_str(), fp, allocator));
         if (p.second) {

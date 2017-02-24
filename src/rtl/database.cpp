@@ -108,8 +108,10 @@ namespace molemind {
     /// may side effect creation of spaces and symbols as a convenience
     /// for realtime training
     
-    status_t database::superpose(const std::string& ts, const std::string& tn,
-                                 const std::string& ss, const std::string& sn) noexcept {
+    status_t database::superpose(const std::string& ts,
+                                 const std::string& tn,
+                                 const std::string& ss,
+                                 const std::string& sn)  {
       
       // assume all symbols are present
       status_t state = AOLD;
@@ -120,35 +122,43 @@ namespace molemind {
       auto source_sp = ensure_space_by_name(ss);
       if (!source_sp) return ERUNTIME;
       
-      // get target vector
-      boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
-      if (!v) {
-        target_sp->insert(tn, irand.shuffle());
-        v = target_sp->get_vector_by_name(tn);
-        if (!v) return ERUNTIME;
-        else state = ANEW;
-      }
-      
+
       // get source symbol
       boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
       if (!s) {
-        source_sp->insert(sn, irand.shuffle());
+        space::inserted_t p = source_sp->insert(sn, irand.shuffle());
         s = source_sp->get_symbol_by_name(sn);
         if (!s) return ERUNTIME;
         else state = ANEW;
       }
       
-      // not quite what it seems
+      // get target vector
+      
+      //////////////////////////////////////////////////////////////////////
+      // CAVEAT: this must follow any isertions in the space
+      // as any insert to index WILL invalidate vector or symbol pointers...
+      
+      boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
+      if (!v) {
+        space::inserted_t p = target_sp->insert(tn, irand.shuffle());
+        v = target_sp->get_vector_by_name(tn);
+        if (!v) return ERUNTIME;
+        else state = ANEW;
+      }
+
+      // superpose
       v->whitebits(s->basis());
       return state;
     }
     
-        
+
     
-    // measurement
+    /// measurement
     
-    boost::optional<double> database::similarity(const std::string& snv, const std::string& vn,
-                                                 const std::string& snu, const std::string& un) noexcept {
+    boost::optional<double> database::similarity(const std::string& snv,
+                                                 const std::string& vn,
+                                                 const std::string& snu,
+                                                 const std::string& un) noexcept {
       // TODO
       return 0.0;
     }
