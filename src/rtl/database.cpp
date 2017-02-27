@@ -34,7 +34,7 @@ namespace molemind {
       if (check_heap_sanity()) heap.flush();
     }
     
-    
+
     
     ////////////////////
     /// named vectors // 
@@ -70,14 +70,14 @@ namespace molemind {
     ///
     /// N.B. can cause memory outage and may side-effect
     /// the creation of a space and a symbol+vector within it
-    
-    database::status_t database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
+
+    status_t database::ensure_symbol(const std::string& sn, const std::string& vn) noexcept {
       // may create a space
       auto space = ensure_space_by_name(sn);
-      if (!space) return ERROR;
+      if (!space) return ERUNTIME;
       
       auto sym = space->get_symbol_by_name(vn);
-      if (sym) return OLD; // found
+      if (sym) return AOLD; // found
   
       else try {
         // use insert to create a new symbol with elemental "fingerprint"
@@ -87,15 +87,17 @@ namespace molemind {
           // insert successful:
           // N.B. the returned symbol reference is to an *immutable* entry in the index
           // i.e. const database::space::symbol& s = *(p.first);
-          return NEW; // created
+          return ANEW; // created
           
-        } else return OPFAIL; // something in the index stopped us inserting!
+        } else return ERUNTIME; // something in the index stopped us inserting!
         
       } catch (boost::interprocess::bad_alloc& e) {
         // XXX: here is where we can try and grow the heap
-        return MEMOUT; // 'cos we ran out of memory!
+        return EMEMORY; // 'cos we ran out of memory!
       }
     }
+
+    
     
     
     // operations
@@ -106,47 +108,62 @@ namespace molemind {
     /// may side effect creation of spaces and symbols as a convenience
     /// for realtime training
     
-    database::status_t database::superpose(const std::string& ts, const std::string& tn,
-                                           const std::string& ss, const std::string& sn) noexcept {
+    status_t database::superpose(const std::string& ts,
+                                 const std::string& tn,
+                                 const std::string& ss,
+                                 const std::string& sn)  {
       
       // assume all symbols are present
-      status_t state = OLD;
+      status_t state = AOLD;
       
       auto target_sp = ensure_space_by_name(ts);
-      if (!target_sp) return ERROR;
+      if (!target_sp) return ERUNTIME;
       
       auto source_sp = ensure_space_by_name(ss);
-      if (!source_sp) return ERROR;
+      if (!source_sp) return ERUNTIME;
       
-      // get target vector
-      boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
-      if (!v) {
-        target_sp->insert(tn, irand.shuffle());
-        v = target_sp->get_vector_by_name(tn);
-        if (!v) return OPFAIL;
-        else state = NEW;
-      }
-      
+
       // get source symbol
       boost::optional<const space::symbol&> s = source_sp->get_symbol_by_name(sn);
       if (!s) {
-        source_sp->insert(sn, irand.shuffle());
+        // TODO guard: if p.second else ...
+        space::inserted_t p = source_sp->insert(sn, irand.shuffle());
+        if (!p.second) return ERUNTIME;
+        // what about p.first then? instead of this
         s = source_sp->get_symbol_by_name(sn);
-        if (!s) return OPFAIL;
-        else state = NEW;
+        if (!s) return ERUNTIME;
+        else state = ANEW;
       }
       
-      // not quite what it seems
+      // get target vector
+      
+      //////////////////////////////////////////////////////////////////////
+      // CAVEAT: this must follow any insertions in the space
+      // as any insert to index WILL invalidate vector or symbol pointers...
+      // in whcih case is s still safe? hmmm something fishy here
+      
+      boost::optional<space::vector&> v = target_sp->get_vector_by_name(tn);
+      if (!v) {
+        // TODO guard: if p.second else ...
+        space::inserted_t p = target_sp->insert(tn, irand.shuffle());
+        if (!p.second) return ERUNTIME;
+        v = target_sp->get_vector_by_name(tn);
+        if (!v) return ERUNTIME;
+        else state = ANEW;
+      }
+
       v->whitebits(s->basis());
       return state;
     }
     
-        
+
     
-    // measurement
+    /// measurement
     
-    boost::optional<double> database::similarity(const std::string& snv, const std::string& vn,
-                                                 const std::string& snu, const std::string& un) noexcept {
+    boost::optional<double> database::similarity(const std::string& snv,
+                                                 const std::string& vn,
+                                                 const std::string& snu,
+                                                 const std::string& un) noexcept {
       // TODO
       return 0.0;
     }
@@ -190,7 +207,6 @@ namespace molemind {
     }
     
     
-    /* END API */
     
     //////////////////////
     /// space management
@@ -199,7 +215,7 @@ namespace molemind {
     // create and manage named symbols by name -- space constructor does find_or_construct on segment
     // database memoizes pointers to spaces to speed up symbol resolution
     
-    inline database::space* database::ensure_space_by_name(const std::string& name) {
+    database::space* database::ensure_space_by_name(const std::string& name) {
       // lookup in cache
       auto it = spaces.find(name);
       

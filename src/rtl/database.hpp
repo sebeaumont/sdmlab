@@ -8,7 +8,10 @@
 
 #include "../mms/symbol_space.hpp"
 #include "../util/fast_random.hpp"
-//#include "../rtl/topology.hpp"
+
+#include "topology.hpp"
+#include "sdmconfig.h"
+#include "sdmstatus.h"
 
 #include <iostream>
 
@@ -19,12 +22,6 @@ namespace molemind { namespace sdm {
   
   /***********************************************************************
    ** Database type provides the API for the SDM implementation
-   **
-   ** The failure model says that no exceptions (except system failure)
-   ** should leak out of here. We use boost optional to indicate failure 
-   ** where it should be handled by the caller, this is mainly concerned 
-   ** with symbol lookups but memory outages can occur in a number of 
-   ** functions... <tbc>
    ***********************************************************************/
   
   class database {
@@ -41,8 +38,8 @@ namespace molemind { namespace sdm {
     /// type of space implementation determines the type and number of elements and sparsity
     // XXX all of which can be portably calculated or re-templated from more abstract notions
     
-    typedef sdm::mms::symbol_space<unsigned long long, 265, 16, segment_t> space;
-
+    typedef mms::symbol_space<SDM_VECTOR_ELEMENT_TYPE, SDM_VECTOR_ELEMS, SDM_VECTOR_BASIS_SIZE, segment_t> space;
+    
     
     /// constructor to initialize file mapped heap
     
@@ -59,13 +56,6 @@ namespace molemind { namespace sdm {
     /// destructor will cautiously ensure all pages are flushed
     
     ~database();
-    
-    /// UC return status type
-    
-    typedef enum { OLD=1, NEW=2, MEMOUT=-3, OPFAIL=-2, ERROR=-1 } status_t;
-
-    /// error guard
-    inline const bool is_error(status_t s) const { return (s<0); }
 
     /// create new symbol
     
@@ -74,7 +64,8 @@ namespace molemind { namespace sdm {
     /// search for symbols starting with prefix
     typedef std::pair<database::space::symbol_iterator, database::space::symbol_iterator> symbol_list;
     
-    boost::optional<symbol_list> prefix_search(const std::string& space_name, const std::string& symbol_prefix) noexcept;
+    boost::optional<symbol_list> prefix_search(const std::string& space_name,
+                                               const std::string& symbol_prefix) noexcept;
     
     
     /////////////////////////
@@ -91,7 +82,7 @@ namespace molemind { namespace sdm {
     
     /// add or superpose
     status_t superpose(const std::string& ts, const std::string& tn,
-                       const std::string& ss, const std::string& sn) noexcept;
+                       const std::string& ss, const std::string& sn);
   
     /// subtract
     status_t subtract(const std::string& ts, const std::string& tn,
@@ -157,12 +148,6 @@ namespace molemind { namespace sdm {
     inline bool check_heap_sanity() noexcept { return heap.check_sanity(); }
     inline bool can_grow_heap() noexcept { return (heap.get_size() < maxheap); }
     
-
-    //protected:
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // xxx not sure to expose these as is yet but handy and efficient for wrappers and dsls however
-    // xxx no doubt these will go away once efficient portable serialisaions have been wrought.
     
     /// get named symbol
     boost::optional<const space::symbol&> get_symbol(const std::string& space_name, const std::string& symbol_name) noexcept;
@@ -170,7 +155,8 @@ namespace molemind { namespace sdm {
     /// get named vector
     boost::optional<space::vector&> get_vector(const std::string& space_name, const std::string& vector_name) noexcept;
 
-
+    /// TODO add a list of vectors
+    
     /// randomise a vector
     void randomize_vector(boost::optional<space::vector&> vector, double p) noexcept;
 
@@ -186,6 +172,8 @@ namespace molemind { namespace sdm {
     /// database memoizes pointers to named spaces to optimize symbol resolution 
     space* ensure_space_by_name(const std::string&); 
     
+    // get randomizer for fun and profit...
+    inline random::index_randomizer& randomidx(void) { return irand; }
 
     
   private:    

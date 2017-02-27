@@ -2,9 +2,8 @@
 
 ## Sources:
 ```
-mms    Database memory management system 
-rtl    Runtime system library API and implementation
-repl   Funtime repl for developing api
+mms    Database memory management system - symbol_space kernel
+rtl    Runtime system library and APIs
 test   Proper testing
 util   General utilities
 ```

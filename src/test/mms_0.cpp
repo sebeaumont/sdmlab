@@ -50,10 +50,17 @@ struct test_setup {
 
 BOOST_FIXTURE_TEST_SUITE(mms_0, test_setup)
 
+
+
 BOOST_AUTO_TEST_CASE(insert_vector) {
+  std::vector<std::size_t> basis; // XXX test this too! now
+  basis.push_back(12);
+  basis.push_back(43);
+  basis.push_back(99);
+  
   std::cout << mms << std::endl;
   //BOOST_TEST_MESSAGE(msg);
-  mms.insert(v0);
+  mms.insert(v0, basis);
   std::cout << mms << std::endl;
   //BOOST_TEST_MESSAGE(msg);
   // 5. retrieve vector

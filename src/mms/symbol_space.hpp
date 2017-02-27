@@ -10,10 +10,13 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/optional.hpp>
 
-// implementation
-#include "elemental_vector.hpp"
+// symbol type
+#include "symbol.hpp"
 
-// interface types
+// runtime vector type
+#include "ephemeral_vector.hpp"
+
+// result (POD) types
 #include "../rtl/topology.hpp"
 
 
@@ -22,10 +25,6 @@
 #else
 // openMP
 #endif
-
-/////////////////////
-// TODO make config
-
 #define VELEMENT_64 1
 
 #ifdef VELEMENT_64
@@ -34,6 +33,7 @@
 #define ONE 1U
 #endif
 #define CHAR_BITS (8)
+
 
 /////////////////////
 
@@ -46,7 +46,7 @@ namespace molemind { namespace sdm {
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
 
-    /* 
+    /** 
      * this class template can be instantiated in runtime library
      * source or inlined in application code; the important
      * implementation details are the types and sizes of the vectors
@@ -54,74 +54,32 @@ namespace molemind { namespace sdm {
      * (a.k.a. elemental) vectors
      */
 
-    template <typename VectorElementType, std::size_t VArraySize, std::size_t ElementalBits, class SegmentClass>
+    template <typename VectorElementType, std::size_t VectorElems, std::size_t ElementalBits, class SegmentClass>
 
-    /*
-     * for a symbol_space
-     */
+    // for a symbol_space
     
     class symbol_space final {
 
+      // stored objects have to use this segment type for heap allocators
       typedef SegmentClass segment_t;
       
-      // Heap allocators derived from segment
-      
+      // allocators derived from segment type
       typedef typename segment_t::segment_manager segment_manager_t;
+      
       typedef bip::basic_string<char,std::char_traits<char>, bip::allocator<char, segment_manager_t>> shared_string_t;
       typedef typename bip::allocator<void, segment_manager_t> void_allocator_t;
-
       
-      // XXX UC
-      typedef elemental_vector<std::size_t, segment_manager_t> elemental_vector_t;
-      //typedef elemental_vector::index_t sparse_index_t;
-      //typedef std::vector<std::size_t> sparse_index_t;
-
-
-      /////////////////////////////////////////////////////////////////////
-      // symbol - named vector with lazily computed elemental fingerprint
-      //
-      // indexed by: name hash, rb tree for prefix of name, random access
-
-      struct symbol final {
-        // see if this is useful... updating the node could be expensive.
-        enum state_t { NEW, USED, OLD, FREE };
-        state_t _state;
-        shared_string_t _name;
-        
-      private:
-        elemental_vector_t _basis; 
-
-      public:
-
-        // constructor with fingerprint
-        symbol(const char* s, const std::vector<size_t>& fp, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(fp, ElementalBits, void_alloc) {}
-        
-        // constructor without fingerprint
-        symbol(const char* s, const void_allocator_t& void_alloc) : _state(NEW), _name(s, void_alloc), _basis(ElementalBits, void_alloc) {}
-        
-        
-        inline const std::string name(void) const {
-          return std::string(_name.begin(), _name.end());
-        }
-        
-        typedef elemental_vector_t basis_vector_t;
-
-        inline const basis_vector_t& basis(void) const {
-          return _basis;
-        }
-        
-        // printer
-        friend std::ostream& operator<<(std::ostream& os, const symbol& s) {
-          os << s._name;
-          return os;
-        }
-
-      };
-
+      ////////////////////////
+      // implement symbol type
+      
+      typedef symbol<segment_manager_t, shared_string_t, void_allocator_t, ElementalBits> symbol_t;
+      typedef typename symbol_t::basis_vector_t fingerprint_t;
+      
       
       // allocator for symbol
       
-      typedef bip::allocator<symbol, segment_manager_t> symbol_allocator_t;
+      typedef bip::allocator<symbol_t, segment_manager_t> symbol_allocator_t;
+      
       
       // shared string helpers
       
@@ -155,228 +113,230 @@ namespace molemind { namespace sdm {
       };
 
 
+      ////////////////////////////////////////////////////////////////////
       // shared memory mapped multi index container type with it's indexes
       
       typedef multi_index_container<
-        symbol,
+        symbol_t,
         indexed_by<
-          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, _name)>,
-          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol, shared_string_t, _name), partial_string_comparator>,
+          hashed_unique<BOOST_MULTI_INDEX_MEMBER(symbol_t, shared_string_t, _name)>,
+          ordered_unique<BOOST_MULTI_INDEX_MEMBER(symbol_t, shared_string_t, _name), partial_string_comparator>,
           random_access<>
           >, symbol_allocator_t
         > symbol_table_t;
 
-
       
-      ////////////////////////////////////////////////////
-      /// vector_space implemented as a vector of vectors
+      /// vectors are arrays/std::vectors of these
       
       typedef VectorElementType element_t;
       
       typedef bip::allocator<element_t, segment_manager_t> element_allocator_t;
       
-      typedef bip::vector<element_t, element_allocator_t> vector_t;
+      typedef bip::vector<element_t, element_allocator_t> vector_base_t;
       
       
-      /// the vector type
+      ///
+      /// the vector type represents the symbol state in space memory i.e. in database mapped heap
+      ///
+      
     public:
-      struct vector final : public vector_t {
+      
+      struct vector final : public vector_base_t {
+        
+        /// construct fully
+        vector(const void_allocator_t& a) : vector_base_t(a) {
+          this->reserve(VectorElems);
+          #pragma unroll
+          //#pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i = 0; i < VectorElems; ++i) this->push_back(0);
+        }
+        
+        
+        /// SDM dimensions i.e. bits
+        static constexpr std::size_t dimensions =  VectorElems * sizeof(VectorElementType) * CHAR_BITS;
 
-        /// construct fully 
-        vector(const void_allocator_t& a) : vector_t(a) {
-          this->reserve(VArraySize);
+        /// XXX NEW XXX
+        void copy_me(element_t* here) {
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i = 0; i < VArraySize; ++i) this->push_back(0);
-        }
-
-        /// dimensions of this vector
-        static const std::size_t dimensions =  VArraySize * sizeof(element_t) * CHAR_BITS;
-
-        //friend std::ostream& operator<<(std::ostream& os, const vector& v) {
-        //  os << v.something const; 
-        //  return os;
-        //}
-
-                
-        /* set all bits */
-
-        inline void ones(void) {
-        #pragma unroll
-        #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-            (*this)[i] = -1; 
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            here[i] = (*this)[i];
           }
         }
-
-        /* clear all bits */
-
-        inline void zeros(void) {
-        #pragma unroll
-        #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-            (*this)[i] = 0; 
-          }
-        }
-
         
-        // vector properties
+        /// SDM vector properties
         
         inline const std::size_t count() {
           std::size_t count = 0;
-          #pragma unroll
-          #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-          #if VELEMENT_64
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            #if VELEMENT_64
             count += __builtin_popcountll((*this)[i]);
-          #else
+            #else
             count += __builtin_popcount((*this)[i]);
-          #endif
+            #endif
           }
           return count;
         }
-
+        
         
         inline double density() {
           return (double) count() / dimensions;
         }
-
-
-        // vector measurements
+        
+        
+        // vector measurement functions
         
         inline const std::size_t distance(const vector& v) {
           std::size_t distance = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] ^ v[i]; 
-          #ifdef VELEMENT_64
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            VectorElementType r = (*this)[i] ^ v[i];
+            #ifdef VELEMENT_64
             distance += __builtin_popcountll(r);
-          #else
+            #else
             distance += __builtin_popcount(r);
-          #endif
+            #endif
           }
           return distance;
         }
-
-
+        
+        
         inline const std::size_t inner(const vector& v) {
           std::size_t count = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] & v[i]; 
-          #ifdef VELEMENT_64
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            VectorElementType r = (*this)[i] & v[i];
+            #ifdef VELEMENT_64
             count += __builtin_popcountll(r);
-          #else
+            #else
             count += __builtin_popcount(r);
-          #endif
+            #endif
           }
           return count;
         }
-
-
+        
+        
         inline std::size_t countsum(const vector& v) {
           std::size_t count = 0;
           #pragma unroll
           #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
-            element_t r = (*this)[i] | v[i]; 
-          #ifdef VELEMENT_64
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            VectorElementType r = (*this)[i] | v[i];
+            #ifdef VELEMENT_64
             count += __builtin_popcountll(r);
-          #else
+            #else
             count += __builtin_popcount(r);
-          #endif
+            #endif
           }
           return count;
         }
-
-        /// Similarity of vectors 
+        
+        /// Similarity of vectors
         inline double similarity(const vector& v) {
           // inverse of the normalized distance
-          return 1.0 - (double) distance(v)/(VArraySize * sizeof(element_t) * CHAR_BITS);
+          return 1.0 - (double) distance(v)/dimensions;
         }
+        
+        
+        ///////////////////////////////////////
+        /// in place transactions on vectors //
+        ///////////////////////////////////////
 
-
-
-        /////////////////////////////////
-        // basic operations on vectors //
-        /////////////////////////////////
-
+        
+        /* set all bits */
+        
+        inline void ones(void) {
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            (*this)[i] = -1;
+          }
+        }
+        
+        /* clear all bits */
+        
+        inline void zeros(void) {
+          for (std::size_t i=0; i < VectorElems; ++i) {
+            (*this)[i] = 0;
+          }
+        }
+        
+  
         /* add or superpose */
-
+        
         inline void superpose(const vector& v) {
-        #pragma unroll
-        #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VectorElems; ++i) {
             (*this)[i] |= v[i];
           }
         }
-
-
-        // set bits from basic vector
-        inline void whitebits(const typename symbol::basis_vector_t& v) {
-          size_t h = v.size() / 2;
-          // clear
-          for (auto it = v.begin(); it < v.begin() + h; ++it) {
-              std::size_t r = *it;
-              std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
-              std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
-              (*this)[i] &= ~(ONE << b);
-          }
-          // set
-          for (auto it = v.begin() + h; it < v.end(); ++it) {
-            std::size_t r = *it;
-            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
-            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
-            (*this)[i] |= (ONE << b);
-          }
-        }
-
-
-        // set bits from basic vector
-        inline void setbits(const typename symbol::basis_vector_t& v) {
-          for (std::size_t r: v) {
-            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
-            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
-            (*this)[i] |= (ONE << b);
-          }
-        }
         
-        
-        // set a list of bits
-        inline void setbits(const std::vector<std::size_t>::iterator& start,
-                            const std::vector<std::size_t>::iterator& end) {
-          for (auto it = start; it < end; ++it){
-            std::size_t r = *it;
-            std::size_t i = r / (sizeof(element_t) * CHAR_BITS);
-            std::size_t b = r % (sizeof(element_t) * CHAR_BITS);
-            (*this)[i] |= (ONE << b);
-          }
-        }
-
         
         /* subtract v from u */
-
+        
         inline void subtract(const vector& v) {
-        #pragma unroll
-        #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VectorElems; ++i) {
             (*this)[i] &= ~v[i];
           }
         }
-
+        
         inline void multiply(const vector& v) {
-        #pragma unroll
-        #pragma clang loop vectorize(enable) interleave(enable)
-          for (std::size_t i=0; i < VArraySize; ++i) {
+          #pragma unroll
+          #pragma clang loop vectorize(enable) interleave(enable)
+          for (std::size_t i=0; i < VectorElems; ++i) {
             (*this)[i] ^= v[i];
           }
         }
         
-      };
+        
+        // set bits from elemental vector
+        inline void whitebits(const fingerprint_t& v) {
+          std::size_t h = v.size() / 2;
+          // clear
+          for (auto it = v.begin(); it < v.begin() + h; ++it) {
+            std::size_t r = *it;
+            std::size_t i = r / (sizeof(VectorElementType) * CHAR_BITS);
+            std::size_t b = r % (sizeof(VectorElementType) * CHAR_BITS);
+            (*this)[i] &= ~(ONE << b); //XXX
+          }
+          // set
+          for (auto it = v.begin() + h; it < v.end(); ++it) {
+            std::size_t r = *it;
+            std::size_t i = r / (sizeof(VectorElementType) * CHAR_BITS);
+            std::size_t b = r % (sizeof(VectorElementType) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+        
+          
+        // set bits from basic vector
+        inline void setbits(const fingerprint_t& v) {
+          for (std::size_t r: v) {
+            std::size_t i = r / (sizeof(VectorElementType) * CHAR_BITS);
+            std::size_t b = r % (sizeof(VectorElementType) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+        
+        // set from a vector of bit indexes
+        inline void setbits(const std::vector<std::size_t>::iterator& start,
+                            const std::vector<std::size_t>::iterator& end) {
+          for (auto it = start; it < end; ++it){
+            std::size_t r = *it;
+            std::size_t i = r / (sizeof(VectorElementType) * CHAR_BITS);
+            std::size_t b = r % (sizeof(VectorElementType) * CHAR_BITS);
+            (*this)[i] |= (ONE << b);
+          }
+        }
+        
+      }; // end vector
 
+      
     private:
+      
       // vector allocators
       
       typedef bip::allocator<vector, segment_manager_t> vector_allocator_t;
@@ -385,7 +345,6 @@ namespace molemind { namespace sdm {
       
       typedef bip::vector<vector, vector_allocator_t> vector_vector_t;
 
-      
       // vector_space is_a vector_vector_t
       
       struct vector_space final : public vector_vector_t {
@@ -414,7 +373,7 @@ namespace molemind { namespace sdm {
       symbol_space(const std::string& s, const::size_t n, segment_t& m)
         : name(s), segment(m), allocator(segment.get_segment_manager()) {
         // create vector_space
-        std::string vs_name = "__" + name;
+        std::string vs_name = "__" + name; // XXXX what hack is this?
         vectors = segment.template find_or_construct<vector_space_t>(vs_name.c_str())(n, allocator);
         // ensure multi_index container is constructed: this is the symbol space
         index = segment.template find_or_construct<symbol_table_t>(name.c_str())(allocator);
@@ -455,8 +414,8 @@ namespace molemind { namespace sdm {
       }  
      
 
-      typedef symbol symbol; // public face of symbol
-      typedef vector vector; //xx
+      typedef symbol_t symbol; // public face of symbol
+      //typedef vector vector; //xx
     
       
       /////////////////////////////////////
@@ -466,7 +425,7 @@ namespace molemind { namespace sdm {
       typedef std::pair<typename symbol_table_t::iterator, bool> inserted_t;
       
       /// insert
-
+      /*
       inserted_t insert(const std::string& k) {
         inserted_t p = index->insert(symbol(k.c_str(), allocator));
         if (p.second) {
@@ -477,13 +436,16 @@ namespace molemind { namespace sdm {
         }
         return p;
       }
-
+      */
       inserted_t insert(const std::string& k, const std::vector<std::size_t>& fp) {
-        inserted_t p = index->insert(symbol(k.c_str(), fp, allocator));
+        // could use vectors.size() to have symbol memoize index vector 
+        inserted_t p = index->insert(symbol(k.c_str(), vectors->size(), fp, allocator));
         if (p.second) {
           // inserted: string iterator maps to index
           // call vector allocator
+          // XXX this is where we hook the vector array to the symbols
           vectors->push_back(vector(allocator));
+          // from its own index
           //assert (vectors->size()-1 == n2i(p.first));
         }
         return p;
@@ -512,7 +474,7 @@ namespace molemind { namespace sdm {
         else return *i;
       }
 
-      /// xxx under construction: expose vectors directly
+      /// !!! experimental expose vectors directly !!!
       
       inline boost::optional<vector&> get_vector_by_name(const std::string& k) {
         symbol_by_name& name_idx = index->template get<0>();
@@ -539,14 +501,31 @@ namespace molemind { namespace sdm {
         return ((index->template project<2>(nit)) - (index->template get<2>().begin()));
       }
 
-
-      ///
+      /// !!! experimental !!!
+      inline vector& get_symbol_vector(const symbol& s) {
+        return (*vectors)[s._id];
+      }
+      
+      /*********************************************************************************/
+      // basic query engine
+      
+      // temporary/ephmemeral vectors
+      typedef ephemeral_vector<VectorElementType, VectorElems, vector> ephemeral_vector_t;
+      
       /* 
          WIP: parallelised SIMD operations on entire vectorspace
          1. distribute by segments (n_cores) on cpu (treat as separate arrays on gpu?) 
          2. accumulate number of matching targets in parallel scan
          3. allocate smallest set of scores and sort in main thread 
       */
+      
+      inline const topology neighbourhood(const vector& u,
+                                          const double p,
+                                          const double d,
+                                          const std::size_t n) {
+        // no copy for simple case?
+        return neighbourhood(ephemeral_vector_t(u), p, d, n);
+      }
       
       //////////////////////
       /// computed topology
@@ -555,7 +534,7 @@ namespace molemind { namespace sdm {
       ///////////////////////////////////////
       /// compute neighbourhood of a vector
       
-      inline const molemind::sdm::topology neighbourhood(const vector& u,
+      inline const topology neighbourhood(const ephemeral_vector_t& u,
                                           const double p,
                                           const double d,
                                           const std::size_t n) {
@@ -569,7 +548,7 @@ namespace molemind { namespace sdm {
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         dispatch_apply(m, queue, ^(std::size_t i) {
             work[i*2] = (*vectors)[i].density();
-            work[i*2+1] = (*vectors)[i].similarity(u);
+          work[i*2+1] = u.similarity((*vectors)[i]);
           });
         // XXXX ARC forbids release XXXXX dispatch_release(queue);
         
@@ -577,12 +556,12 @@ namespace molemind { namespace sdm {
         #pragma omp parallel for 
         for (std::size_t i=0; i < m; ++i) {
           work[i*2] = (*vectors)[i].density();
-          work[i*2+1] = (*vectors)[i].similarity(u);
+          work[i*2+1] = u.similarity((*vectors)[i]);
         }
         #endif
         //// end parallel block ////
       
-        std::vector<molemind::sdm::point> topo;
+        topology topo;
         topo.reserve(m); // ??? hmm is there a statistic here?
         
         // filter work array
@@ -591,6 +570,7 @@ namespace molemind { namespace sdm {
           double sim = work[i*2+1];
           // apply p-d-filter
           if (rho <= d && sim >= p) {
+            // XXX... avoid string copy here return symbol ref?
             topo.push_back(point((*this)[i].name(), sim, rho));
           }
         }
@@ -620,8 +600,6 @@ namespace molemind { namespace sdm {
       inline const size_t entries() { return index->size(); }
       inline const std::string spacename() const { return name; }
 
-      
-      // TODO: shrink_to_fit, grow
       
     private:    
 
