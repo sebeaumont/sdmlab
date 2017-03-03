@@ -1,10 +1,18 @@
 // implementation of sdmlib c interface library
+#include <errno.h>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/vector.hpp>
+#include <sstream>
+
 #include "sdmlib.h"
 #include "database.hpp"
 
 using namespace molemind::sdm;
 
-const status_t sdm_database(const char* filename, size_t size, size_t maxsize, database_t* db) {
+const status_t sdm_database(const char* filename,
+                            size_t size,
+                            size_t maxsize,
+                            database_t* db) {
   try {
     *db = new database::database(size, maxsize, std::string(filename));
     return AOK;
@@ -19,15 +27,19 @@ const status_t sdm_database_close(const database_t db) {
   return AOK;
 }
 
-const status_t sdm_database_get_space(const database_t db, const char* spacename, space_t* space) {
-  database::space* sp = static_cast<database::database*>(db)->
-    get_space_by_name(std::string(spacename));
+const status_t sdm_database_get_space(const database_t db,
+                                      const char* spacename,
+                                      space_t* space) {
+  database::space* sp =
+    static_cast<database::database*>(db)->get_space_by_name(std::string(spacename));
   if (sp == nullptr) return ESPACE;
   *space = sp;
   return AOK;
 }
 
-const status_t sdm_database_ensure_space(const database_t db, const char* spacename, space_t* space) {
+const status_t sdm_database_ensure_space(const database_t db,
+                                         const char* spacename,
+                                         space_t* space) {
   try {
     database::space* sp = static_cast<database::database*>(db)->
       ensure_space_by_name(std::string(spacename));
@@ -37,7 +49,7 @@ const status_t sdm_database_ensure_space(const database_t db, const char* spacen
   } catch (const std::bad_alloc& e) {
     return EMEMORY;
   } catch (...) {
-    return ERUNTIME;
+    return (const status_t) -errno;
   }
 }
 
@@ -69,14 +81,13 @@ const status_t sdm_database_ensure_space_symbol(const database_t db,
       *sym = &(*(p.first));
       return ANEW; // created
       // do we need a new error for this?
-    } else return ERUNTIME; // something in the index stopped us inserting! 
+    } else return ERUNTIME; // something (p.first) in the index stopped us inserting! 
     
   } catch (boost::interprocess::bad_alloc& e) {
     // XXX: here is where we can try and grow the heap
     return EMEMORY; // 'cos we ran out of memory!
-  } catch (const std::exception& e) {
-    fprintf(stderr, "RUNTIME EXCEPTION: %s\n", e.what());
-    return ERUNTIME;
+  } catch (...) {
+    return (const status_t) -errno;
   }
 }
 
@@ -157,20 +168,63 @@ const status_t sdm_space_get_symbol(const space_t space,
   }
 }
 
-// TODO
-const status_t sdm_space_get_symbols(const space_t space,
-                                     const char* prefix,
-                                     const char** names) {
-  return EUNIMPLEMENTED;
+// new && exclusive to this library...
+const status_t sdm_space_get_symbol_vector(const space_t space,
+                                           const symbol_t sym,
+                                           vector_t* vec) {
+  auto sp = static_cast<database::space*>(space);
+  auto symbol = static_cast<const database::space::symbol*>(sym);
+  *vec = &(sp->get_symbol_vector(symbol));
+  return AOK;
 }
+
+
+// get matching symbols with prefix
+
+const card_t sdm_space_get_symbols(const space_t space,
+                                   const char* prefix,
+                                   const card_t card_ub,
+                                   term_t* tp) {
+
+  auto sp = static_cast<database::space*>(space);
+  auto tm = sp->matching(prefix, card_ub);
+
+  std::stringstream* ss = new std::stringstream();
+  //typedef cereal::JSONOutputArchive::Options options;
+  
+  // this block to ensure archive is flushed when it goes out of scope
+  {
+    cereal::JSONOutputArchive archive(*ss);
+    // with this: get no output at all... wtf? 
+    // cereal::JSONOutputArchive archive(*ss, options::Options(6,options::IndentChar::space,0));
+    archive(cereal::make_nvp("term_match", tm));
+  }
+  //
+  *tp = ss;
+  return tm.matches;
+}
+
+const char* sdm_terms_buffer(term_t tp) {
+  auto ss = static_cast<std::stringstream*>(tp);
+  return ss->str().data();
+}
+
+void sdm_free_terms(term_t tp) {
+  auto ss = static_cast<std::stringstream*>(tp);
+  delete ss;
+}
+
+
+
+// get neighbourhood of points
 
 const card_t sdm_space_get_topology(const space_t s,
                                     const vectordata_t* v,
                                     const double metric_lb,
                                     const double density_ub,
-                                    const unsigned card_ub,
+                                    const card_t card_ub,
                                     point_t* t) {
-  // 
+  // space 
   auto sp = static_cast<database::space*>(s);
   // init query vector
   database::space::ephemeral_vector_t vec(v);

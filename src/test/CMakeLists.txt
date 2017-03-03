@@ -31,3 +31,6 @@ target_link_libraries(sdmi ${Boost_LIBRARIES} sdm)
 add_executable (frametrain frametrain.cpp)
 target_link_libraries(frametrain ${Boost_LIBRARIES} sdm)
 
+add_executable (capi capi.c)
+target_link_libraries(capi sdm)
+

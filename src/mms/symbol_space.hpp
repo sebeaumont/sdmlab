@@ -455,7 +455,7 @@ namespace molemind { namespace sdm {
       
       typedef typename symbol_table_t::template nth_index<2>::type symbol_by_index;
       
-      /// overload [] and delegate
+      /// overload [] and delegate to direct index
       
       inline const symbol& operator[](std::size_t i) {
         symbol_by_index& symbols = index->template get<2>(); 
@@ -501,9 +501,56 @@ namespace molemind { namespace sdm {
         return ((index->template project<2>(nit)) - (index->template get<2>().begin()));
       }
 
-      /// !!! experimental !!!
-      inline vector& get_symbol_vector(const symbol& s) {
-        return (*vectors)[s._id];
+      /// !!! experimental replacement for above...
+      inline vector& get_symbol_vector(const symbol* s) {
+        return (*vectors)[s->_id];
+      }
+
+      /// !!! experimental also redundant
+      inline const symbol& get_symbol(const size_t i) {
+        return (*this)[i];
+      }
+
+      /// !!! experimental serializable objects
+      
+      struct term {
+        const std::string name;
+        double density;
+        term(const std::string& s, double d) : name(s), density(d) {};
+        template<class A> void serialize(A& archive) {
+          archive(CEREAL_NVP(name), CEREAL_NVP(density));
+        }
+      };
+      
+      struct term_match {
+        std::string prefix;
+        std::size_t matches;
+        std::vector<term> terms;
+        term_match() : matches(0) {};
+        term_match(std::size_t m) : matches(m) {};
+        template<class A> void serialize(A& archive) {
+          archive(CEREAL_NVP(prefix), CEREAL_NVP(matches), CEREAL_NVP(terms));
+        }
+      };
+      
+      /// term_match on prefix
+      inline const term_match matching(const std::string prefix, std::size_t card_ub) {
+
+        auto sl = search(prefix);
+        std::size_t matches = std::distance(sl.first, sl.second);
+
+        term_match tm;
+        tm.terms.reserve(card_ub);
+        tm.matches = matches;
+        tm.prefix = prefix;
+        size_t n = 0;
+        
+        for (auto i = sl.first; i != sl.second && n < card_ub; ++i) {
+          term t(i->name(), (*vectors)[i->_id].density());
+          tm.terms.push_back(t);
+        }
+        
+        return tm;
       }
       
       /*********************************************************************************/
@@ -523,7 +570,7 @@ namespace molemind { namespace sdm {
                                           const double p,
                                           const double d,
                                           const std::size_t n) {
-        // no copy for simple case?
+        // TODO no copy for simple case?
         return neighbourhood(ephemeral_vector_t(u), p, d, n);
       }
       
@@ -580,7 +627,7 @@ namespace molemind { namespace sdm {
         sort(topo.begin(), topo.end());
         const std::size_t ns = topo.size();
         
-        // chop off (long?) tail before serialising
+        // chop off uneeded tail
         topo.erase(topo.begin() + ((n < ns) ? n : ns), topo.end()); 
         return topo;
       }

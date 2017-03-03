@@ -23,16 +23,20 @@ set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 #########################################
 
 # common to both c & c++ flags
-set(SDM_ALL_FLAGS "-Wall -O3 -march=native")
+set(SDM_ALL_FLAGS "-Wall -march=native")
+
+set(SDM_DEBUG "-g")
+set(SDM_OPTIMIZE "-O3")
 
 # c++ only
 set(SDM_CXX_FLAGS "-std=c++14")
 
+# c only
 # for max bcompatability c lib
 set(SDM_C_FLAGS "-std=c90")
 
 
-# is future namespace wizardy allowed?
+# is future namespace wizardry allowed?
 # YES: set(SDM_CXX_FLAGS "-Wc++1z-extensions")
 
 
@@ -98,14 +102,23 @@ else()
 
 endif()
 
-set(CMAKE_CXX_FLAGS "${SDM_CXX_FLAGS} ${SDM_ALL_FLAGS}")
-set(CMAKE_C_FLAGS "${SDM_C_FLAGS} ${SDM_ALL_FLAGS}")
+# normalise cpu features before use..
+string(TOUPPER ${CPU_FEATURES} CPU_FEATURES)
+
+
+# allow for non-release/debug builds
+
+if (${CMAKE_BUILD_TYPE} MATCHES "Release") 
+   set(CMAKE_CXX_FLAGS "${SDM_OPTIMIZE} ${SDM_CXX_FLAGS} ${SDM_ALL_FLAGS}")
+   set(CMAKE_C_FLAGS "${SDM_OPTIMIZE} ${SDM_C_FLAGS} ${SDM_ALL_FLAGS}")
+else()
+   set(CMAKE_CXX_FLAGS "${SDM_DEBUG} ${SDM_CXX_FLAGS} ${SDM_ALL_FLAGS}")
+   set(CMAKE_C_FLAGS "${SDM_DEBUG} ${SDM_C_FLAGS} ${SDM_ALL_FLAGS}")
+endif()
 
 message(${CMAKE_CXX_FLAGS})
 message(${CMAKE_C_FLAGS})
 
-# normalise features before searching
-string(TOUPPER ${CPU_FEATURES} CPU_FEATURES)
 
 
 ##################

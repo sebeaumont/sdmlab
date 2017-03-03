@@ -171,8 +171,11 @@ namespace molemind {
     
     // neighbourhood
     boost::optional<sdm::topology> database::neighbourhood(const::std::string& ts,
-                                                           const std::string& ss, const std::string& sv,
-                                                           double p, double d, std::size_t n) noexcept {
+                                                           const std::string& ss,
+                                                           const std::string& sv,
+                                                           double p,
+                                                           double d,
+                                                           std::size_t n) noexcept {
       // all parts must exist
       auto t = get_space_by_name(ts);
       if (t) {

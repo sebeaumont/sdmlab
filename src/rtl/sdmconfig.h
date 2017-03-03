@@ -14,8 +14,8 @@
 
 #define SDM_VECTOR_PAYLOAD_SIZE sizeof(SDM_VECTOR_ELEMENT_TYPE)*SDM_VECTOR_ELEMS
 
-// #include <stdlib.h> language-c cant grok modern c!  so we are forced
-/** We would normally take platform defaults from stdlib. */
+/* #include <stdlib.h> language-c cant grok modern c!  so we are forced
+   into this hack as we would normally take platform defaults from stdlib. */
 #ifndef size_t
 typedef unsigned long size_t;
 #endif

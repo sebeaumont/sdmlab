@@ -2,25 +2,28 @@
 #define __SDMLIB_H__
 
 /**
- * dual purpose c/"c in c++" header for sdmlib library C API
- * UC: make this c99/language-c friendly!
+ * c header for sdmlib library API
  */
 
 #include "sdmconfig.h"
 #include "sdmstatus.h"
 
-// caveat: these pointer types are opaque to the capi so as not to
-// provide a dependency on complex c++ classes in the implmentation:
+/*
+ caveat: these pointer types are opaque to the capi so as not to
+ provide a dependency on c++ classes in the implmentation:
 
-// N.B. they are not currently validated by the library adapter
-// except via static_cast on input.
+ N.B. they are not currently validated by the library adapter
+ except via static_cast on input.
+*/
 
 typedef void* database_t;
 typedef void* space_t;
 typedef void* vector_t;
 typedef void const * symbol_t;
+typedef void* term_t;
 
-// concrete types that are marshalled into caller space
+/* concrete types that are marshalled into caller space -- deprecated under new
+   serialiser architecture */
 
 typedef struct {
   const char* symbol;
@@ -28,10 +31,13 @@ typedef struct {
   double density;
 } point_t;
 
+
 typedef SDM_VECTOR_ELEMENT_TYPE vectordata_t;
-typedef size_t basis_t; //XXX rename basis_t? 
+typedef size_t basis_t; 
 typedef size_t card_t;
 
+
+/* Functions in the API */
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,7 +81,6 @@ extern "C" {
                                             const char* symbolname,
                                             symbol_t* symbol);
   
-  // TODO high level training api  or this in client?  
 
   /**
    * space_t -> ...
@@ -89,18 +94,21 @@ extern "C" {
                                       const char* symbolname,
                                       symbol_t*); 
 
-  const status_t sdm_space_get_symbols(const space_t,
-                                       const char* prefix,
-                                       const char** names);
+  const status_t sdm_space_get_symbol_vector(const space_t space,
+                                             const symbol_t sym,
+                                             vector_t* vec);
+ 
+  const card_t sdm_space_get_symbols(const space_t,
+                                     const char* prefix,
+                                     const card_t card_ub,
+                                     term_t* terms);
 
-
-  const card_t sdm_space_get_topology(const space_t s,
-                                      const vectordata_t* v,
-                                      const double metric_lb,
-                                      const double density_ub,
-                                      const unsigned card_ub,
-                                      point_t* t);
-
+  const card_t sdm_space_get_topology(const space_t,
+                                      const vectordata_t*,
+                                      const double,
+                                      const double,
+                                      const card_t,
+                                      point_t*);
 
   /**
    * symbol_t ->
@@ -120,9 +128,17 @@ extern "C" {
   const status_t sdm_vector_store(const vector_t,
                                   vectordata_t vdata);
 
+  /**
+   * term_t -> ...
+   */
 
+  const char* sdm_terms_buffer(term_t tp);
+  
+  void sdm_free_terms(term_t tp);
+  
+ 
 
 #ifdef __cplusplus
 }
 #endif
-#endif // __SDMLIB_H__
+#endif /* __SDMLIB_H__ */

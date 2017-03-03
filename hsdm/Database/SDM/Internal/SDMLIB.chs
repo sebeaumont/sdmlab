@@ -8,33 +8,37 @@
 module Database.SDM.Internal.SDMLIB where
 
 import System.IO.Unsafe (unsafeDupablePerformIO)
+
 import Foreign
 import Foreign.Ptr
 import Foreign.ForeignPtr
 import Foreign.C
 import Foreign.C.Types
 import Foreign.C.String
-import Data.ByteString
+
+import qualified Data.ByteString as BS
 import Data.Text
 import Data.Text.Encoding
 
 
 -- CString utf-8 Text utils 
 
-decode :: CString -> IO Text
-decode cstr = do
-  bytestr <- packCString cstr
+tdecode :: CString -> IO Text
+tdecode cstr = do
+  bytestr <- BS.packCString cstr
   return (decodeUtf8 bytestr)
 
-encode :: Text -> (CString -> IO a) -> IO a
-encode text cont =
-  useAsCString (encodeUtf8 text) cont
-  
+tencode :: Text -> (CString -> IO a) -> IO a
+tencode text cont =
+  BS.useAsCString (encodeUtf8 text) cont
 
+  
 -- 
 -- Generally functions in the sdm c api return a status_t and return objects
 -- via opaque typed pointers.
 --
+
+type SDMCard = {#type card_t#}
 
 type SDMStatus = {#type status_t #}
 
@@ -70,6 +74,7 @@ sdm_database_close db = c_sdm_close_db db >> return ()
 --
 -- space the final frontier
 --
+
 newtype SDMSpace = SDMSpace (Ptr SDMSpace) deriving (Storable, Show)
 
 foreign import ccall unsafe "sdm_database_ensure_space"
@@ -91,6 +96,7 @@ foreign import ccall unsafe "sdm_database_get_space"
 --
 -- symbols
 -- 
+
 newtype SDMSymbol = SDMSymbol (Ptr SDMSymbol) deriving (Storable, Show)
 
 foreign import ccall unsafe "sdm_database_ensure_symbol"
@@ -117,16 +123,13 @@ sdm_space_get_symbol space symbolname =
        return (s, i)
 
 
--- TODO? fast SDMSymbol -> SDMVector
--- getVector s = ...
-
 --
--- vector in space
+-- vectors in space
 --
 
-newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable, Show)
--- now we need to define a vector type to receive actual vector data, n.b. the
 -- vector_t in the c api is just an opaque pointer to the vector object. 
+newtype SDMVector = SDMVector (Ptr SDMVector) deriving (Storable, Show)
+
 
 foreign import ccall unsafe "sdm_space_get_vector"
   c_sdm_get_vector :: SDMSpace -> CString -> Ptr SDMVector -> IO SDMStatus
@@ -139,6 +142,16 @@ sdm_space_get_vector space symbolname =
        s <- peek ptr
        return (s, i)
 
+
+foreign import ccall unsafe "sdm_space_get_symbol_vector"
+  c_sdm_space_get_symbol_vector :: SDMSpace -> SDMSymbol -> Ptr SDMVector -> IO SDMStatus
+
+sdm_space_get_symbol_vector :: SDMSpace -> SDMSymbol -> IO (SDMVector, SDMStatus)
+sdm_space_get_symbol_vector space symbol = alloca $ \ptr -> do
+  i <- c_sdm_space_get_symbol_vector space symbol ptr
+  v <- peek ptr
+  return (v, i)
+  
 
 --
 -- vectorpayload
@@ -193,7 +206,7 @@ instance Storable SDMPoint where
   sizeOf _ = {#sizeof point_t#}
   alignment _ = {#alignof point_t#}
   peek ptr = do
-    s <- {#get point_t.symbol#} ptr >>= decode
+    s <- {#get point_t.symbol#} ptr >>= tdecode
     -- s <- peekCString c
     m <- {#get point_t.metric#} ptr >>= return . realToFrac
     d <- {#get point_t.density#} ptr >>= return . realToFrac
@@ -204,8 +217,6 @@ instance Storable SDMPoint where
 --
 -- the shape of things to come
 --
-
-type SDMCard = {#type card_t#}
 
 foreign import ccall unsafe "sdm_space_get_topology"
   c_sdm_space_get_topology :: SDMSpace
@@ -236,5 +247,30 @@ sdm_space_get_topology s m d n v = do
       return (a, i)
 
 
--- TODO prefix search
--- sdm_space_get_symbols :: SDMSpace -> Text -> IO ([Text], SDMStatus)
+-- prefix search -- with newstyle JSON serializers
+
+newtype SDMTerm = SDMTerm (Ptr SDMTerm) deriving (Storable, Show)
+
+
+foreign import ccall unsafe "sdm_space_get_symbols"
+  c_sdm_space_get_symbols :: SDMSpace -> CString -> CUInt -> Ptr SDMTerm -> IO SDMCard
+
+
+foreign import ccall unsafe "sdm_terms_buffer"
+  c_sdm_terms_buffer :: SDMTerm -> IO CString
+
+foreign import ccall unsafe "sdm_free_terms"
+  c_sdm_free_terms :: SDMTerm -> IO ()
+
+
+-- | get list of symbols matching prefix up to n
+sdm_space_get_symbols :: SDMSpace -> String -> Int -> IO (BS.ByteString, SDMCard)
+sdm_space_get_symbols space prefix n = 
+  withCString prefix $ \str ->
+                         alloca $ \ptr -> do
+    i <- c_sdm_space_get_symbols space str (fromIntegral n) ptr
+    tp <- peek ptr
+    s <- c_sdm_terms_buffer tp >>= BS.packCString
+    c_sdm_free_terms tp
+    return (s, i)
+

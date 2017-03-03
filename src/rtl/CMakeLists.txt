@@ -2,8 +2,12 @@
 include_directories(..)
 
 # header only boost
-find_package(Boost) 
+find_package(Boost REQUIRED) 
 include_directories (${Boost_INCLUDE_DIR})
+
+# header only cereal
+find_package(Cereal REQUIRED)
+include_directories (${Cereal_INCLUDE_DIRS})
 
 # c++ and c libraries
 add_library(sdm SHARED sdmlib.cpp database.cpp)

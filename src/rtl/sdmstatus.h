@@ -2,15 +2,14 @@
 #define __SDMSTATUS_H__
 
 enum sdm_status {
-  // 
   SZERO = 0,
-  // sucess sometimes with info 
+  /* sucess sometimes with info  */
 
   AOK = 0,
   ANEW = 1,
   AOLD = 2,
 
-  // errors
+  /* errors */
   
   ESPACE = -2,
   ESYMBOL = -4,
@@ -22,7 +21,7 @@ enum sdm_status {
 
 typedef enum sdm_status status_t;
 
-// check what c-language will accept here is bool ansi c?
-inline int sdm_error(status_t s) { return (s<0); }
+/* check what c-language will accept here is bool ansi c? */
+/* int sdm_error(status_t s) { return (s<0); } */
 
 #endif
