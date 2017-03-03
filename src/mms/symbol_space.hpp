@@ -545,7 +545,7 @@ namespace molemind { namespace sdm {
         tm.prefix = prefix;
         size_t n = 0;
         
-        for (auto i = sl.first; i != sl.second && n < card_ub; ++i) {
+        for (auto i = sl.first; i != sl.second && n < card_ub; ++i, ++n) {
           term t(i->name(), (*vectors)[i->_id].density());
           tm.terms.push_back(t);
         }

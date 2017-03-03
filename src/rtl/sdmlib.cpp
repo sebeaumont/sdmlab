@@ -200,6 +200,8 @@ const card_t sdm_space_get_symbols(const space_t space,
     archive(cereal::make_nvp("term_match", tm));
   }
   //
+  std::cout << ss->str().data() << '\n';
+  //
   *tp = ss;
   return tm.matches;
 }
