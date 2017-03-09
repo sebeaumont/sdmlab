@@ -252,8 +252,8 @@ sdm_space_get_topology s m d n v = do
 newtype SDMTerm = SDMTerm (Ptr SDMTerm) deriving (Storable, Show)
 
 
-foreign import ccall unsafe "sdm_space_get_symbols"
-  c_sdm_space_get_symbols :: SDMSpace -> CString -> CUInt -> Ptr SDMTerm -> IO SDMCard
+foreign import ccall unsafe "sdm_space_serialize_symbols"
+  c_sdm_space_serialize_symbols :: SDMSpace -> CString -> CUInt -> Ptr SDMTerm -> IO SDMCard
 
 
 foreign import ccall unsafe "sdm_terms_buffer"
@@ -264,13 +264,16 @@ foreign import ccall unsafe "sdm_free_terms"
 
 
 -- | get list of symbols matching prefix up to n
-sdm_space_get_symbols :: SDMSpace -> String -> Int -> IO (BS.ByteString, SDMCard)
-sdm_space_get_symbols space prefix n = 
+sdm_space_serialize_symbols :: SDMSpace -> String -> Int -> IO (BS.ByteString, SDMCard)
+sdm_space_serialize_symbols space prefix n = 
   withCString prefix $ \str ->
                          alloca $ \ptr -> do
-    i <- c_sdm_space_get_symbols space str (fromIntegral n) ptr
+    i <- c_sdm_space_serialize_symbols space str (fromIntegral n) ptr
     tp <- peek ptr
-    s <- c_sdm_terms_buffer tp >>= BS.packCString
+    cs <- c_sdm_terms_buffer tp
+    -- length to ensure we are safe on the string copy
+    s <- BS.packCStringLen (cs, toInt i)
+    -- no leaks please
     c_sdm_free_terms tp
     return (s, i)
 

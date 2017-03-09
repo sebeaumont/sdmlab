@@ -11,7 +11,7 @@ int main(int argn, char** argv) {
 
   term_t ts;
   
-  card_t n = sdm_space_get_symbols(sp, "foot", 20, &ts);
+  card_t n = sdm_space_serialize_symbols(sp, "Wat", 20, &ts);
   const char* buff = sdm_terms_buffer(ts);
     
   printf("%lu\n%s\n", n, buff);

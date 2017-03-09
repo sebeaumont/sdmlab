@@ -534,13 +534,15 @@ namespace molemind { namespace sdm {
       };
       
       /// term_match on prefix
-      inline const term_match matching(const std::string prefix, std::size_t card_ub) {
+      inline const std::size_t matching(const std::string prefix,
+                                        const std::size_t card_ub,
+                                        term_match& tm) {
 
         auto sl = search(prefix);
         std::size_t matches = std::distance(sl.first, sl.second);
 
-        term_match tm;
-        tm.terms.reserve(card_ub);
+        //term_match tm;
+        //tm.terms.reserve(card_ub);
         tm.matches = matches;
         tm.prefix = prefix;
         size_t n = 0;
@@ -550,7 +552,7 @@ namespace molemind { namespace sdm {
           tm.terms.push_back(t);
         }
         
-        return tm;
+        return n;
       }
       
       /*********************************************************************************/

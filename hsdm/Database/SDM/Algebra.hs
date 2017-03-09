@@ -7,6 +7,7 @@ module Database.SDM.Algebra where
 import Database.SDM.Internal.SDMLIB (SDMBitVector(SDMBitVector, toArray))
 import qualified Data.Bits as B
 
+-- should we newtype wrap this?
 type SVec = SDMBitVector
 
 -- appl Data.Bits operations over Vector

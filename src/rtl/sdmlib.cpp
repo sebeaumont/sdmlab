@@ -178,44 +178,58 @@ const status_t sdm_space_get_symbol_vector(const space_t space,
   return AOK;
 }
 
-
-// get matching symbols with prefix
-
+// 
 const card_t sdm_space_get_symbols(const space_t space,
                                    const char* prefix,
                                    const card_t card_ub,
                                    term_t* tp) {
+  return EUNIMPLEMENTED;
+}
 
+// get matching symbols with prefix
+
+const card_t sdm_space_serialize_symbols(const space_t space,
+                                         const char* prefix,
+                                         const card_t card_ub,
+                                         term_t* tp) {
+  
   auto sp = static_cast<database::space*>(space);
-  auto tm = sp->matching(prefix, card_ub);
 
-  std::stringstream* ss = new std::stringstream();
+  database::space::term_match tm;
+  // returns number of matches found
+  card_t n = sp->matching(prefix, card_ub, tm);
+  (void) n; // silence unused for now
+  
+  std::stringstream ss; 
   //typedef cereal::JSONOutputArchive::Options options;
   
   // this block to ensure archive is flushed when it goes out of scope
   {
-    cereal::JSONOutputArchive archive(*ss);
+    cereal::JSONOutputArchive archive(ss);
     // with this: get no output at all... wtf? 
     // cereal::JSONOutputArchive archive(*ss, options::Options(6,options::IndentChar::space,0));
     archive(cereal::make_nvp("term_match", tm));
   }
-  //std::cout << ss->str().data() << '\n';
-  //
-  *tp = ss;
-  return tm.matches;
+
+  // XXX this to make sure we can share this data
+  // XXX buffer must be freed by caller...
+  std::string* data = new std::string(ss.str().data());
+  *tp = data;
+  return data->size(); 
 }
 
 const char* sdm_terms_buffer(term_t tp) {
-  auto ss = static_cast<std::stringstream*>(tp);
-  return ss->str().data();
+  auto ss = static_cast<std::string*>(tp);
+  return ss->c_str();
 }
 
 void sdm_free_terms(term_t tp) {
-  auto ss = static_cast<std::stringstream*>(tp);
+  auto ss = static_cast<std::string*>(tp);
   delete ss;
 }
 
 
+// XXX 
 
 // get neighbourhood of points
 
@@ -232,11 +246,13 @@ const card_t sdm_space_get_topology(const space_t s,
   card_t k = 0;
 
   auto topo = sp->neighbourhood(vec, metric_lb, density_ub, card_ub);
-  // TODO speedup by passing t directly to neighbourhood fn
+  // TODO speedup by passing t directly to neighbourhood fn?
   
   for (auto i = topo.begin(); i != topo.end(); ++i, ++t) {
     ++k;
-    t->symbol = i->name.c_str(); // ?maybe return actual symbol_t symbol? 
+    // XXX might work as the symbol (*i) is probably stable and c_str() is a pointer not a copy
+    // XXX but really this is UB
+    t->symbol = i->name.c_str(); 
     t->metric = i->similarity;
     t->density = i->density;
   }

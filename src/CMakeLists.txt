@@ -55,7 +55,7 @@ set(SDM_C_FLAGS "-std=c90")
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # TODO for clang these are clang specific
   # set(SDM_CXX_FLAGS "-Rpass=.*") # have clang show optimizations
-  # set(SDM_CXX_FLAGS "-fsanitize=address") doesn't work with apple 3.6 compiler!
+  # LINKING BUG: set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -fsanitize=undefined,address")
   set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -funroll-loops -fvectorize -fslp-vectorize -fslp-vectorize-aggressive")
 endif()
 

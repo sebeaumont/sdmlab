@@ -103,6 +103,11 @@ extern "C" {
                                      const card_t card_ub,
                                      term_t* terms);
 
+  const card_t sdm_space_serialize_symbols(const space_t space,
+                                           const char* prefix,
+                                           const card_t card_ub,
+                                           term_t* tp);
+  
   const card_t sdm_space_get_topology(const space_t,
                                       const vectordata_t*,
                                       const double,
