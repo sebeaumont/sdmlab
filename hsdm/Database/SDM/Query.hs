@@ -3,7 +3,7 @@ module Database.SDM.Query where
 
 import Database.SDM.Internal.Decode -- serialization API 
 import Database.SDM.Internal.SDMLIB -- FFI
-import Database.SDM.Algebra (SVec)  -- semantic vector type 
+import Database.SDM.Algebra
 
 -- | Basic database queries
 
@@ -15,10 +15,14 @@ getTerms s p n = (bsdecode . fst) <$> sdm_space_serialize_symbols s p n
 
 -- Attempt to create convenient API...
 
+{- |
+We can lift our pure vector functions up into the IO (Either SDMStatus a) type e.g:
+
+fmap popv <$> (liftA2 orv <$> (getSemanticVector (fst sp) "Sherlock")
+                          <*> (getSemanticVector (fst sp) "Simon"))
+-}
 
 -- | Get semantic vector for a term.
--- e.g. fmap popv `fmap` (getSemanticVector (fst sb) "Sherlock")
---
 getSemanticVector :: SDMSpace -> String -> IO (Either SDMStatus SDMBitVector)
 getSemanticVector s t = do
   gv <- sdm_space_get_vector s t
@@ -46,6 +50,15 @@ getElementalVector s t = do
     then return $ Left (snd ss)
     -- this should not fail but we could check!
     else return $ Right $ sdm_symbol_get_basis (fst ss) 
-           
 
+
+-- | step 1. basic term search
+--
+getTopologyForTerm :: SDMSpace -> String -> IO (Either SDMStatus [SDMPoint])
+getTopologyForTerm s t = do
+  -- probably only time we'll use this directly
+  semv <- getSemanticVector s t
+  case semv of
+    Right v -> getTopology s 0.5 0.5 10 v >>= return . Right 
+    Left e -> return $ Left e
 

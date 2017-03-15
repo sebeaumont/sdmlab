@@ -161,7 +161,7 @@ sdm_space_get_symbol_vector space symbol = alloca $ \ptr -> do
 type SDMDataWord = {#type vectordata_t #}
 
 -- we just wrap the native type array so we can reuse
-newtype  SDMBitVector =  SDMBitVector { toArray :: [SDMDataWord] }
+newtype  SDMBitVector =  SDMBitVector { toArray :: [SDMDataWord] } deriving (Show)
 
 foreign import ccall unsafe "sdm_vector_load"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
@@ -197,9 +197,9 @@ sdm_symbol_get_basis sym =
 
 -- Defintion of a point marshalled from C point_t
 
-data SDMPoint = SDMPoint { symbol :: Text,
-                           metric :: Double,
-                           density :: Double
+data SDMPoint = SDMPoint { symbol  :: !Text,
+                           metric  :: !Double,
+                           density :: !Double
                          } deriving (Show)
 
 instance Storable SDMPoint where
@@ -215,7 +215,7 @@ instance Storable SDMPoint where
 
 
 --
--- the shape of things to come
+-- the shape of things
 --
 
 foreign import ccall unsafe "sdm_space_get_topology"
@@ -263,11 +263,12 @@ foreign import ccall unsafe "sdm_free_terms"
   c_sdm_free_terms :: SDMTerm -> IO ()
 
 
--- | get list of symbols matching prefix up to n
+-- | get serialized symbol buffer for (upto n) symbols matching prefix
 sdm_space_serialize_symbols :: SDMSpace -> String -> Int -> IO (BS.ByteString, SDMCard)
 sdm_space_serialize_symbols space prefix n = 
   withCString prefix $ \str ->
                          alloca $ \ptr -> do
+    -- gets the size in bytes of the buffer
     i <- c_sdm_space_serialize_symbols space str (fromIntegral n) ptr
     tp <- peek ptr
     cs <- c_sdm_terms_buffer tp
