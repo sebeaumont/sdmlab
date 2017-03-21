@@ -3,7 +3,7 @@ module Database.SDM.Query where
 
 import Database.SDM.Internal.Decode -- serialization API 
 import Database.SDM.Internal.SDMLIB -- FFI
-import Database.SDM.Algebra (SVec(SVec), EVec(EVec)) -- Vector types
+import Database.SDM.Algebra (Vec(SVec,EVec)) -- Vector types
 
 -- | Basic database queries
 
@@ -26,7 +26,7 @@ liftA2 (popop orv) <$> getSemanticVector (fst sp) "Simon" <*> getSemanticVector 
 -}
 
 -- | Get semantic vector for a term.
-getSemanticVector :: SDMSpace -> String -> IO (Either SDMStatus SVec)
+getSemanticVector :: SDMSpace -> String -> IO (Either SDMStatus Vec)
 getSemanticVector s t = do
   gv <- sdm_space_get_vector s t
   if is_error (snd gv)
@@ -42,14 +42,14 @@ getTopology :: SDMSpace
             -> Double
             -> Double
             -> Int
-            -> SVec
+            -> Vec
             -> IO [SDMPoint]
 getTopology sp s d n (SVec v) = fst <$> sdm_space_get_topology sp s d n v
 
 
 -- | Get basis vector
 getElementalVector :: SDMSpace -> String
-                   -> IO (Either SDMStatus EVec)
+                   -> IO (Either SDMStatus Vec)
 getElementalVector s t = do
   ss <- sdm_space_get_symbol s t 
   if is_error (snd ss)
