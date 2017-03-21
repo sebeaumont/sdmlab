@@ -191,7 +191,7 @@ const card_t sdm_space_get_symbols(const space_t space,
 const card_t sdm_space_serialize_symbols(const space_t space,
                                          const char* prefix,
                                          const card_t card_ub,
-                                         term_t* tp) {
+                                         buffer_t* tp) {
   
   auto sp = static_cast<database::space*>(space);
 
@@ -211,19 +211,19 @@ const card_t sdm_space_serialize_symbols(const space_t space,
     archive(cereal::make_nvp("term_match", tm));
   }
 
-  // XXX this to make sure we can share this data
-  // XXX buffer must be freed by caller...
+  // to make sure we can share this data we allocate a copy on the
+  // heap which must be freed by caller!
   std::string* data = new std::string(ss.str().data());
   *tp = data;
   return data->size(); 
 }
 
-const char* sdm_terms_buffer(term_t tp) {
+const char* sdm_buffer_data(buffer_t tp) {
   auto ss = static_cast<std::string*>(tp);
   return ss->c_str();
 }
 
-void sdm_free_terms(term_t tp) {
+void sdm_buffer_free(buffer_t tp) {
   auto ss = static_cast<std::string*>(tp);
   delete ss;
 }

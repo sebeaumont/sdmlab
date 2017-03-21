@@ -157,16 +157,15 @@ sdm_space_get_symbol_vector space symbol = alloca $ \ptr -> do
 -- vectorpayload
 --
 
-
 type SDMDataWord = {#type vectordata_t #}
 
--- we just wrap the native type array so we can reuse
-newtype  SDMBitVector =  SDMBitVector { toArray :: [SDMDataWord] } deriving (Show)
+sdmDataEls :: Int
+sdmDataEls = {#const SDM_VECTOR_ELEMS#}
 
 foreign import ccall unsafe "sdm_vector_load"
   c_sdm_load_vector :: SDMVector -> Ptr SDMDataWord -> IO SDMStatus
 
-sdm_vector_load :: SDMVector -> IO (SDMBitVector, SDMStatus)
+sdm_vector_load :: SDMVector -> IO ([SDMDataWord], SDMStatus)
 sdm_vector_load v = do
   -- here allocate Haskell managed memory (ForeignPtr) with default
   -- finalisers (free) for vector data to be written
@@ -174,7 +173,7 @@ sdm_vector_load v = do
   withForeignPtr aptr $ \ptr -> do
     i <- c_sdm_load_vector v ptr
     a <- peekArray {#const SDM_VECTOR_ELEMS#} ptr
-    return (SDMBitVector a, i)
+    return (a, i)
 
 
 
@@ -227,19 +226,24 @@ foreign import ccall unsafe "sdm_space_get_topology"
                            -> Ptr SDMPoint
                            -> IO SDMCard
 
+-- | Warning this could truncate its input: however it is only used to size the
+-- allocation of data we copy over FFI which is unlikely to overflow an Int.
+--
+toInt :: SDMCard -> Int
 toInt = fromInteger . toInteger
 
 
--- | get list of nearest points from a space based on:
-sdm_space_get_topology :: SDMSpace
-                       -> Double -- ^ lower bound of similarity
-                       -> Double -- ^ upper bound of density
-                       -> Int    -- ^ upper bound of cardinality of computed point set
-                       -> SDMBitVector -- ^ search vector
+-- | get list of nearest points from a space given the parameters:
+--
+sdm_space_get_topology :: SDMSpace        -- ^ space to search
+                       -> Double          -- ^ lower bound of similarity
+                       -> Double          -- ^ upper bound of density
+                       -> Int             -- ^ upper bound of cardinality of computed point set
+                       -> [SDMDataWord]   -- ^ pattern vector
                        -> IO ([SDMPoint], SDMCard)
 sdm_space_get_topology s m d n v = do
   -- max card allocation (n) may be wasteful in some highly constrained cases.
-  withArray (toArray v) $ \vp -> do
+  withArray v $ \vp -> do
     aptr <- mallocForeignPtrArray n :: IO (ForeignPtr SDMPoint)
     withForeignPtr aptr $ \ptr -> do
       i <- c_sdm_space_get_topology s vp (realToFrac m) (realToFrac d) (fromIntegral n) ptr
@@ -249,18 +253,18 @@ sdm_space_get_topology s m d n v = do
 
 -- prefix search -- with newstyle JSON serializers
 
-newtype SDMTerm = SDMTerm (Ptr SDMTerm) deriving (Storable, Show)
+newtype SDMBuffer = SDMBuffer (Ptr SDMBuffer) deriving (Storable, Show)
 
 
 foreign import ccall unsafe "sdm_space_serialize_symbols"
-  c_sdm_space_serialize_symbols :: SDMSpace -> CString -> CUInt -> Ptr SDMTerm -> IO SDMCard
+  c_sdm_space_serialize_symbols :: SDMSpace -> CString -> CUInt -> Ptr SDMBuffer -> IO SDMCard
 
 
-foreign import ccall unsafe "sdm_terms_buffer"
-  c_sdm_terms_buffer :: SDMTerm -> IO CString
+foreign import ccall unsafe "sdm_buffer_data"
+  c_sdm_buffer_data :: SDMBuffer -> IO CString
 
-foreign import ccall unsafe "sdm_free_terms"
-  c_sdm_free_terms :: SDMTerm -> IO ()
+foreign import ccall unsafe "sdm_buffer_free"
+  c_sdm_buffer_free :: SDMBuffer -> IO ()
 
 
 -- | get serialized symbol buffer for (upto n) symbols matching prefix
@@ -271,10 +275,10 @@ sdm_space_serialize_symbols space prefix n =
     -- gets the size in bytes of the buffer
     i <- c_sdm_space_serialize_symbols space str (fromIntegral n) ptr
     tp <- peek ptr
-    cs <- c_sdm_terms_buffer tp
+    cs <- c_sdm_buffer_data tp
     -- length to ensure we are safe on the string copy
     s <- BS.packCStringLen (cs, toInt i)
-    -- no leaks please
-    c_sdm_free_terms tp
+    -- no leaks please!
+    c_sdm_buffer_free tp
     return (s, i)
 

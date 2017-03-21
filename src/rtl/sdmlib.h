@@ -22,7 +22,7 @@ typedef void* vector_t;
 typedef void const * symbol_t;
 typedef void* term_t;
 
-/* concrete types that are marshalled into caller space -- deprecated under new
+/* concrete types that are marshalled into caller space
    serialiser architecture */
 
 typedef struct {
@@ -31,6 +31,7 @@ typedef struct {
   double density;
 } point_t;
 
+typedef void* buffer_t;
 
 typedef SDM_VECTOR_ELEMENT_TYPE vectordata_t;
 typedef size_t basis_t; 
@@ -106,7 +107,7 @@ extern "C" {
   const card_t sdm_space_serialize_symbols(const space_t space,
                                            const char* prefix,
                                            const card_t card_ub,
-                                           term_t* tp);
+                                           buffer_t* tp);
   
   const card_t sdm_space_get_topology(const space_t,
                                       const vectordata_t*,
@@ -134,12 +135,12 @@ extern "C" {
                                   vectordata_t vdata);
 
   /**
-   * term_t -> ...
+   * buffer_t -> ...
    */
 
-  const char* sdm_terms_buffer(term_t tp);
+  const char* sdm_buffer_data(buffer_t tp);
   
-  void sdm_free_terms(term_t tp);
+  void sdm_buffer_free(buffer_t tp);
   
  
 
