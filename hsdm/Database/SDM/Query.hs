@@ -3,7 +3,7 @@ module Database.SDM.Query where
 
 import Database.SDM.Internal.Decode -- serialization API 
 import Database.SDM.Internal.SDMLIB -- FFI
-import Database.SDM.Algebra (Vec(SVec,EVec)) -- Vector types
+import Database.SDM.Algebra (Vec(SVec,EVec)) -- Vector (de-)constructors
 
 -- | Basic database queries
 

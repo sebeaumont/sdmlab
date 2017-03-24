@@ -10,11 +10,11 @@ module Database.SDM.Internal.SDMLIB where
 import System.IO.Unsafe (unsafeDupablePerformIO)
 
 import Foreign
-import Foreign.Ptr
-import Foreign.ForeignPtr
+--import Foreign.Ptr
+--import Foreign.ForeignPtr
 import Foreign.C
-import Foreign.C.Types
-import Foreign.C.String
+--import Foreign.C.Types
+--import Foreign.C.String
 
 import qualified Data.ByteString as BS
 import Data.Text
@@ -45,6 +45,16 @@ type SDMStatus = {#type status_t #}
 is_error :: SDMStatus -> Bool
 is_error = (<0)
 
+------------------------------------
+-- IO wrapper for FFI actions
+------------------------------------
+
+newtype SDMDB a = SDMDB { runSDMDB :: IO a } deriving (Functor, Applicative, Monad)
+
+------------------------------------
+-- Opaque pointers to Foreign data
+------------------------------------
+
 --
 -- SDM Database
 --
@@ -65,7 +75,7 @@ sdm_database file size maxsize =
                        alloca $ \dbptr -> do
     i <- c_sdm_open_db str (fromIntegral size) (fromIntegral maxsize) dbptr
     d <- peek dbptr
-    return (d,  i)
+    return $ (d,  i)
     
 -- this could be managed by finalser
 sdm_database_close :: SDMDatabase -> IO ()
@@ -147,8 +157,8 @@ foreign import ccall unsafe "sdm_space_get_symbol_vector"
   c_sdm_space_get_symbol_vector :: SDMSpace -> SDMSymbol -> Ptr SDMVector -> IO SDMStatus
 
 sdm_space_get_symbol_vector :: SDMSpace -> SDMSymbol -> IO (SDMVector, SDMStatus)
-sdm_space_get_symbol_vector space symbol = alloca $ \ptr -> do
-  i <- c_sdm_space_get_symbol_vector space symbol ptr
+sdm_space_get_symbol_vector sp sy = alloca $ \ptr -> do
+  i <- c_sdm_space_get_symbol_vector sp sy ptr
   v <- peek ptr
   return (v, i)
   
@@ -159,7 +169,7 @@ sdm_space_get_symbol_vector space symbol = alloca $ \ptr -> do
 
 type SDMDataWord = {#type vectordata_t #}
 
-sdmDataEls :: Int
+sdmDataEls :: SDMVectorIdx
 sdmDataEls = {#const SDM_VECTOR_ELEMS#}
 
 foreign import ccall unsafe "sdm_vector_load"
@@ -189,7 +199,7 @@ sdm_symbol_get_basis sym =
   unsafeDupablePerformIO $ do
   aptr <- mallocForeignPtrArray {#const SDM_VECTOR_BASIS_SIZE#} :: IO (ForeignPtr SDMVectorIdx)
   withForeignPtr aptr $ \ptr -> do
-     i <- c_sdm_get_basis sym ptr
+     _ <- c_sdm_get_basis sym ptr
      a <- peekArray {#const SDM_VECTOR_BASIS_SIZE#} ptr
      return a
 
@@ -210,7 +220,7 @@ instance Storable SDMPoint where
     m <- {#get point_t.metric#} ptr >>= return . realToFrac
     d <- {#get point_t.density#} ptr >>= return . realToFrac
     return $ SDMPoint s m d
-  poke ptr (SDMPoint s m d) = undefined
+  poke _ (SDMPoint _ _ _) = undefined
 
 
 --

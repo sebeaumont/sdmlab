@@ -35,4 +35,4 @@ library
   include-dirs:        /opt/molemind/include
   extra-lib-dirs:      /opt/molemind/lib
   extra-libraries:     sdm
-  --ghc-options:         -threaded
+  ghc-options:         -Wall
