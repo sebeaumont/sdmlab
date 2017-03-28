@@ -1,11 +1,11 @@
 
-module Database.SDM.Query where
+module Database.SDM.Query.IO where
 
 import Database.SDM.Internal.Decode -- serialization API 
 import Database.SDM.Internal.SDMLIB -- FFI
 import Database.SDM.Algebra (Vec(SVec,EVec)) -- Vector (de-)constructors
 
--- | Basic database queries
+-- | Basic database queries and FFI actions
 
 -- TODO: turn maybe into either with error codes
 
