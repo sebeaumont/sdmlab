@@ -18,6 +18,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:    Database.SDM.Query.IO
                     , Database.SDM.Query.AST
+                    , Database.SDM.Query.Eval
                     , Database.SDM.Algebra
                     , Database.SDM.Bootstrap
                     , Database.SDM.Internal.Decode

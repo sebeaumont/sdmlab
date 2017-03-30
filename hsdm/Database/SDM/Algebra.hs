@@ -12,6 +12,7 @@ module Database.SDM.Algebra
    orv,
    popv,
    popop,
+   toDense,
    Vector,
    add,
    scale,

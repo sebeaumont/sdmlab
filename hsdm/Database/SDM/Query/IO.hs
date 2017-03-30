@@ -1,13 +1,45 @@
 
-module Database.SDM.Query.IO where
+module Database.SDM.Query.IO
+  (openDB,
+   SDMStatus,
+   SDMDatabase,
+   closeDB,
+   ensureSpace,
+   SDMSpace,
+   getSemanticVector,
+   getElementalVector,
+   getTopology,
+   getTopologyForTerm
+  ) where
 
 import Database.SDM.Internal.Decode -- serialization API 
 import Database.SDM.Internal.SDMLIB -- FFI
-import Database.SDM.Algebra (Vec(SVec,EVec)) -- Vector (de-)constructors
+import Database.SDM.Algebra         
 
--- | Basic database queries and FFI actions
+-- | Basic database queries and utilities
 
--- TODO: turn maybe into either with error codes
+
+openDB :: String -> Int -> Int -> IO (Either SDMStatus SDMDatabase)
+openDB f sz ms = do
+  dv <- sdm_database f sz ms
+  if is_error (snd dv)
+    then return $ Left (snd dv)
+    else return $ Right (fst dv)
+
+
+closeDB :: SDMDatabase -> IO ()
+closeDB = sdm_database_close
+
+
+ensureSpace :: SDMDatabase -> String -> IO (Either SDMStatus SDMSpace)
+ensureSpace db s = do
+  sv <- sdm_database_ensure_space db s
+  if is_error (snd sv)
+    then return $ Left (snd sv)
+    else return $ Right (fst sv)
+
+
+-- TODO: turn maybe into either with error codes... see bsdecode.
 
 getTerms :: SDMSpace -> String -> Int -> IO (Maybe TermMatchReply)
 getTerms s p n = (bsdecode . fst) <$> sdm_space_serialize_symbols s p n
@@ -31,12 +63,12 @@ getSemanticVector s t = do
   gv <- sdm_space_get_vector s t
   if is_error (snd gv)
     then return $ Left (snd gv)
-      -- this should not fail - but we could check!
+    -- this should not fail - but we could check!
     else sdm_vector_load (fst gv) >>= return . Right . SVec . fst
 
 
 
--- | Get topology for a dense pattern in SVec
+-- | Get topology for a dense pattern vector
 
 getTopology :: SDMSpace
             -> Double
@@ -45,6 +77,7 @@ getTopology :: SDMSpace
             -> Vec
             -> IO [SDMPoint]
 getTopology sp s d n (SVec v) = fst <$> sdm_space_get_topology sp s d n v
+getTopology sp s d n v@(EVec _) = getTopology sp s d n (toDense v)
 
 
 -- | Get basis vector
