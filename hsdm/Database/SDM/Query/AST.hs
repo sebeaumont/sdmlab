@@ -1,16 +1,30 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
+-- | Module for Query language...
+
 module Database.SDM.Query.AST where
 
-
--- The AST is simple enough as it evaluates to only one type
--- if we get more complcated than this then we'd need a GADT
+import Database.SDM.Algebra
+import Database.SDM.Query.IO (SDMCard, SDMPoint)
 
 type Space = String
 type Name = String
 
 
-data Expr = Symbol Space Name
-          | Or Expr Expr
-          | And Expr Expr
-          | Not Expr
+type LevelSet = ([SDMPoint], SDMCard)
 
+data Expr a where
+  -- | Vector valued expressions
+  Elem :: Space -> Name -> Expr Vec
+  State :: Space -> Name -> Expr Vec
+  Or :: Expr Vec -> Expr Vec -> Expr Vec
+  And :: Expr Vec -> Expr Vec -> Expr Vec
+  Not :: Expr Vec -> Expr Vec
+  -- | other stuff
+  Topo :: Space -> Double -> Double -> Int -> Expr Vec -> Expr LevelSet
 
+deriving instance Show (Expr a)
+  
+
+  

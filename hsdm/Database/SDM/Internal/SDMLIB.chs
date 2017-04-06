@@ -49,7 +49,7 @@ is_error = (<0)
 -- IO wrapper for FFI actions
 ------------------------------------
 
-newtype SDMDB a = SDMDB { runSDMDB :: IO a } deriving (Functor, Applicative, Monad)
+-- newtype SDMDB a = SDMDB { runSDMDB :: IO a } deriving (Functor, Applicative, Monad)
 
 ------------------------------------
 -- Opaque pointers to Foreign data

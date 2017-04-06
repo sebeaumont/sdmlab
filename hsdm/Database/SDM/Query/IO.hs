@@ -9,7 +9,9 @@ module Database.SDM.Query.IO
    getSemanticVector,
    getElementalVector,
    getTopology,
-   getTopologyForTerm
+   --getTopologyForTerm,
+   SDMPoint,
+   SDMCard
   ) where
 
 import Database.SDM.Internal.Decode -- serialization API 
@@ -75,8 +77,8 @@ getTopology :: SDMSpace
             -> Double
             -> Int
             -> Vec
-            -> IO [SDMPoint]
-getTopology sp s d n (SVec v) = fst <$> sdm_space_get_topology sp s d n v
+            -> IO ([SDMPoint], SDMCard)
+getTopology sp s d n (SVec v) = sdm_space_get_topology sp s d n v
 getTopology sp s d n v@(EVec _) = getTopology sp s d n (toDense v)
 
 
@@ -91,8 +93,8 @@ getElementalVector s t = do
     else return $ Right $ EVec $ sdm_symbol_get_basis (fst ss) 
 
 
--- | step 1. basic term search
---
+  
+{-
 getTopologyForTerm :: SDMSpace -> Double -> Double -> Int -> String
                    -> IO (Either SDMStatus [SDMPoint])
 getTopologyForTerm s m d n t = do
@@ -100,4 +102,4 @@ getTopologyForTerm s m d n t = do
   case semv of
     Right v -> getTopology s m d n v >>= return . Right 
     Left e -> return $ Left e
-
+-}
