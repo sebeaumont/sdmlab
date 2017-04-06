@@ -10,24 +10,6 @@ import Database.SDM.Query.IO
 import Database.SDM.Query.AST (Expr(..))
 
 
-
--- | Get the level set for a VExpr - might be more powerful to incorporate this into grammar
-{-
-data Expr = Topo Space Double Double Int VExpr
-          | ...
-
--- eval db (Topo e1) = undefined
-
-levelSet :: SDMDatabase -> String -> Double -> Double -> Int -> VExpr -> IO (Either SDMStatus ([SDMPoint], SDMCard))
-levelSet db s p d n e = do
-  sv <- ensureSpace db s
-  case sv of
-    Left err -> return $ Left err
-    Right sp -> do
-      ls <- fmap (getTopology sp p d n) <$> eval db e
-      return $ Right ls
--}
-
 -- | Evaluate the polymorphic query expression via. database IO
 
 eval :: SDMDatabase -> Expr a -> IO (Either SDMStatus a)
