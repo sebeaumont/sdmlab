@@ -229,9 +229,8 @@ void sdm_buffer_free(buffer_t tp) {
 }
 
 
-// XXX 
 
-// get neighbourhood of points
+// get a neighbourhood of points
 
 const card_t sdm_space_get_topology(const space_t s,
                                     const vectordata_t* v,
@@ -241,7 +240,7 @@ const card_t sdm_space_get_topology(const space_t s,
                                     point_t* t) {
   // space 
   auto sp = static_cast<database::space*>(s);
-  // init query vector
+  // load query vector
   database::space::ephemeral_vector_t vec(v);
   card_t k = 0;
 
@@ -250,13 +249,12 @@ const card_t sdm_space_get_topology(const space_t s,
   
   for (auto i = topo.begin(); i != topo.end(); ++i, ++t) {
     ++k;
-    // XXX might work as the symbol (*i) is probably stable and c_str() is a pointer not a copy
-    // XXX but really this is UB
+    // XXX might be stable ptr as the symbol (*i) is probably stable and c_str() is a pointer not a copy
     t->symbol = i->name.c_str(); 
     t->metric = i->similarity;
     t->density = i->density;
   }
-  return k; 
+  return k; // XXX should be the actual level set cardinality (given contraints) 
 }
 
 

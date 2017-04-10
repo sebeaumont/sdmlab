@@ -81,7 +81,7 @@ wordbit i = (i `div` sdmDataEls, i `rem` sdmDataEls)
 toDense :: Vec -> Vec
 toDense (EVec u) = SVec $ zipWith (bitset $ Set.fromDistinctAscList u) [0..] zerow where
   bitset :: Set.Set SDMVectorIdx -> SDMVectorIdx -> SDMDataWord -> SDMDataWord
-  bitset idx i w | Set.member i idx =  w `B.setBit` (fromIntegral $ snd $ wordbit i)
+  bitset idx i w | Set.member i idx =  w `B.setBit` fromIntegral (snd $ wordbit i)
                  | otherwise = w
 toDense u@(SVec _) = u
 
@@ -126,7 +126,7 @@ xorv u@(SVec _) v@(EVec _) = xorv u (toDense v)
 xorv u@(EVec _) v@(SVec _) = xorv (toDense u) v
 
 instance Metric Vec Int where
-  distance u v = popop xorv u v 
+  distance = popop xorv
 
 
 -- | And to multiply

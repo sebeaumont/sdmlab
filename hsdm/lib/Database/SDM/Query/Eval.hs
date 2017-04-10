@@ -30,7 +30,7 @@ eval db (Or e1 e2) = liftA2 add <$> (eval db e1) <*> (eval db e2)
 
 eval db (And e1 e2) = liftA2 mul <$> (eval db e1) <*> (eval db e2)
 
-eval db (Not e1) = undefined -- XXX TODO
+eval db (Not e1) = undefined -- XXXXXX TODO XXXXX
 
 eval db (Topo sn p d n e1) = do
   sv <- ensureSpace db sn

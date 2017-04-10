@@ -16,6 +16,7 @@ extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
 library
+
   exposed-modules:    Database.SDM.Query.IO
                     , Database.SDM.Query.AST
                     , Database.SDM.Query.Eval
@@ -31,10 +32,21 @@ library
                      , aeson
                      , containers
                      
-  -- hs-source-dirs:      
+  hs-source-dirs:      lib
   default-language:    Haskell2010
   build-tools:         c2hs
   include-dirs:        /opt/molemind/include
   extra-lib-dirs:      /opt/molemind/lib
   extra-libraries:     sdm
   ghc-options:         -Wall
+
+executable sdmq
+  main-is:             sdmq.hs
+  build-depends:       base
+                     , hsdm
+                     , Chart
+                     , Chart-diagrams
+  hs-source-dirs:      sdmq
+  default-language:    Haskell2010
+  ghc-options:       -O3 -Wall -threaded
+  
