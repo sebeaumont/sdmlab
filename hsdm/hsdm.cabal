@@ -16,15 +16,13 @@ extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
 library
-
   exposed-modules:    Database.SDM.Query.IO
                     , Database.SDM.Query.AST
                     , Database.SDM.Query.Eval
                     , Database.SDM.Algebra
-                    , Database.SDM.Bootstrap
                     , Database.SDM.Internal.Decode
                     , Database.SDM.Internal.SDMLIB
-  --other-modules:       
+  -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10
                      , bytestring
@@ -44,9 +42,25 @@ executable sdmq
   main-is:             sdmq.hs
   build-depends:       base
                      , hsdm
+                     , diagrams-lib
+                     , diagrams-svg
+                     , diagrams-canvas
+                     , time
                      , Chart
                      , Chart-diagrams
   hs-source-dirs:      sdmq
+  default-language:    Haskell2010
+  ghc-options:       -O3 -Wall -threaded
+
+  
+executable demo
+  main-is:             Main.hs
+  build-depends:       base
+                     , diagrams-lib
+                     , diagrams-canvas
+                     , blank-canvas
+                     , time
+  hs-source-dirs:      demo
   default-language:    Haskell2010
   ghc-options:       -O3 -Wall -threaded
   
