@@ -5,7 +5,6 @@
 
 module Main where
 
-
 import Control.Concurrent
 import Data.Time
 import Diagrams.Backend.Canvas
@@ -31,8 +30,14 @@ clock t = circle 0.35 # fc silver # lwG 0
     secondHand = (0 ^& (-1.5)) ~~ (0 ^& 10.0) # lwG 0.1
     
     f n v = rotate (- v / n @@ turn)
+    -- | local function to round double to nearest unit
     q :: Double -> Double
-    q = realToFrac . round
+    q = roundn 0 
+
+-- | Round to n places
+-- roundn :: (Fractional b, RealFrac a, Integral n) => n -> a -> b
+roundn :: Int -> Double -> Double 
+roundn n f = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
 
 main :: IO ()
 main = blankCanvas 3000 $ \context -> loop context

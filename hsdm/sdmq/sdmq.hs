@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
@@ -5,46 +6,80 @@
 
 module Main where
 
-import Data.Time
+import Control.Concurrent
 
 import Database.SDM.Algebra
 import Database.SDM.Query.Eval
+import Database.SDM.Query.IO
 import Database.SDM.Query.AST
 
+import Diagrams.Backend.Canvas
 import Diagrams.Prelude
-import Diagrams.Coordinates
---import Diagrams.Backend.SVG.CmdLine
-import Diagrams.Backend.Canvas.CmdLine
 
---import Graphics.Rendering.Chart.Easy
---import Graphics.Rendering.Chart.Backend.Diagrams(toFile)
+import Graphics.Blank (DeviceContext, blankCanvas, send, clearCanvas)
+import qualified Graphics.SVGFonts as SF
+import qualified Data.Text as T
 
-signal :: [Double] -> [(Double,Double)]
-signal xs = [ (x,(sin (x*3.14159/45) + 1) / 2 * (sin (x*3.14159/5))) | x <- xs ]
+-- | SVG font text with origin at left end of baseline
+--text' :: (Read n, Renderable (Path V2 n) b, RealFloat n, Data.Typeable.Internal.Typeable n) => n -> String -> QDiagram b V2 n Any
 
-{-
+text' d s = (SF.textSVG_ (SF.TextOpts SF.lin SF.INSIDE_H SF.KERN False d d) s) # lw none
+
+-- | SVG font text with origin at centre of text
+
+text'' d s = (strokeP $ SF.textSVG' (SF.TextOpts SF.lin SF.INSIDE_H SF.KERN False d d) s) # lw none
+
+-- test data
+type NodeInfo = (String, Double, Double)
+
+node :: NodeInfo -> Diagram B
+node (s, p, d) = text' p s # fc blue # light # opacity (sqrt (1.0 - d))
+
+
+graph :: [NodeInfo] -> Diagram B
+graph l = atPoints (trailVertices $ regPoly (length l) 2.5) (map node l) # pad 1.5
+
+
+-- | Actual data types we want to visualise
+
+node' :: SDMPoint -> Diagram B
+node' p = text' (metric p) (T.unpack $ symbol p) # fc blue # light # opacity (sqrt (1.0 - density p))
+
+node'' :: SDMPoint -> Diagram B
+node'' p = text' 1.0 (T.unpack $ symbol p) # fc blue # light
+
+graph' :: LevelSet -> Diagram B
+graph' l = atPoints (trailVertices $ regPoly (length $ fst l) 2.5) (map node' (fst l)) # pad 1.5
+
+
+
+-- | Round to n places
+-- roundn :: (Fractional b, RealFrac a, Integral n) => n -> a -> b
+roundn :: Int -> Double -> Double 
+roundn n f = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
+
+
 main :: IO ()
-main = toFile def "mychart.svg" $ do
-    layout_title .= "Amplitude Modulation"
-    setColors [opaque blue, opaque red]
-    plot (line "am" [signal [0,(0.5)..400]])
-    plot (points "am points" (signal [0,7..400]))
--}
+main = do
+  db <- openDB "/Users/seb/Data/ash.sdm" (1024*1024*700) (1024*1024*700)
+  case db of
+    Left e -> putStrLn $ show e
+    Right d -> blankCanvas 3000 $ \context -> loop context d
 
-clock :: UTCTime -> Diagram B
-clock t = circle 0.35 # fc silver # lwG 0 # frame 12
-          <> bigHand # f 12 h <> littleHand # f 60 m
-          <> circle 1  # fc black # lwG 0
-          <> circle 11 # lwG 1.5 # lc slategray # fc lightsteelblue
-  where
-    s = realToFrac $ utctDayTime t :: Double
-    m = s / 60
-    h = m / 60
 
-    bigHand    = (0 ^& (-1.5)) ~~ (0 ^& 7.5) # lwG 0.5
-    littleHand = (0 ^& (-2))   ~~ (0 ^& 9.5) # lwG 0.2
-    f n v = rotate (- v / n @@ turn)
+loop :: DeviceContext -> SDMDatabase -> IO ()
+loop context db = do
+  top <- test_topo db
+  case top of
+    Left e -> putStrLn $ show e
+    Right t -> do
+      putStrLn $ show t
+      send context (clearCanvas >> renderDia Canvas (CanvasOptions (mkWidth 400)) (graph' t))
+      threadDelay (10*1000000) -- uSec
+      loop context db
 
-main :: IO ()
-main = mainWith (clock <$> getCurrentTime)
+
+
+test_topo db = eval db (Topo "words" 0.5 0.5 10 (Or (State "words" "Sherlock") (State "words" "Watson")))
+
 

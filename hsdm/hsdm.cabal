@@ -41,10 +41,13 @@ library
 executable sdmq
   main-is:             sdmq.hs
   build-depends:       base
+                     , text
                      , hsdm
                      , diagrams-lib
                      , diagrams-svg
                      , diagrams-canvas
+                     , blank-canvas
+                     , SVGFonts
                      , time
                      , Chart
                      , Chart-diagrams

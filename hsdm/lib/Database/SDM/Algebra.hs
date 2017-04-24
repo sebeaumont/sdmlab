@@ -24,14 +24,23 @@ module Database.SDM.Algebra
    GeometricProduct,
    gproduct,
    Metric,
-   distance) where
+   distance,
+   LevelSet,
+   -- newtypes?
+   SDMPoint,
+   symbol,
+   metric,
+   density
+  ) where
 
 
-import Database.SDM.Internal.SDMLIB (SDMDataWord, SDMVectorIdx, sdmDataEls)
+import Database.SDM.Internal.SDMLIB (SDMDataWord, SDMVectorIdx, sdmDataEls, SDMPoint, symbol, metric, density, SDMCard)
 import qualified Data.Bits as B
 import qualified Data.Set as Set
 import qualified Data.List as List 
 
+
+type LevelSet = ([SDMPoint], SDMCard)
 
 -- | typeclasses which generalise operations over vectors
 
