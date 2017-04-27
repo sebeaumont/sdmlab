@@ -5,3 +5,4 @@
 * Basic functions for SDM vector manipulation.
 * IO FFI Query functions
 * Basic vector algebra
+* End to end PoC with diagrams

@@ -45,8 +45,8 @@ graph l = atPoints (trailVertices $ regPoly (length l) 2.5) (map node l) # pad 1
 node' :: SDMPoint -> Diagram B
 node' p = text' (metric p) (T.unpack $ symbol p) # fc blue # light # opacity (sqrt (1.0 - density p))
 
-node'' :: SDMPoint -> Diagram B
-node'' p = text' 1.0 (T.unpack $ symbol p) # fc blue # light
+--node'' :: SDMPoint -> Diagram B
+--node'' p = text' 1.0 (T.unpack $ symbol p) # fc blue # light
 
 graph' :: LevelSet -> Diagram B
 graph' l = atPoints (trailVertices $ regPoly (length $ fst l) 2.5) (map node' (fst l)) # pad 1.5
@@ -61,7 +61,7 @@ roundn n f = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
 
 main :: IO ()
 main = do
-  db <- openDB "/Users/seb/Data/ash.sdm" (1024*1024*700) (1024*1024*700)
+  db <- openDB "/Volumes/Media/Data/medline/medline.sdm" (1024*1024*2048) (1024*1024*2048)
   case db of
     Left e -> putStrLn $ show e
     Right d -> blankCanvas 3000 $ \context -> loop context d
@@ -69,17 +69,21 @@ main = do
 
 loop :: DeviceContext -> SDMDatabase -> IO ()
 loop context db = do
-  top <- test_topo db
+  -- term <- getLine hmm getLine wont terminate in this context!
+  -- somehow we need to get a line of user input to parse into the AST
+  top <- term_test db "tachycardia"
   case top of
     Left e -> putStrLn $ show e
     Right t -> do
       putStrLn $ show t
       send context (clearCanvas >> renderDia Canvas (CanvasOptions (mkWidth 400)) (graph' t))
-      threadDelay (10*1000000) -- uSec
-      loop context db
+      -- threadDelay (10*1000000) -- uSec
+  loop context db
 
 
+-- test_topo db = eval db (Topo "words" 0.5 0.5 10 (Or (State "words" "Sherlock") (State "words" "Watson")))
+test_topo db = eval db (Topo "words" 0.5 0.5 10 (State "words" "tachycardia"))
 
-test_topo db = eval db (Topo "words" 0.5 0.5 10 (Or (State "words" "Sherlock") (State "words" "Watson")))
+term_test db s = eval db (Topo "words" 0.5 0.5 10 (State "words" s))
 
 
