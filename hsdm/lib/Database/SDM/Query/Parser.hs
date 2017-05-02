@@ -3,8 +3,7 @@
 
 -- | Module for DSL syntax  
 
-module Database.SDM.Query.Parser where
-
+module Database.SDM.Query.Parser (parseExpr, parseTopo) where
 --import Control.Applicative
 import Control.Monad (void)
 
@@ -70,15 +69,32 @@ operators = [[Prefix (AST.Not <$ nots)],
 identifier :: ParsecT Dec String Identity [Char]
 identifier = stringLiteral <|> (lexeme . try) (many alphaNumChar) 
 
+-- | Vector valued expression parsers
 
 term :: ParsecT Dec String Identity (AST.Expr Vec)
 term = parens vexpr <|> AST.State <$> identifier <*> identifier
 
--- | Vector valued expression
 
 vexpr :: Parser (AST.Expr Vec)
 vexpr = makeExprParser term operators 
 
+
 -- parse a string to an exprssion... 
+
 parseExpr :: String -> Either (ParseError (Token String) Dec) (AST.Expr Vec)
 parseExpr s = parse vexpr "expression" s
+
+-- | Statements/commands
+
+topo :: Parser (AST.Expr LevelSet) 
+topo = do
+  _ <- sym "topo"
+  s <- identifier
+  p <- double
+  d <- double
+  n <- integer 
+  x <- vexpr
+  return $ AST.Topo s p d (fromIntegral n) x
+
+parseTopo :: String -> Either (ParseError (Token String) Dec) (AST.Expr LevelSet)
+parseTopo s = parse topo "topology" s

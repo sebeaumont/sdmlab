@@ -8,6 +8,8 @@ module Main where
 
 --import Control.Concurrent
 import Control.Monad.IO.Class (liftIO)
+
+import Database.SDM.Query.Parser
 import Database.SDM.Algebra
 import Database.SDM.Query.Eval
 import Database.SDM.Query.IO
@@ -33,19 +35,21 @@ readEvalPrint db = do
     Nothing -> return () -- eof/null
     Just "quit" -> return ()
     Just line -> do
-      top <- liftIO $ term_test db line
-      outputStrLn $ render top
+      case parseTopo line of
+        Left e -> outputStrLn $ "** syntax: " ++ (show line) ++ (show e)
+        Right t -> do
+          top <- liftIO $ eval db t
+          outputStrLn $ render top
       readEvalPrint db
 
 
--- todo generalise to Eval
+-- hmm
 
 render :: Either SDMStatus LevelSet -> String
 render s = case s of
   Left e -> "OOPS: " ++ (show e)
   Right t -> intercalate "\n" $ [show x | x <- (fst t)] 
 
- 
 
 -- test_topo db = eval db (Topo "words" 0.5 0.5 10 (Or (State "words" "Sherlock") (State "words" "Watson")))
 test_topo db = eval db (Topo "words" 0.5 0.5 10 (State "words" "tachycardia"))
