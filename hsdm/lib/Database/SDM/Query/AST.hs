@@ -4,7 +4,6 @@
 -- | Module for DSL syntax  
 
 module Database.SDM.Query.AST where
-
 import Database.SDM.Algebra
 
 type Space = String

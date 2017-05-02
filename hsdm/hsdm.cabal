@@ -19,6 +19,7 @@ library
   exposed-modules:    Database.SDM.Query.IO
                     , Database.SDM.Query.AST
                     , Database.SDM.Query.Eval
+                    , Database.SDM.Query.Parser
                     , Database.SDM.Algebra
                     , Database.SDM.Internal.Decode
                     , Database.SDM.Internal.SDMLIB
@@ -29,6 +30,7 @@ library
                      , text
                      , aeson
                      , containers
+                     , megaparsec
                      
   hs-source-dirs:      lib
   default-language:    Haskell2010
@@ -43,14 +45,8 @@ executable sdmq
   build-depends:       base
                      , text
                      , hsdm
-                     , diagrams-lib
-                     , diagrams-svg
-                     , diagrams-canvas
-                     , blank-canvas
-                     , SVGFonts
-                     , time
-                     , Chart
-                     , Chart-diagrams
+                     , haskeline
+                     
   hs-source-dirs:      sdmq
   default-language:    Haskell2010
   ghc-options:       -O3 -Wall -threaded

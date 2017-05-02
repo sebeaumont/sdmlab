@@ -17,6 +17,13 @@ A domain specific language (DSL) was defined and implemented in
 Haskell to interpret queries as transactions on the backend database
 to retrieve vector data.
 
+E.g. the level set resulting from the expression below can be computed directly
+by evaluating the expression against a backend:
+```
+    (Topo "words" 0.5 0.5 10 
+        (Or (State "words" "Sherlock") 
+            (State "words" "Watson")))
+```
 The vector operations were localised (re-implemented) in the client.
 Whilst these may not be as fast or space-efficient as the current
 backend native implementations, in future this may change. 
