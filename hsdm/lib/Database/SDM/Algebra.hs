@@ -1,9 +1,9 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 
-{- |
-This is the module documentation for the Algebra module
--}
+{- | Vector Space Algebra - this module had some generic typeclasses and
+   thus needs repackaging into SDM specific instances and general
+   algebraic typeclasses. -}
 
 module Database.SDM.Algebra
   (Vec(..),
@@ -24,23 +24,18 @@ module Database.SDM.Algebra
    GeometricProduct,
    gproduct,
    Metric,
-   distance,
-   LevelSet,
-   -- newtypes?
-   SDMPoint,
-   symbol,
-   metric,
-   density
+   distance
   ) where
 
 
-import Database.SDM.Internal.SDMLIB (SDMDataWord, SDMVectorIdx, sdmDataEls, SDMPoint, symbol, metric, density, SDMCard)
+import Database.SDM
+
 import qualified Data.Bits as B
 import qualified Data.Set as Set
 import qualified Data.List as List 
 
 
-type LevelSet = ([SDMPoint], SDMCard)
+
 
 -- | typeclasses which generalise operations over vectors
 

@@ -4,7 +4,10 @@
 -- | Module for DSL syntax  
 
 module Database.SDM.Query.AST where
+
+import Database.SDM
 import Database.SDM.Algebra
+
 
 type Space = String
 type Name = String
@@ -22,10 +25,13 @@ data Expr a where
   -- | Topo with metric lower bound, density upper bound and cardinality constraints with target
   -- vector expression computes LevelSet
   Topo :: Space -> Double -> Double -> Int -> Expr Vec -> Expr LevelSet
-
-  -- TODO superposition (train/assoc/contains)
-  
+  -- | Terms matching with cardinality 
+  Terms :: Space -> String -> Int -> Expr TermMatch
+  -- TODO design full language: including imperative/declarative/binding forms
+  -- + training, data processing etc. 
 deriving instance Show (Expr a)
-  
 
-  
+
+data Stmt
+
+

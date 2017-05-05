@@ -5,9 +5,11 @@
 module Database.SDM.Query.Eval (eval) where
 
 import Control.Applicative
+
+import Database.SDM
 import Database.SDM.Algebra
 import Database.SDM.Query.IO
-import Database.SDM.Query.AST (Expr(..))
+import Database.SDM.Query.AST (Expr(..), Stmt(..))
 
 
 -- | Evaluate the polymorphic query expression via. database IO
@@ -32,6 +34,16 @@ eval db (And e1 e2) = liftA2 mul <$> (eval db e1) <*> (eval db e2)
 --
 eval db (Not e1) = undefined -- XXXXXX TODO XXXXX
 --
+eval db (Terms sn px n) = do
+  sv <- ensureSpace db sn
+  case sv of
+    Left err -> return $ Left err
+    Right sp -> do
+      t <- getTerms sp px n 
+      case t of
+        Nothing -> return $ Left (-101) -- XXX refactor getTerms
+        Just t' -> return $ Right (termMatch t')
+--
 eval db (Topo sn p d n e1) = do
   sv <- ensureSpace db sn
   case sv of
@@ -43,4 +55,7 @@ eval db (Topo sn p d n e1) = do
         Right v' -> do
           t <- getTopology sp p d n v'
           return $ Right t
+
+--
+--evalStmt :: SDMDatabase -> Stmt a -> IO (Either SDMStatus a)
 

@@ -208,7 +208,7 @@ const card_t sdm_space_serialize_symbols(const space_t space,
     cereal::JSONOutputArchive archive(ss);
     // with this: get no output at all... wtf? 
     // cereal::JSONOutputArchive archive(*ss, options::Options(6,options::IndentChar::space,0));
-    archive(cereal::make_nvp("term_match", tm));
+    archive(cereal::make_nvp("termMatch", tm));
   }
 
   // to make sure we can share this data we allocate a copy on the

@@ -515,10 +515,10 @@ namespace molemind { namespace sdm {
       
       struct term {
         const std::string name;
-        double density;
-        term(const std::string& s, double d) : name(s), density(d) {};
+        double rho;
+        term(const std::string& s, double d) : name(s), rho(d) {};
         template<class A> void serialize(A& archive) {
-          archive(CEREAL_NVP(name), CEREAL_NVP(density));
+          archive(CEREAL_NVP(name), CEREAL_NVP(rho));
         }
       };
       

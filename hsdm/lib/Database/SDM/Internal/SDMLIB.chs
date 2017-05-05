@@ -98,8 +98,18 @@ sdm_database_ensure_space db spacename =
     s <- peek ptr
     return (s,  i)
 
+
 foreign import ccall unsafe "sdm_database_get_space"
   c_sdm_get_space :: SDMDatabase -> CString -> Ptr SDMSpace -> IO SDMStatus
+
+sdm_database_get_space :: SDMDatabase -> String -> IO (SDMSpace, SDMStatus)
+sdm_database_get_space db spacename =
+  withCString spacename $ \str -> 
+                            alloca $ \ptr -> do
+    i <- c_sdm_get_space db str ptr
+    s <- peek ptr
+    return (s,  i)
+
 
 {- TBC -}
 

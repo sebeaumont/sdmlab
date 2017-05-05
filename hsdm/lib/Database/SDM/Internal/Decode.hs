@@ -17,7 +17,7 @@ import GHC.Generics
 
 
 data Term = Term { name :: Text
-                 , density :: Double
+                 , rho :: Double
                  } deriving (Generic, Show)
 
 data TermMatch = TermMatch { prefix :: Text
@@ -25,7 +25,7 @@ data TermMatch = TermMatch { prefix :: Text
                            , terms :: [Term]
                            } deriving (Generic, Show)
 
-data TermMatchReply = TermMatchReply { term_match :: TermMatch } deriving (Generic, Show)
+data TermMatchReply = TermMatchReply { termMatch :: TermMatch } deriving (Generic, Show)
 
 instance FromJSON Term
 instance FromJSON TermMatch

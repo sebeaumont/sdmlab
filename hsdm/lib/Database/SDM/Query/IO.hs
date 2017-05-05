@@ -5,13 +5,21 @@ module Database.SDM.Query.IO
    SDMDatabase,
    closeDB,
    ensureSpace,
+   getSpace,
    SDMSpace,
+   -- get vectors
    getSemanticVector,
    getElementalVector,
+   -- level sets
    getTopology,
    --getTopologyForTerm,
    SDMPoint,
-   SDMCard
+   SDMCard,
+   -- terms - consider refactor
+   getTerms,
+   TermMatchReply,
+   TermMatch,
+   Term
   ) where
 
 import Database.SDM.Internal.Decode -- serialization API 
@@ -40,6 +48,13 @@ ensureSpace db s = do
     then return $ Left (snd sv)
     else return $ Right (fst sv)
 
+getSpace :: SDMDatabase -> String -> IO (Either SDMStatus SDMSpace)
+getSpace db s = do
+  sv <- sdm_database_get_space db s
+  if is_error (snd sv)
+    then return $ Left (snd sv)
+    else return $ Right (fst sv)
+    
 
 -- TODO: turn maybe into either with error codes... see bsdecode.
 
@@ -47,17 +62,8 @@ getTerms :: SDMSpace -> String -> Int -> IO (Maybe TermMatchReply)
 getTerms s p n = (bsdecode . fst) <$> sdm_space_serialize_symbols s p n
 
 
--- Attempt to create convenient API...
+-- Attempt to create a convenient API...
 
-{- |
-We can lift our pure vector functions up into the IO (Either SDMStatus a) type e.g:
-
-fmap popv <$> (liftA2 orv <$> (getSemanticVector (fst sp) "Sherlock")
-                          <*> (getSemanticVector (fst sp) "Simon"))
-
-liftA2 (popop orv) <$> getSemanticVector (fst sp) "Simon" <*> getSemanticVector (fst sp) "Sherlock"
-
--}
 
 -- | Get semantic vector for a term.
 getSemanticVector :: SDMSpace -> String -> IO (Either SDMStatus Vec)
