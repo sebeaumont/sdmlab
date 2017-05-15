@@ -63,7 +63,7 @@ To Do
 - Re-factor generic Algebra modules into own library/module space
 - Alternative (traditional ```R^n```) vector space backend
 - Front end query ```parser :: String -> Either SyntaxError AST``` -
-  PoC in place &#10003;
+  PoC in place for toy REPL &#10003;
 - Benchmarking.
 - Accelerate/REPA/hMatrix for dense implementation.
 - Compile rather than Eval.
