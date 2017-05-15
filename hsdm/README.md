@@ -38,7 +38,7 @@ the AST.
 Main Objectives
 ---------------
 
-- Expose one vectorspace model/API (```Database.SDM```) - done
+- Expose one vectorspace model/API (```Database.SDM```) - &#10003;
 - Unify sparse and dense linear algebra - mainly done but need to provide:
    ```toSparse :: Vec -> Vec```
 - Foster experiments in vectorspace operators up to geometric
@@ -62,10 +62,11 @@ To Do
 
 - Re-factor generic Algebra modules into own library/module space
 - Alternative (traditional ```R^n```) vector space backend
-- Front end query ```parser :: String -> Either SyntaxError AST```
-- Benchmarking
-- Accelerate/REPA/hMatrix for dense implementation
-- Compile rather than Eval
+- Front end query ```parser :: String -> Either SyntaxError AST``` -
+  PoC in place &#10003;
+- Benchmarking.
+- Accelerate/REPA/hMatrix for dense implementation.
+- Compile rather than Eval.
 
 
 Appendices
