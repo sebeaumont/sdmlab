@@ -21,6 +21,8 @@ import qualified Data.Text as T
 import Data.List (intercalate)
 
 
+-- | toy repl to show how this might work 
+
 -- | completion fn
 
 wordComplete :: Monad m => (String -> String -> m [Completion]) -> CompletionFunc m
@@ -30,7 +32,8 @@ wordComplete f = completeWordWithPrev (Just '\\') " \t\n" f
 completeTerm :: SDMDatabase -> [Char] -> String -> IO [Completion]
 completeTerm db l w = do
   let tryspace = last . words $ reverse l
-  -- see if tryspace can be found
+  -- see if tryspace can be found XX this way too hopeful as it should
+  -- depend on the grammar/AST but it works for now
   sv <- getSpace db tryspace
   case sv of
     Left e -> return []
