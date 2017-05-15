@@ -31,7 +31,7 @@ posix/linux/bsd like platforms would be easy ports. Once the compiler
 and RTL is complete it will support any LLVM target and will be hosted
 on any platform that supports LLVM and Haskell (or Idris).
 
-[More] (hsdm/README.md)
+[Further Reading](hsdm/README.md)
 
 Project contact: [Simon Beaumont](mailto:s@molemind.net) 
 _______________________
