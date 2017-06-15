@@ -29,8 +29,8 @@ data Expr a where
   Terms :: Space -> String -> Int -> Expr TermMatch
   -- TODO design full language: including imperative/declarative/binding forms
   -- + training, data processing etc. 
-deriving instance Show (Expr a)
 
+deriving instance Show (Expr a)
 
 data Stmt
 

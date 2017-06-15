@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module Main where
 
@@ -14,35 +15,44 @@ import Database.SDM.Query.Parser
 import Database.SDM.Query.Eval
 import Database.SDM.Query.IO
 
+import System.Console.CmdArgs (cmdArgs, Data, Typeable)
 import System.Console.Haskeline
 --import System.Console.Haskeline.Completion
 
 import qualified Data.Text as T
 import Data.List (intercalate)
 
+-- safe at last
+maybeLast :: [a] -> Maybe a
+maybeLast [] = Nothing
+maybeLast l = Just $ last l
 
--- | toy repl to show how this might work 
+-- | toy repl to show how this stuff might work... 
 
 -- | completion fn
 
 wordComplete :: Monad m => (String -> String -> m [Completion]) -> CompletionFunc m
 wordComplete f = completeWordWithPrev (Just '\\') " \t\n" f
 
--- |   
+-- somehing a bit applicative might be more readable than this ;-)
+-- TODO be nice if we could complete on spacenames
 completeTerm :: SDMDatabase -> [Char] -> String -> IO [Completion]
 completeTerm db l w = do
-  let tryspace = last . words $ reverse l
+  let tryspace = maybeLast . words $ reverse l
   -- see if tryspace can be found XX this way too hopeful as it should
-  -- depend on the grammar/AST but it works for now
-  sv <- getSpace db tryspace
-  case sv of
-    Left e -> return []
-    Right s -> do
-      tv <- getTerms s w (-1)
-      case tv of
-        Nothing -> return []
-        Just t -> do
-          return $ toCompletion (termMatch t)
+  case tryspace of
+    Nothing -> return []
+    Just spacename -> do
+      sv <- getSpace db spacename
+      case sv of
+        Left e -> return []
+        Right s -> do
+          -- get all matching terms or at least the unsigned representation of -1 terms - ahem
+          tv <- getTerms s w (-1) 
+          case tv of
+            Nothing -> return []
+            Just t -> do
+              return $ toCompletion (termMatch t)
 
 
 -- | terms to completions
@@ -53,15 +63,27 @@ toCompletion m = [Completion (T.unpack $ name t) (T.unpack $ name t) True | t <-
 
 --completionFn :: CompletionFunc IO
 --completionFn = wordComplete completeTerm
+
+-- Program command line options
+
+data SDMQ = SDMQ { database :: String,
+                   size :: Int,
+                   maxsize :: Int } deriving (Show, Data, Typeable)
+
+defaultOptions :: SDMQ
+defaultOptions = SDMQ { database = "/Volumes/Media/Data/medline/medline.sdm",
+                        size = (1024*1024*2048),
+                        maxsize = (1024*1024*2048)}
   
--- | "Let no man enter who is ignorant of geometry"
+-- | "Let no man enter who is ignorant of geometry..."
 
 main :: IO ()
 main = do
-  -- TODO command line 
-  db <- openDB "/Volumes/Media/Data/medline/medline.sdm" (1024*1024*2048) (1024*1024*2048)
+  -- get command line args
+  args <- cmdArgs defaultOptions
+  db <- openDB (database args) (size args) (maxsize args) 
   case db of
-    Left e -> putStrLn $ "Opening db: " ++ show e
+    Left e -> putStrLn $ "opening db: " ++ show args ++ " error: " ++ show e
     -- Right d -> runInputT defaultSettings (readEvalPrint d)
     Right d -> runInputT Settings { complete = wordComplete (completeTerm d),
                                     historyFile = Just ".halhist",
@@ -69,7 +91,7 @@ main = do
 
 
 -- | Every language needs a repl!
--- This one takes a `SDMDatabase` in order to evaluate queries. This should be
+-- This one takes a `SDMDatabase` in order to evaluate expressions. This could be
 -- a more abstract type.
 
 readEvalPrint :: SDMDatabase -> InputT IO ()
@@ -84,8 +106,10 @@ readEvalPrint db = do
       case parseTopo line of
         Left e -> outputStrLn $ "** syntax: " ++ (show line) ++ "\n" ++ (show e)
         Right t -> do
+          outputStrLn $ show t           -- tracing
           top <- liftIO $ eval db t
-          outputStrLn $ render top
+          outputStrLn $ render top       -- render
+          -- TODO serialize query expression to message queue for viz
       readEvalPrint db
 
 

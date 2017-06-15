@@ -1,5 +1,5 @@
-SDMLAB - Sparse Distributed Memory Lab Project 
-==============================================
+SDMLAB - Sparse Distributed Memory Lab 
+======================================
 
 The main artefact is the sdm runtime library which offers a high
 performance sparse distributed memory or semantic vector database

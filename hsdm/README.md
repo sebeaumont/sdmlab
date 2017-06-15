@@ -1,4 +1,4 @@
-How hsdm got algebra 
+How SDM Got Algebra 
 ====================
 
 Bottom up to top down 
@@ -38,7 +38,7 @@ the AST.
 Main Objectives
 ---------------
 
-- Expose one vectorspace model/API (```Database.SDM```) - &#10003;
+- Expose one vectorspace model/API (```Database.SDM```) - Done
 - Unify sparse and dense linear algebra - mainly done but need to provide:
    ```toSparse :: Vec -> Vec```
 - Foster experiments in vectorspace operators up to geometric
@@ -60,10 +60,12 @@ Side Effects
 To Do
 -----
 
+- Expand AST to include optinal function for state and elemental/basis
+  vectors with defaulting mechanism.
 - Re-factor generic Algebra modules into own library/module space
 - Alternative (traditional ```R^n```) vector space backend
 - Front end query ```parser :: String -> Either SyntaxError AST``` -
-  PoC in place for toy REPL &#10003;
+  PoC in place for toy REPL
 - Benchmarking.
 - Accelerate/REPA/hMatrix for dense implementation.
 - Compile rather than Eval.
@@ -98,7 +100,7 @@ has been widely applied to text mining by the authors above and models
 for encoding richer relationships other than co-occurrence have also
 been proposed. [@plate1995holographic] and [@cohen2010logical]
 illustrate how these might be achieved. The models go beyond the
-already extremely powerful ability to perform large
+already useful ability to effectively perform large
 scale [SVD](http://en.wikipedia.org/wiki/Singular_value_decomposition)
 based dimensional reduction problems, such
 as [PCA](http://en.wikipedia.org/wiki/Principal_component_analysis)
@@ -120,9 +122,9 @@ e.g. [HLearn](https://github.com/mikeizbicki/HLearn) and in
 [@izbickialgebraic], [@izbicki2013two].
 
 Haskell has a mature ecosystem of libraries and researchers working in
-our main areas of interest. This overlaps with the more immature, but
-promising community of the dependantly typed
-language [Idris](https://www.idris-lang.org)
+our main areas of interest. The community of less mature but promising
+dependantly typed language [Idris](https://www.idris-lang.org) largely
+overlaps with that of Haskell.
 
 See also:
 

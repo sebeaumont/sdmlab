@@ -16,7 +16,7 @@ import Database.SDM.Algebra
 -- the AST defnitions for mini-query language
 import qualified Database.SDM.Query.AST as AST (Expr(..), Stmt(..)) 
 
--- megaparsec parser combinator library
+-- using megaparsec parser combinator library
 import Data.Functor.Identity
 import Text.Megaparsec 
 import Text.Megaparsec.String
@@ -54,7 +54,7 @@ parens = between (sym "(") (sym ")")
 stringLiteral :: (Token s ~ Char, P.MonadParsec e s m) => m [Char]
 stringLiteral = char '"' >> manyTill L.charLiteral (char '"')
 
--- | Operators
+-- | Operators... really vector valued functions
 
 ors :: ParsecT Dec String Identity String
 ors = sym "|"
@@ -65,33 +65,51 @@ ands = sym "&"
 nots :: ParsecT Dec String Identity String
 nots = sym "~"
 
+
+-- table of operations for expression parser
+
 operators :: [[Operator Parser (AST.Expr Vec)]]
 operators = [[Prefix (AST.Not <$ nots)],
              [InfixL (AST.And <$ ands)],
              [InfixL (AST.Or <$ ors)]]
+
 
 -- | Identifiers
 
 identifier :: ParsecT Dec String Identity [Char]
 identifier = stringLiteral <|> (lexeme . try) (many alphaNumChar) 
 
--- | Vector valued expression parsers
+-- AST.Expr Vec valued parsers...
+
+-- | term parser
 
 term :: ParsecT Dec String Identity (AST.Expr Vec)
-term = parens vexpr <|> AST.State <$> identifier <*> identifier
+term = parens vexpr <|> (try basis <|> state)
 
+
+state :: ParsecT Dec String Identity (AST.Expr Vec)
+state = AST.State <$> identifier <*> identifier
+
+
+basis :: ParsecT Dec String Identity (AST.Expr Vec)
+basis = AST.Elem <$> identifier <* sym "^" <*> identifier
+
+
+-- | vector expression parser
 
 vexpr :: Parser (AST.Expr Vec)
 vexpr = makeExprParser term operators 
 
 
--- parse a string to an vector valued expression... 
+-- | parse a string to an vector valued expression... 
 
 parseExpr :: String -> Either (ParseError (Token String) Dec) (AST.Expr Vec)
 parseExpr s = parse vexpr "expression" s
 
--- | Statements/commands
 
+-- Statements/command parsers
+
+-- | Parser for a LevelSet
 
 topoP :: Parser (AST.Expr LevelSet) 
 topoP = do

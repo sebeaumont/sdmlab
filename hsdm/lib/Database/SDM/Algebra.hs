@@ -35,9 +35,7 @@ import qualified Data.Set as Set
 import qualified Data.List as List 
 
 
-
-
--- | typeclasses which generalise operations over vectors
+-- | typeclasses which generalise operations over vector spaces
 
 -- should really be over two classes or more: the vector and scalar types for
 -- the algebra, we may also need a type family of k-vectors or k-blades
@@ -133,7 +131,7 @@ instance Metric Vec Int where
   distance = popop xorv
 
 
--- | And to multiply
+-- | And to multiply or find common
 
 andv :: Vec -> Vec -> Vec
 andv (SVec a) (SVec b) = SVec $ zipWith (B..&.) a b

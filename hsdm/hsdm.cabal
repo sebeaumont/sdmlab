@@ -49,7 +49,7 @@ executable sdmq
                      , text
                      , hsdm
                      , haskeline
-                     
+                     , cmdargs                   
   hs-source-dirs:      sdmq
   default-language:    Haskell2010
   ghc-options:       -O3 -Wall -threaded
