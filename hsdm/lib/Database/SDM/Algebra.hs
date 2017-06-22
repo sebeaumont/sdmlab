@@ -1,9 +1,4 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FunctionalDependencies #-}
-
-{- | Vector Space Algebra - this module had some generic typeclasses and
-   thus needs repackaging into SDM specific instances and general
-   algebraic typeclasses. -}
 
 module Database.SDM.Algebra
   (Vec(..),
@@ -13,53 +8,14 @@ module Database.SDM.Algebra
    popv,
    popop,
    toDense,
-   Vector,
-   add,
-   scale,
-   InnerProduct,
-   inner,
-   mul,
-   ExteriorProduct,
-   wedge,
-   GeometricProduct,
-   gproduct,
-   Metric,
-   distance
   ) where
 
 
 import Database.SDM
-
+import Math.Algebra
 import qualified Data.Bits as B
 import qualified Data.Set as Set
 import qualified Data.List as List 
-
-
--- | typeclasses which generalise operations over vector spaces
-
--- should really be over two classes or more: the vector and scalar types for
--- the algebra, we may also need a type family of k-vectors or k-blades
-
-class Vector a where
-  add :: a -> a -> a
-  scale :: Num k => k -> a -> a
-  scale _ v = v
-
-class InnerProduct a n | a -> n where
-  inner :: Num n => a -> a -> n
-  mul :: a -> a -> a
-  
-class ExteriorProduct a b where
-  wedge :: a -> a -> b
-
-
-{- N.B. a->b fundep is a lie! -}
-class (ExteriorProduct a b, InnerProduct a n) => GeometricProduct a n b | a -> n, a -> b where
-  gproduct :: a -> a -> a
-
-
-class Metric a d where
-  distance :: Num d => a -> a -> d
 
 
 -- | concrete vector type with sparse and dense representations
@@ -113,6 +69,8 @@ orv (EVec a) (EVec b) = EVec $ List.nub . List.sort $ a ++ b
 orv u@(EVec _) v@(SVec _) = orv (toDense u) v
 orv u@(SVec _) v@(EVec _) = orv u (toDense v)
 
+
+-- | Implementations of general algebraic/vectorspace typeclasses
 
 instance Vector Vec where
   add = orv

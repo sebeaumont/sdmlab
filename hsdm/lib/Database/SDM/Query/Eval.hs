@@ -6,8 +6,9 @@ module Database.SDM.Query.Eval (eval) where
 
 import Control.Applicative
 
+import Math.Algebra
+
 import Database.SDM
-import Database.SDM.Algebra
 import Database.SDM.Query.IO
 import Database.SDM.Query.AST (Expr(..), Stmt(..))
 

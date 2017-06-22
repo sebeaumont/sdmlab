@@ -16,15 +16,19 @@ hyper-dimensional sparse space. This model has been extensively
 applied to and indeed was incubated in the domain of data/text
 mining.
 
+There is a common c library under active development (currently driven
+by the need of the Haskell FFI required to support the following).
+
+
+Abstract Machine Learning
+-------------------------
+
 We are also developing a DSL and compiler for ML based on SDM (as an
 instance of a vectorspace) using the following tools:
 
 - ghc   (Haskell compiler)
 - idris (dependant type language)
 - llvm  (compiler toolchain)
-
-There is a common c library under active development (currently driven
-by the need of the Haskell FFI required to support the above).
 
 The library can be easily built for Linux/iOS/MacOS and other
 posix/linux/bsd like platforms would be easy ports. Once the compiler
@@ -33,7 +37,8 @@ on any platform that supports LLVM and Haskell (or Idris).
 
 [Further Reading](hsdm/README.md)
 
-Project contact: [Simon Beaumont](mailto:s@molemind.net) 
+Project contact: [Simon Beaumont](
+mailto:s@molemind.net) 
 _______________________
 Copyright (c) 2012-2017 Simon Beaumont. All Rights Reserved.
 
