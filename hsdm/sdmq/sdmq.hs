@@ -45,7 +45,7 @@ completeTerm db l w = do
     Just spacename -> do
       sv <- getSpace db spacename
       case sv of
-        Left e -> return []
+        Left _ -> return []
         Right s -> do
           -- get all matching terms or at least the unsigned representation of -1 terms - ahem
           tv <- getTerms s w (-1) 
