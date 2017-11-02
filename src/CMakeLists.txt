@@ -1,5 +1,5 @@
-# c++ shared library and tools master build
-# copyright simon beaumont 2012-2016 - all rights reserved
+# c++ shared library and tools master build for sdmla|ib
+# copyright simon beaumont 2012-2017 - all rights reserved
 
 project(sdmlab)
 cmake_minimum_required (VERSION 3.0)
@@ -7,13 +7,13 @@ enable_testing()
 
 # project version
 
-set (SDM_VERSION_MAJOR 8)
-set (SDM_VERSION_MINOR 0)
+set (SDM_VERSION_MAJOR 9)
+set (SDM_VERSION_MINOR 1)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
 # install paths
 
-set (CMAKE_INSTALL_PREFIX "/opt/molemind")
+set (CMAKE_INSTALL_PREFIX "/usr/local")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -32,7 +32,7 @@ set(SDM_OPTIMIZE "-O3")
 set(SDM_CXX_FLAGS "-std=c++14")
 
 # c only
-# for max bcompatability c lib
+# for max compatability c lib
 set(SDM_C_FLAGS "-std=c90")
 
 
@@ -42,7 +42,7 @@ set(SDM_C_FLAGS "-std=c90")
 
 ############################################
 # compiler specific project wide defintions
-
+############################################
 
 # this gets gcc to pass -q to the assembler which will use the clang
 # assembler which groks the avx instructions - yeah don't ask there's
@@ -51,18 +51,18 @@ set(SDM_C_FLAGS "-std=c90")
 #  set(SDM_CXX_FLAGS "-Wa,-q") 
 #ENDIF()
 
-
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # TODO for clang these are clang specific
-  # set(SDM_CXX_FLAGS "-Rpass=.*") # have clang show optimizations
-  # LINKING BUG: set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -fsanitize=undefined,address")
+  # INSTRUMENTATION: set(SDM_CXX_FLAGS "-Rpass=.*") # have clang show optimizations
+  # OLD LINK BUG: set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -fsanitize=undefined,address")
+  # XXX review these clang optimaztions e.g. we should be able the exact loop sizes   
   set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -funroll-loops -fvectorize -fslp-vectorize -fslp-vectorize-aggressive")
 endif()
 
 
 ######################################################################
 # we use think different threading backends on Darwin derived systems
-# also we probe what cpu features we can exploit...
+# we also probe what cpu features we can exploit...
+######################################################################
 
 set(CPU_FEATURES)
 

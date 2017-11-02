@@ -24,4 +24,5 @@ doc
 .stack-work
 *#
 *.sdm
-
+TAGS
+.halhist

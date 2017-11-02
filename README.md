@@ -16,8 +16,8 @@ hyper-dimensional sparse space. This model has been extensively
 applied to and indeed was incubated in the domain of data/text
 mining.
 
-There is a common c library under active development (currently driven
-by the need of the Haskell FFI required to support the following).
+There is a common c library under active development currently driven
+by the need of the Haskell FFI required to support the following..
 
 
 Abstract Machine Learning

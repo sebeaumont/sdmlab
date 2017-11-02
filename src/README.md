@@ -8,4 +8,4 @@ test   Proper testing
 util   General utilities
 ```
 _______________________
-Copyright (c) 2011-2016 Simon Beaumont - All Rights Reserved.
+Copyright (c) 2011-2017 Simon Beaumont - All Rights Reserved.

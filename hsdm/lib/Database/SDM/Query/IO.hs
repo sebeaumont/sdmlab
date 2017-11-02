@@ -84,6 +84,7 @@ getTopology :: SDMSpace
             -> Int
             -> Vec
             -> IO ([SDMPoint], SDMCard)
+            -- here we have a SVec deconstruct going on XXX
 getTopology sp s d n (SVec v) = sdm_space_get_topology sp s d n v
 getTopology sp s d n v@(EVec _) = getTopology sp s d n (toDense v)
 
@@ -95,6 +96,7 @@ getElementalVector s t = do
   ss <- sdm_space_get_symbol s t 
   if is_error (snd ss)
     then return $ Left (snd ss)
+    -- XXX here we use the EVec constructor
     -- this should not fail but we could check!
     else return $ Right $ EVec $ sdm_symbol_get_basis (fst ss) 
 

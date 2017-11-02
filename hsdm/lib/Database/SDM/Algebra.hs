@@ -1,7 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Database.SDM.Algebra
-  (Vec(..),
+  (Vec(SVec,EVec), -- do we have to export constructors? if so who uses em? see: IO.hs
    xorv,
    andv,
    orv,
@@ -13,10 +13,15 @@ module Database.SDM.Algebra
 
 import Database.SDM
 import Math.Algebra
+
 import qualified Data.Bits as B
 import qualified Data.Set as Set
 import qualified Data.List as List 
 
+-- | Nota Bona the functions below defined for Vec are really
+-- required to be total for the constructors of the type, which is not
+-- perhaps what we want but a rather typeclass where we can define
+-- methods and defaults that a type must implement
 
 -- | concrete vector type with sparse and dense representations
 
@@ -44,8 +49,10 @@ toDense (EVec u) = SVec $ zipWith (bitset $ Set.fromDistinctAscList u) [0..] zer
 toDense u@(SVec _) = u
 
 
+
 -- TODO toSparse :: Vec -> Vec
 -- then policy?
+
   
 popv :: Vec -> Int
 popv (SVec a) = sum [B.popCount i | i <- a] 

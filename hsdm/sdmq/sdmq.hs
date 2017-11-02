@@ -22,7 +22,7 @@ import System.Console.Haskeline
 import qualified Data.Text as T
 import Data.List (intercalate)
 
--- safe at last
+-- safe at last!
 maybeLast :: [a] -> Maybe a
 maybeLast [] = Nothing
 maybeLast l = Just $ last l
@@ -36,7 +36,7 @@ wordComplete f = completeWordWithPrev (Just '\\') " \t\n" f
 
 -- somehing a bit applicative might be more readable than this ;-)
 -- TODO be nice if we could complete on spacenames
-completeTerm :: SDMDatabase -> [Char] -> String -> IO [Completion]
+completeTerm :: SDMDatabase -> String -> String -> IO [Completion]
 completeTerm db l w = do
   let tryspace = maybeLast . words $ reverse l
   -- see if tryspace can be found XX this way too hopeful as it should
@@ -45,7 +45,7 @@ completeTerm db l w = do
     Just spacename -> do
       sv <- getSpace db spacename
       case sv of
-        Left _ -> return []
+        Left _ -> return [] -- not a known space
         Right s -> do
           -- get all matching terms or at least the unsigned representation of -1 terms - ahem
           tv <- getTerms s w (-1) 
@@ -81,13 +81,16 @@ main :: IO ()
 main = do
   -- get command line args
   args <- cmdArgs defaultOptions
-  db <- openDB (database args) (size args) (maxsize args) 
+  putStrLn "Let no man enter who is ignorant of geometry..."
+  db <- openDB (database args) (size args) (maxsize args)
+
   case db of
     Left e -> putStrLn $ "opening db: " ++ show args ++ " error: " ++ show e
     -- Right d -> runInputT defaultSettings (readEvalPrint d)
     Right d -> runInputT Settings { complete = wordComplete (completeTerm d),
                                     historyFile = Just ".halhist",
-                                    autoAddHistory = True } (readEvalPrint d)
+                                    autoAddHistory = True }
+               (readEvalPrint d)
 
 
 -- | Every language needs a repl!
@@ -106,7 +109,7 @@ readEvalPrint db = do
       case parseTopo line of
         Left e -> outputStrLn $ "** syntax: " ++ (show line) ++ "\n" ++ (show e)
         Right t -> do
-          outputStrLn $ show t           -- tracing
+          -- outputStrLn $ show t           -- tracing and debug XXX build this into Parser
           top <- liftIO $ eval db t
           outputStrLn $ render top       -- render
           -- TODO serialize query expression to message queue for viz
