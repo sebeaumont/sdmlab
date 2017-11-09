@@ -23,7 +23,14 @@ packages:
 - .
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
-extra-deps: []
+
+# Hopefully these will go away when these packages make it into the resolver
+extra-deps:
+  - blank-canvas-0.6.1
+  - diagrams-canvas-1.4
+  - kansas-comet-0.4
+  - statestack-0.2.0.5
+
 
 # Override default flag values for local packages and extra-deps
 flags: {}
