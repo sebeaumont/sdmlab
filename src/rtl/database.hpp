@@ -15,10 +15,10 @@
 
 #include <iostream>
 
-namespace molemind { namespace sdm {
+namespace sdm {
 
   namespace bip = boost::interprocess;
-  using namespace molemind;
+
   
   /***********************************************************************
    ** Database type provides the API for the SDM implementation
@@ -195,4 +195,4 @@ namespace molemind { namespace sdm {
     random::index_randomizer irand;
  
   };
-  }}
+}

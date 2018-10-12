@@ -12,7 +12,6 @@
 #define CHAR_BITS (8)
 
 
-namespace molemind {
   
   namespace sdm {
 
@@ -155,4 +154,3 @@ namespace molemind {
       };
     }
   }
-}

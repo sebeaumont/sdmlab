@@ -55,7 +55,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # INSTRUMENTATION: set(SDM_CXX_FLAGS "-Rpass=.*") # have clang show optimizations
   # OLD LINK BUG: set(SDM_CXX_FLAGS "${SDM_CXX_FLAGS} -fsanitize=undefined,address")
   # XXX review these clang optimaztions e.g. we should be able the exact loop sizes   
-  set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -funroll-loops -fvectorize -fslp-vectorize -fslp-vectorize-aggressive")
+  set(SDM_ALL_FLAGS "${SDM_ALL_FLAGS} -funroll-loops -fvectorize -fslp-vectorize")
 endif()
 
 
