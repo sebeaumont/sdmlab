@@ -1,7 +1,7 @@
 #pragma once
 #include "elemental_vector.hpp"
 
-namespace molemind { namespace sdm { namespace mms {
+namespace sdm { namespace mms {
   
   /////////////////////////////////////////////////////////////////////
   // symbol - named vector with lazily computed elemental fingerprint
@@ -62,4 +62,4 @@ namespace molemind { namespace sdm { namespace mms {
     }
   
   };
-}}}
+}}

@@ -7,7 +7,7 @@
 #include "sdmlib.h"
 #include "database.hpp"
 
-using namespace molemind::sdm;
+using namespace sdm;
 
 const status_t sdm_database(const char* filename,
                             size_t size,

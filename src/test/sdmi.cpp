@@ -81,7 +81,7 @@ inline bool file_exists(std::string& path) {
 }
 
 
-using namespace molemind::sdm;
+using namespace sdm;
 
 // how to subvert our encapsulation with leaky abstractions... ;-)
 // and test the evolving API...
@@ -114,7 +114,7 @@ static inline boost::optional<const database::space::symbol&> get_symbol(databas
 int main(int argc, const char** argv) {
 
   namespace po = boost::program_options;
-  using namespace molemind::sdm;
+  using namespace sdm;
   
   // command line options
     

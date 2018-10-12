@@ -37,11 +37,10 @@
 
 /////////////////////
 
-namespace molemind { namespace sdm {
+namespace sdm {
   
   namespace mms {
     
-    using namespace molemind;
     using boost::multi_index_container;
     using namespace boost::multi_index;
     namespace bip = boost::interprocess;
@@ -659,4 +658,4 @@ namespace molemind { namespace sdm {
       void_allocator_t     allocator;
     };
   }
-}}
+}

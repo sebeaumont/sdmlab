@@ -5,7 +5,6 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 
-namespace molemind {
   
   namespace sdm {
 
@@ -27,4 +26,3 @@ namespace molemind {
       };
     }
   }
-}
