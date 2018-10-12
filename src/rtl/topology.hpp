@@ -1,6 +1,6 @@
 #pragma once
 
-namespace molemind {
+
   namespace sdm {
   
     // this is exists for sorting point sets only
@@ -39,4 +39,4 @@ namespace molemind {
     typedef std::vector<point> topology;
     
   }
-}
+

@@ -4,7 +4,6 @@
 
 #include "database.hpp"
 
-namespace molemind {
 
   namespace sdm {
   
@@ -313,5 +312,5 @@ namespace molemind {
 
     
   }
-}
+
 
