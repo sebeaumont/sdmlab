@@ -26,3 +26,5 @@ doc
 *.sdm
 TAGS
 .halhist
+.ghc.environment*
+dist-newstyle

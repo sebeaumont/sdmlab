@@ -34,12 +34,13 @@ library
                      , aeson
                      , containers
                      , megaparsec
+                     , parser-combinators
                      
   hs-source-dirs:      lib
   default-language:    Haskell2010
   build-tools:         c2hs
-  include-dirs:        /usr/local/include
-  extra-lib-dirs:      /usr/local/lib
+  include-dirs:        /Users/seb/Dev/sdmlab/src/rtl
+  extra-lib-dirs:      /Users/seb/Dev/sdmlab/build/rtl
   extra-libraries:     sdm
   ghc-options:         -Wall
 

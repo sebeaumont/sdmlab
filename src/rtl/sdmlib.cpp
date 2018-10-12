@@ -14,7 +14,7 @@ const status_t sdm_database(const char* filename,
                             size_t maxsize,
                             database_t* db) {
   try {
-    *db = new database::database(size, maxsize, std::string(filename));
+    *db = new database(size, maxsize, std::string(filename));
     return AOK;
   } catch (const std::exception& e) {
     fprintf(stderr, "RUNTIME EXCEPTION: %s\n", e.what());
@@ -23,7 +23,7 @@ const status_t sdm_database(const char* filename,
 }
 
 const status_t sdm_database_close(const database_t db) {
-  delete static_cast<database::database*>(db);
+  delete static_cast<database*>(db);
   return AOK;
 }
 
@@ -31,7 +31,7 @@ const status_t sdm_database_get_space(const database_t db,
                                       const char* spacename,
                                       space_t* space) {
   database::space* sp =
-    static_cast<database::database*>(db)->get_space_by_name(std::string(spacename));
+    static_cast<database*>(db)->get_space_by_name(std::string(spacename));
   if (sp == nullptr) return ESPACE;
   *space = sp;
   return AOK;
@@ -41,7 +41,7 @@ const status_t sdm_database_ensure_space(const database_t db,
                                          const char* spacename,
                                          space_t* space) {
   try {
-    database::space* sp = static_cast<database::database*>(db)->
+    database::space* sp = static_cast<database*>(db)->
       ensure_space_by_name(std::string(spacename));
     if (sp == nullptr) return ERUNTIME; //?
     *space = sp;
@@ -58,7 +58,7 @@ const status_t sdm_database_ensure_space_symbol(const database_t db,
                                                 const char* spacename,
                                                 const char* symbolname,
                                                 symbol_t* sym) {
-  auto dp = static_cast<database::database*>(db);
+  auto dp = static_cast<database*>(db);
     // may create a space
   auto space = dp->ensure_space_by_name(spacename);
   if (!space) return ERUNTIME;
@@ -101,8 +101,8 @@ const status_t sdm_database_ensure_symbol(const database_t db,
                                           const char* symbolname,
                                           symbol_t* sym) {
 
-  auto dp = static_cast<database::database*>(db);
-  auto sp = static_cast<database::database::space*>(space);
+  auto dp = static_cast<database*>(db);
+  auto sp = static_cast<database::space*>(space);
     
 
   auto res = sp->get_symbol_by_name(symbolname);
@@ -141,7 +141,7 @@ const status_t sdm_space_get_vector(const space_t space,
                                     const char* symbolname,
                                     vector_t* vec) {
   
-  auto maybe_vector = static_cast<database::database::space*>(space)->
+  auto maybe_vector = static_cast<database::space*>(space)->
     get_vector_by_name(std::string(symbolname));
   if (!maybe_vector) return ESYMBOL;
   *vec = &(*maybe_vector); // deref boost optional
@@ -155,7 +155,7 @@ const status_t sdm_space_get_symbol(const space_t space,
                                     const char* symbolname,
                                     symbol_t* sym) {
   // lost in space...
-  auto sp = static_cast<database::database::space*>(space);
+  auto sp = static_cast<database::space*>(space);
     
   // already exists?
   auto maybe_symbol = sp->get_symbol_by_name(symbolname);

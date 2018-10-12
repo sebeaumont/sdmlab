@@ -13,11 +13,12 @@ module Database.SDM.Query.Parser (parseExpr, parseTopo, parseTerms) where
 import Data.Functor.Identity
 import Data.Void
 
+import Control.Monad.Combinators.Expr
 import Text.Megaparsec 
 --import Text.Megaparsec.String
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
-import Text.Megaparsec.Expr
+--import Text.Megaparsec.Expr
 --import qualified Text.Megaparsec.Prim as P
 --import qualified Text.Megaparsec.Lexer as L
 
@@ -114,7 +115,7 @@ vexpr = makeExprParser term operators
 
 -- | parse a string to an vector valued expression... 
 
-parseExpr :: String -> Either (ParseError Char Void) (AST.Expr Vec)
+parseExpr :: String -> Either (ParseErrorBundle String Void) (AST.Expr Vec)
 parseExpr s = parse vexpr "expression" s
 
 
@@ -132,7 +133,7 @@ topoP = do
   x <- vexpr
   return $ AST.Topo s p d (fromIntegral n) x
 
-parseTopo :: String -> Either (ParseError Char Void) (AST.Expr LevelSet)
+parseTopo :: String -> Either (ParseErrorBundle String Void) (AST.Expr LevelSet)
 parseTopo s = parse topoP "topology" s
 
 termsP :: Parser (AST.Expr TermMatch)
@@ -142,8 +143,9 @@ termsP = do
   t <- identifier
   n <- integer 
   return $ AST.Terms s t (fromIntegral n)
-
-parseTerms :: String -> Either (ParseError Char Void) (AST.Expr TermMatch)
+  
+ 
+parseTerms :: String -> Either (ParseErrorBundle String Void) (AST.Expr TermMatch)
 parseTerms s = parse termsP "terms" s
 
 
